@@ -24,20 +24,20 @@ const curves = offset => ({ source, target, links }) => {
 export default (links, offset = 20) => {
   // group links by source and target
   const linksGroupBy = {};
-  links.forEach(({ source, target, ...curr }) => {
+  links.forEach(({ source, target, ...link }) => {
     const id = `${source.x}_${source.y}_${target.x}_${target.y}`;
 
     if (linksGroupBy[id] === undefined) {
       linksGroupBy[id] = {
         source,
         target,
-        links: [curr]
+        links: [link]
       };
     } else {
       linksGroupBy[id] = {
         source,
         target,
-        links: [...linksGroupBy[id].links, curr]
+        links: [...linksGroupBy[id].links, link]
       };
     }
   });
