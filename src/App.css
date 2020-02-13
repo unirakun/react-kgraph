@@ -1,0 +1,7 @@
+.circle {
+  cursor: pointer;
+}
+
+.circle:hover {
+  fill: purple;
+}
