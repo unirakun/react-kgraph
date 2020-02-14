@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Chart from "./Chart";
-import './App.css'
+import Test from "./Test";
+import "./App.css";
 
 function App() {
   const [data, setData] = useState({ nodes: [], links: [] });
@@ -23,57 +24,79 @@ function App() {
       setData({ nodes, links });
     };
 
-    fetchAndSetData();
+    // fetchAndSetData();
 
-    // setData({
-    //   nodes: [
-    //     {
-    //       id: "REP",
-    //       label: "REP",
-    //       Component: ({ label }) => (
-    //         <>
-    //           <circle r={70} fill="#ff0000" cx={0} cy={0} className="circle"></circle>
-    //           <text stroke="#333" textAnchor="middle" dy="0.5em" fontSize="1em">
-    //             {label}
-    //           </text>
-    //         </>
-    //       )
-    //     },
-    //     {
-    //       id: "COU",
-    //       value: "COU"
-    //     },
-    //     {
-    //       id: "ASS",
-    //       value: "ASS"
-    //     }
-    //   ],
-    //   links: [
-    //     {
-    //       source: 0,
-    //       target: 1
-    //     },
-    //     {
-    //       source: 1,
-    //       target: 2
-    //     },
-    //     {
-    //       source: 1,
-    //       target: 0
-    //     }
-    //   ]
-    // });
+    setData({
+      nodes: [
+        {
+          id: "REP",
+          label: "REP",
+          Component: ({ label }) => (
+            <>
+              <circle
+                r={70}
+                fill="#ff0000"
+                cx={0}
+                cy={0}
+                className="circle"
+              ></circle>
+              <text stroke="#333" textAnchor="middle" dy="0.5em" fontSize="1em">
+                {label}
+              </text>
+            </>
+          )
+        },
+        {
+          id: "COU",
+          value: "COU"
+        },
+        {
+          id: "ASS",
+          value: "ASS"
+        }
+      ],
+      links: [
+        {
+          source: 0,
+          target: 1
+        },
+        {
+          source: 1,
+          target: 2
+        },
+        {
+          source: 1,
+          target: 0
+        }
+      ]
+    });
   }, []);
 
-  const [selectedNode, setSelectedNode] = useState({})
+  const [selectedNode, setSelectedNode] = useState({});
 
   return (
     <>
+      <Test />
       <button
         onClick={() => {
           setData(old => ({
             ...old,
-            nodes: [...old.nodes, { id: "DARVA", value: "DARVA", Component: () => <image href="https://s.qwant.com/fav/d/a/www_darva_com.ico" x="-45" y="-45" height="90" width="90" />  	 }],
+            nodes: [
+              ...old.nodes,
+              {
+                id: "DARVA",
+                value: "DARVA",
+                Component: () => (
+                  <image
+                    href="https://s.qwant.com/fav/d/a/www_darva_com.ico"
+                    x="-45"
+                    y="-45"
+                    height="90"
+                    width="90"
+                  />
+                )
+              }
+            ],
             links: [...old.links, { source: 0, target: 3 }]
           }));
         }}
@@ -85,9 +108,7 @@ function App() {
         onNodeClick={({ id, value }) => setSelectedNode({ id, value })}
         onLinkClick={link => console.log(link)}
       />
-      <pre>
-        {JSON.stringify(selectedNode, null, 2)}
-      </pre>
+      <pre>{JSON.stringify(selectedNode, null, 2)}</pre>
     </>
   );
 }

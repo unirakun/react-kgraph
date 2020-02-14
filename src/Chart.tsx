@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import * as cola from "webcola";
 import * as d3 from "d3";
 import { drag } from "d3-drag";
+import useTweenBetweenValues from "./useTweenBetweenValues";
 
 let height = 500;
 let width = 800;
@@ -34,39 +35,6 @@ function mapLayout(layout: cola.Layout): SimplifiedLayout {
   };
 }
 
-let chart = async (
-  {
-    nodes,
-    links,
-    onTick,
-    onEnd,
-    onStart
-  }: {
-    nodes: any[];
-    links: any[];
-    onTick?: (layout: SimplifiedLayout) => void;
-    onEnd?: (layout: SimplifiedLayout) => void;
-    onStart?: (layout: SimplifiedLayout) => void;
-  } = { nodes: [], links: [] }
-) => {
-  const layout = new ReactColaLayout();
-  const on = (callback?: (layout: SimplifiedLayout) => void) => (): void => {
-    if (callback) {
-      callback(mapLayout(layout));
-    }
-  };
-  layout
-    .on(cola.EventType.tick, on(onTick))
-    .on(cola.EventType.start, on(onStart))
-    .on(cola.EventType.end, on(onEnd))
-    .avoidOverlaps(true)
-    .size([width, height])
-    .nodes(nodes)
-    .links(links)
-    .jaccardLinkLengths(10)
-    .start(iterations);
-};
-
 let size = 35;
 const Chart = ({
   nodes,
@@ -79,6 +47,7 @@ const Chart = ({
   onNodeClick?: (node: any) => any;
   onLinkClick?: (link: any) => any;
 }) => {
+  // layout part and it request animation frame timer
   const rafTimer = useRef<number>();
   const [layout, setLayout] = useState<SimplifiedLayout>({
     nodes: [],
@@ -89,12 +58,57 @@ const Chart = ({
   const rafOffsetTimer = useRef<number>();
   const [offsets, setOffsets] = useState({ x: 0, y: 0 });
 
+  const blockZoom = useRef(false);
   const rafZoomTimer = useRef<number>();
-  const [zoom, setZoom] = useState(5);
+  const [zoom, setZoom] = useTweenBetweenValues(-1, { delay: 200, duration: 300 });
 
+  const centerAndZoom = useCallback(() => {
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    layout.nodes.forEach(({ x, y }) => {
+      if (minX > x) minX = x;
+      if (minY > y) minY = y;
+      if (maxX < x) maxX = x;
+      if (maxY < y) maxY = y;
+    });
+    minX = minX * size - size * 2;
+    minY = minY * size - size * 2;
+    maxX = maxX * size + size * 2;
+    maxY = maxY * size + size * 2;
+    let chartWidth = maxX - minX;
+    let chartHeight = maxY - minY;
+    // intermediate zoom to process paddings
+    let newZoom = Math.max(chartWidth / width, chartHeight / height);
+    minX -= padding * newZoom;
+    minY -= padding * newZoom;
+    maxX += padding * newZoom;
+    maxY += padding * newZoom;
+    chartWidth = maxX - minX;
+    chartHeight = maxY - minY;
+    // final zoom
+    newZoom = Math.max(chartWidth / width, chartHeight / height);
+    // process center
+    let centerX = chartWidth / 2 + minX - (width * newZoom) / 2;
+    let centerY = chartHeight / 2 + minY - (height * newZoom) / 2;
+    if (!blockZoom.current && !Number.isNaN(newZoom) && Math.abs(newZoom) !== Infinity) {
+      setZoom(newZoom);
+      setOffsets({ x: centerX, y: centerY });
+    }
+  }, [layout, setZoom]);
+
+  const startLayout = useCallback(() => {
+    if (layoutRef.current) {
+      layoutRef.current
+        .nodes(nodes)
+        .links(links)
+        .start(iterations, 0, 0, 0, true, true);
+    }
+  }, [nodes, links]);
+
+  const layoutRef = useRef<ReactColaLayout>();
   useEffect(() => {
-    if (nodes.length === 0) return;
-
     const setLayoutOnRaf = (layout: SimplifiedLayout) => {
       if (rafTimer.current) {
         cancelAnimationFrame(rafTimer.current);
@@ -102,48 +116,39 @@ const Chart = ({
 
       rafTimer.current = requestAnimationFrame(() => {
         setLayout(layout);
-
-        let minX = Infinity;
-        let minY = Infinity;
-        let maxX = -Infinity;
-        let maxY = -Infinity;
-        layout.nodes.forEach(({ x, y }) => {
-          if (minX > x) minX = x;
-          if (minY > y) minY = y;
-          if (maxX < x) maxX = x;
-          if (maxY < y) maxY = y;
-        });
-        minX = minX * size - size * 2;
-        minY = minY * size - size * 2;
-        maxX = maxX * size + size * 2;
-        maxY = maxY * size + size * 2;
-        let chartWidth = maxX - minX;
-        let chartHeight = maxY - minY;
-        // intermediate zoom to process paddings
-        let newZoom = Math.max(chartWidth / width, chartHeight / height);
-        minX -= padding * newZoom;
-        minY -= padding * newZoom;
-        maxX += padding * newZoom;
-        maxY += padding * newZoom;
-        chartWidth = maxX - minX;
-        chartHeight = maxY - minY;
-        // final zoom
-        newZoom = Math.max(chartWidth / width, chartHeight / height);
-        // process center
-        let centerX = chartWidth / 2 + minX - (width * newZoom) / 2;
-        let centerY = chartHeight / 2 + minY - (height * newZoom) / 2;
-        setZoom(newZoom);
-        setOffsets({ x: centerX, y: centerY });
       });
     };
 
-    chart({
-      nodes,
-      links,
-      onTick: setLayoutOnRaf,
-      onEnd: setLayoutOnRaf
-    });
-  }, [nodes, links]);
+    const layout = new ReactColaLayout();
+    layoutRef.current = layout;
+
+    layout
+      .on(cola.EventType.tick, () => {
+        console.log("tick");
+        setLayoutOnRaf(mapLayout(layout));
+      })
+      .on(cola.EventType.start, () => {
+        console.log("start");
+        // blockZoom.current = false;
+      })
+      .on(cola.EventType.end, () => {
+        console.log("end");
+        // blockZoom.current = true;
+      })
+      .avoidOverlaps(true)
+      .size([width, height])
+      .jaccardLinkLengths(10);
+
+    startLayout();
+  }, [startLayout]);
+
+  useEffect(() => {
+    startLayout();
+  }, [nodes, links, startLayout]);
+
+  useEffect(() => {
+    centerAndZoom();
+  }, [layout, centerAndZoom]);
 
   const onMouseMove = useCallback(
     e => {
@@ -166,8 +171,6 @@ const Chart = ({
     [zoom]
   );
   const onMouseDown = useCallback(e => {
-    // return;
-    // FIXME: this is commented because we try d'n'd
     mouseMovingInfos.current = {
       ...mouseMovingInfos.current,
       moving: true,
@@ -188,11 +191,19 @@ const Chart = ({
 
     if (rafZoomTimer.current) cancelAnimationFrame(rafZoomTimer.current);
     rafZoomTimer.current = requestAnimationFrame(() => {
-      setZoom(old => old - deltaY / 1000);
+      console.log('WHEEL?')
+      setZoom((old: number) => old - deltaY / 1000);
     });
-  }, []);
+  }, [setZoom]);
 
-  if (nodes.length === 0) return null;
+  const [, setTick] = useState(0);
+
+  if (layout.nodes.length === 0) return null;
+  // FIXME:
+  // sometimes offsets are not ready, we have to dig why
+  // but for now we fix this bug like that...
+  if (Number.isNaN(offsets.x)) return null;
+
   return (
     <svg
       width={width}
@@ -208,16 +219,6 @@ const Chart = ({
         {layout.links.map(link => {
           const { source, target, length } = link;
           return (
-            // <path
-            //   strokeWidth={Math.sqrt(length)}
-            //   d={`
-            //     M ${source.x * size} ${source.y * size}
-            //     Q 10 10
-            //     ${target.x * size} ${target.y * size}
-            //   `}
-            //   stroke="black"
-            //   fill="transparent"
-            // />
             <line
               key={`${source.index}--${target.index}`}
               strokeWidth={Math.sqrt(length) * 10}
@@ -238,6 +239,7 @@ const Chart = ({
             <g
               key={id}
               transform={`translate(${x * size} ${y * size})`}
+              style={{ cursor: "pointer" }}
               onClick={() => onNodeClick && onNodeClick(node)}
               ref={elem => {
                 if (!elem) return;
@@ -246,8 +248,10 @@ const Chart = ({
                 let nodeDraggable = drag();
                 let fullDeltaX = 0;
                 let fullDeltaY = 0;
-                nodeDraggable.on("start", (e: any) => {});
-                nodeDraggable.on("drag", (e: any) => {
+                nodeDraggable.on("start", () => {
+                  cola.Layout.dragStart(node);
+                });
+                nodeDraggable.on("drag", () => {
                   const { dx, dy } = d3.event;
 
                   fullDeltaX += dx;
@@ -265,39 +269,29 @@ const Chart = ({
 
                   if (rafTimer) cancelAnimationFrame(rafTimer);
                   rafTimer = requestAnimationFrame(() => {
-                    setLayout(old => ({
-                      ...old,
-                      nodes: [
-                        ...old.nodes.map(currNode => {
-                          if (currNode.id !== node.id) return currNode;
-                          return getWithNewPos(currNode);
-                        })
-                      ],
-                      links: [
-                        ...old.links.map(currLink => {
-                          if (currLink.target.id === node.id) {
-                            return {
-                              ...currLink,
-                              target: getWithNewPos(currLink.target)
-                            };
-                          }
+                    const nodeWithNewPos = getWithNewPos(node);
 
-                          if (currLink.source.id === node.id) {
-                            return {
-                              ...currLink,
-                              source: getWithNewPos(currLink.source)
-                            };
-                          }
+                    // direct mutation for webcola
+                    node.x = nodeWithNewPos.x;
+                    node.y = nodeWithNewPos.y;
 
-                          return currLink;
-                        })
-                      ]
-                    }));
+                    // force webcola to process a new layout
+                    if (layoutRef.current) {
+                      layoutRef.current.kick();
+                    }
+
+                    // all deltas are computed, we reset them all
                     fullDeltaX = 0;
                     fullDeltaY = 0;
+
+                    // force react to rerender :( (since we mutate object for webcola)
+                    setTick(old => old + 1);
                   });
                 });
-                nodeDraggable.on("end", (e: any) => {});
+                nodeDraggable.on("end", () => {
+                  cola.Layout.dragEnd(node);
+                  startLayout();
+                });
                 nodeDraggable(d3.select(elem as Element));
               }}
             >
