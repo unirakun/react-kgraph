@@ -233,13 +233,13 @@ const Chart = ({
         <marker
           id={`arrow-${color}`}
           viewBox="0 0 10 10"
-          refX={size / 2 + 3} // FIXME: find a function to process this number
-          refY="5"
+          refX={size / 2 - 2.5} // FIXME: find a function to process this number
+          refY="2.5"
           markerWidth="6"
           markerHeight="6"
           orient="auto-start-reverse"
         >
-          <path d="M 0 0 L 10 5 L 0 10 z" fill={color} />
+          <path d="M 0 0 L 5 2.5 L 0 5 z" fill={color} />
         </marker>
       ))}
 
