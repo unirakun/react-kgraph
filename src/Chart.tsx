@@ -4,6 +4,7 @@ import * as cola from "webcola";
 import * as d3 from "d3";
 import { drag } from "d3-drag";
 import useTweenBetweenValues from "./useTweenBetweenValues";
+import makeCurvedLinks from "./makeCurvedLinks";
 
 let height = 500;
 let width = 800;
@@ -60,7 +61,10 @@ const Chart = ({
 
   const blockZoom = useRef(false);
   const rafZoomTimer = useRef<number>();
-  const [zoom, setZoom] = useTweenBetweenValues(-1, { delay: 200, duration: 300 });
+  const [zoom, setZoom] = useTweenBetweenValues(-1, {
+    delay: 200,
+    duration: 300
+  });
 
   const centerAndZoom = useCallback(() => {
     let minX = Infinity;
@@ -92,7 +96,11 @@ const Chart = ({
     // process center
     let centerX = chartWidth / 2 + minX - (width * newZoom) / 2;
     let centerY = chartHeight / 2 + minY - (height * newZoom) / 2;
-    if (!blockZoom.current && !Number.isNaN(newZoom) && Math.abs(newZoom) !== Infinity) {
+    if (
+      !blockZoom.current &&
+      !Number.isNaN(newZoom) &&
+      Math.abs(newZoom) !== Infinity
+    ) {
       setZoom(newZoom);
       setOffsets({ x: centerX, y: centerY });
     }
@@ -186,15 +194,18 @@ const Chart = ({
   }, []);
 
   // TODO: should offset to the cursor mouse while zooming
-  const onWheel = useCallback(e => {
-    const { deltaY } = e;
+  const onWheel = useCallback(
+    e => {
+      const { deltaY } = e;
 
-    if (rafZoomTimer.current) cancelAnimationFrame(rafZoomTimer.current);
-    rafZoomTimer.current = requestAnimationFrame(() => {
-      console.log('WHEEL?')
-      setZoom((old: number) => old - deltaY / 1000);
-    });
-  }, [setZoom]);
+      if (rafZoomTimer.current) cancelAnimationFrame(rafZoomTimer.current);
+      rafZoomTimer.current = requestAnimationFrame(() => {
+        console.log("WHEEL?");
+        setZoom((old: number) => old - deltaY / 1000);
+      });
+    },
+    [setZoom]
+  );
 
   const [, setTick] = useState(0);
 
@@ -216,18 +227,15 @@ const Chart = ({
       onWheel={onWheel}
     >
       <g stroke="#999" strokeOpacity={0.8}>
-        {layout.links.map(link => {
-          const { source, target, length } = link;
+        {makeCurvedLinks(layout.links, { size }).map((link: any) => {
+          const { source, target, length, d } = link;
           return (
-            <line
+            <path
               key={`${source.index}--${target.index}`}
               strokeWidth={Math.sqrt(length) * 10}
-              x1={source.x * size}
-              y1={source.y * size}
-              x2={target.x * size}
-              y2={target.y * size}
+              d={d}
               onClick={() => onLinkClick && onLinkClick(link)}
-            ></line>
+            ></path>
           );
         })}
       </g>
