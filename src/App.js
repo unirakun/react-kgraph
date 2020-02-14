@@ -87,13 +87,16 @@ function App() {
                 id: "DARVA",
                 value: "DARVA",
                 Component: () => (
-                  <image
-                    href="https://s.qwant.com/fav/d/a/www_darva_com.ico"
-                    x="-45"
-                    y="-45"
-                    height="90"
-                    width="90"
-                  />
+                  <>
+                    <circle cx={0} cy={0} fill="white" r={70}></circle>
+                    <image
+                      href="https://s.qwant.com/fav/d/a/www_darva_com.ico"
+                      x="-45"
+                      y="-45"
+                      height="90"
+                      width="90"
+                    />
+                  </>
                 )
               }
             ],
