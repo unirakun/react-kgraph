@@ -209,6 +209,8 @@ const Chart = ({
 
   const [, setTick] = useState(0);
 
+  const [lineMarkerColors] = useState(["#999"]);
+
   if (layout.nodes.length === 0) return null;
   // FIXME:
   // sometimes offsets are not ready, we have to dig why
@@ -225,7 +227,22 @@ const Chart = ({
       onMouseUp={onMouseUp}
       onMouseLeave={onMouseUp}
       onWheel={onWheel}
+      xmlns="http://www.w3.org/2000/svg"
     >
+      {lineMarkerColors.map(color => (
+        <marker
+          id={`arrow-${color}`}
+          viewBox="0 0 10 10"
+          refX={size / 2 + 3} // FIXME: find a function to process this number
+          refY="5"
+          markerWidth="6"
+          markerHeight="6"
+          orient="auto-start-reverse"
+        >
+          <path d="M 0 0 L 10 5 L 0 10 z" fill={color} />
+        </marker>
+      ))}
+
       <g stroke="#999" strokeOpacity={0.8}>
         {makeCurvedLinks(layout.links, { size }).map((link: any) => {
           const { source, target, length, d } = link;
@@ -234,12 +251,13 @@ const Chart = ({
               key={`${source.index}--${target.index}`}
               strokeWidth={Math.sqrt(length) * 10}
               d={d}
+              markerEnd="url(#arrow-#999)"
               onClick={() => onLinkClick && onLinkClick(link)}
             ></path>
           );
         })}
       </g>
-      <g stroke="#fff" strokeWidth={1.5}>
+      <g stroke="#fff" strokeWidth={1}>
         {layout.nodes.map(node => {
           const { id, group, x, y, value, Component } = node;
 
