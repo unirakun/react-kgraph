@@ -10,9 +10,20 @@ const curves = ({ offset, size }: { offset: number; size: number }) => ({
   target: { x: number; y: number };
   links: {}[]
 }) => {
+
+  const s = {
+    x: source.x * size,
+    y: source.y * size,
+  }
+
+  const t = {
+    x: target.x * size,
+    y: target.y * size,
+  }
+
   const dx = Math.sqrt(
-    (source.x - target.x) * (source.x - target.x) +
-      (source.y - target.y) * (source.y - target.y)
+    (s.x - t.x) * (s.x - t.x) +
+    (s.y - t.y) * (s.y - t.y)
   );
 
   return links.map((link, i) => {
@@ -26,7 +37,7 @@ const curves = ({ offset, size }: { offset: number; size: number }) => ({
       source,
       target,
       ...link,
-      d: `M ${source.x * size} ${source.y * size} A ${radius} ${radius} 0 0 ${sweep} ${target.x * size} ${target.y * size}`
+      d: `M ${s.x} ${s.y} A ${radius} ${radius} 0 0 ${sweep} ${t.x} ${t.y}`
     };
   });
 };
@@ -39,9 +50,9 @@ export default (
   { offset = 20, size = 1 }
 ) => {
   // group links by source and target
-  const linksGroupBy: { [id: string]: { source:  { x: number; y: number }, target: { x: number; y: number }, links: {}[]  } } = { };
+  const linksGroupBy: { [id: string]: { source: { x: number; y: number }, target: { x: number; y: number }, links: {}[] } } = {};
   links.forEach(({ source, target, ...link }) => {
-    const id = `${source.x}_${source.y}_${target.x}_${target.y}`;
+    const id = `${source.x + target.x}_${source.y + target.y}`;
 
     if (linksGroupBy[id] === undefined) {
       linksGroupBy[id] = {

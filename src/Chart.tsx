@@ -245,11 +245,12 @@ const Chart = ({
 
       <g stroke="#999" strokeOpacity={0.8}>
         {makeCurvedLinks(layout.links, { size }).map((link: any) => {
-          const { source, target, length, d } = link;
+          const { length, d } = link;
           return (
             <path
-              key={`${source.index}--${target.index}`}
+              key={d}
               strokeWidth={Math.sqrt(length) * 10}
+              fill="transparent"
               d={d}
               markerEnd="url(#arrow-#999)"
               onClick={() => onLinkClick && onLinkClick(link)}
