@@ -46,7 +46,7 @@ const addSVGPath = ({ offset = 20, size }: LinksOptions) => (links: Link[]) => {
     // 2 directions is possible with similar links.
     // Sweep depend of the direction and the number of link with this direction.
     let sweep = 0;
-    if (link.source.x - link.target.x > 0) sweep = (i - reverseCount % 2); // sweep for normal direction
+    if (link.source.x - link.target.x > 0) sweep = (i - reverseCount) % 2; // sweep for normal direction
     else sweep = (reverseCount++ % 2); // sweep for reverse direction
 
     // add svg path of link 
