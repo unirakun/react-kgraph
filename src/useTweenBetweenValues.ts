@@ -53,7 +53,18 @@ const useTweenBetweenValues = (
     };
   }, []);
 
-  return [value, setTarget];
+  const setTargetOrValue = useCallback(
+    (arg: any, force: boolean) => {
+      if (force) {
+        setValue(arg);
+      } else {
+        setTarget(arg);
+      }
+    },
+    [setTarget, setValue]
+  );
+
+  return [value, setTargetOrValue];
 };
 
 export default useTweenBetweenValues;

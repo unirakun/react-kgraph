@@ -31,20 +31,20 @@ function App() {
         {
           id: "REP",
           label: "REP",
-          Component: ({ label }) => (
-            <>
-              <circle
-                r={70}
-                fill="#ff0000"
-                cx={0}
-                cy={0}
-                className="circle"
-              ></circle>
-              <text stroke="#333" textAnchor="middle" dy="0.5em" fontSize="1em">
-                {label}
-              </text>
-            </>
-          )
+          // Component: ({ label }) => (
+          //   <>
+          //     <circle
+          //       r={70}
+          //       fill="#ff0000"
+          //       cx={0}
+          //       cy={0}
+          //       className="circle"
+          //     ></circle>
+          //     <text stroke="#333" textAnchor="middle" dy="0.5em" fontSize="1em">
+          //       {label}
+          //     </text>
+          //   </>
+          // )
         },
         {
           id: "COU",
