@@ -61,22 +61,6 @@ function App() {
           target: 1
         },
         {
-          source: 0,
-          target: 1
-        },
-        {
-          source: 0,
-          target: 1
-        },
-        {
-          source: 0,
-          target: 1
-        },
-        {
-          source: 0,
-          target: 1
-        },
-        {
           source: 1,
           target: 2
         },
