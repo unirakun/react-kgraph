@@ -48,11 +48,11 @@ function App() {
         },
         {
           id: "COU",
-          value: "COU"
+          label: "COU"
         },
         {
           id: "ASS",
-          value: "ASS"
+          label: "ASS"
         }
       ],
       links: [

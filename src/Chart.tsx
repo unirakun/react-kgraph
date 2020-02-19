@@ -244,23 +244,28 @@ const Chart = ({
       ))}
 
       <g stroke="#999" strokeOpacity={0.8}>
-        {makeCurvedLinks(layout.links, { size }).map((link: any) => {
-          const { length, d } = link;
+        {makeCurvedLinks(layout.links, { size }).map((link: any, index) => {
+          const { length, d, label, source, target } = link;
           return (
-            <path
-              key={d}
-              strokeWidth={Math.sqrt(length) * 10}
-              fill="transparent"
-              d={d}
-              markerEnd="url(#arrow-#999)"
-              onClick={() => onLinkClick && onLinkClick(link)}
-            ></path>
+            <g onClick={() => onLinkClick && onLinkClick(link)}>
+              <path
+                id={index + ""}
+                key={d}
+                strokeWidth={Math.sqrt(length) * 10}
+                fill="transparent"
+                d={d}
+                markerEnd="url(#arrow-#999)"
+              ></path>
+              <text x="100" transform="translate(0, 30)"> {/* TODO: offset to process (not hardcoded) */}
+                <textPath href={`#${index}`}>{label || `${source.label} -> ${target.label}`}</textPath>
+              </text>
+            </g>
           );
         })}
       </g>
       <g stroke="#fff" strokeWidth={1}>
         {layout.nodes.map(node => {
-          const { id, group, x, y, value, Component } = node;
+          const { id, group, x, y, label, Component } = node;
 
           return (
             <g
@@ -338,7 +343,7 @@ const Chart = ({
                     dy="0.5em"
                     fontSize="1em"
                   >
-                    {value}
+                    {label}
                   </text>
                 </>
               )}
