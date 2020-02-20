@@ -1,74 +1,93 @@
-const calculRadius = (d: number, x: number) =>
-  !x ? 1e10 : (0.125 * d * d) / x + x / 2;
+// references: https://stackoverflow.com/questions/31804392/create-svg-arcs-between-two-points
 
-const curves = ({ offset, size }: { offset: number; size: number }) => ({
-  source,
-  target,
-  links
-}: {
-  source: { x: number; y: number };
-  target: { x: number; y: number };
-  links: {}[]
-}) => {
+interface Point {
+  x: number;
+  y: number;
+}
+interface Link {
+  source: Point;
+  target: Point;
+}
+interface LinksOptions {
+  offset?: number;
+  size: number;
+}
 
-  const s = {
+const isSamePoint = (source: Point, target: Point) => source.x === target.x && source.y === target.y;
+const isSimilarLink = (a: Link) => (b: Link) => (
+  (isSamePoint(a.source, b.source) && isSamePoint(a.target, b.target)) ||
+  (isSamePoint(a.source, b.target) && isSamePoint(a.target, b.source))
+);
+
+const scale = ({ source, target }: Link, size: number) => ({
+  source: {
     x: source.x * size,
     y: source.y * size,
-  }
-
-  const t = {
+  },
+  target: {
     x: target.x * size,
     y: target.y * size,
   }
+})
 
-  const dx = Math.sqrt(
-    (s.x - t.x) * (s.x - t.x) +
-    (s.y - t.y) * (s.y - t.y)
-  );
+const calculDx = ({ source, target }: Link) => Math.sqrt(
+  (source.x - target.x) * (source.x - target.x) +
+  (source.y - target.y) * (source.y - target.y)
+);
 
-  return links.map((link, i) => {
-    const nbOfCurve =
-      links.length % 2 && i === links.length - 1 ? 0 : 1 + (i / 2);
+const calculRadius = (dx: number, x: number) => !x ? 1e10 : (0.125 * dx * dx) / x + x / 2;
 
-    const radius = calculRadius(dx, offset * nbOfCurve);
-    const sweep = i % 2;
+const addSVGPath = ({ offset = 20, size }: LinksOptions) => (links: Link[]) => {
 
+  let reverseCount = 0;
+
+  return links.map((link: any, i: number, { length }: { length: number }) => {
+    // use size to scale all positions
+    const { source, target } = scale(link, size);
+
+    // don't calcul the curve when only one link between two point
+    if (length === 1) {
+      return {
+        ...link,
+        d: `M ${source.x} ${source.y} A 0 0 0 0 0 ${target.x} ${target.y}`,
+      }
+    }
+
+    // calcul coordinate point to curve the link
+    const dx = calculDx({ source, target });
+
+    const linkNumber = length % 2 && i === length - 1 ? 0 : 1 + (i / 2);
+    const radius = calculRadius(dx, offset * linkNumber);
+
+    // 2 directions is possible with similar links.
+    // Sweep depend of the direction and the number of link with this direction.
+    let sweep = 0;
+    if (link.source.x - link.target.x > 0) sweep = (i - reverseCount) % 2; // sweep for normal direction
+    else sweep = (reverseCount++ % 2); // sweep for reverse direction
+
+    // add svg path of link 
     return {
-      source,
-      target,
       ...link,
-      d: `M ${s.x} ${s.y} A ${radius} ${radius} 0 0 ${sweep} ${t.x} ${t.y}`
-    };
+      d: `M ${source.x} ${source.y} A ${radius} ${radius} 0 0 ${sweep} ${target.x} ${target.y}`,
+    }
   });
 };
 
 export default (
-  links: {
-    source: { x: number; y: number };
-    target: { x: number; y: number };
-  }[],
-  { offset = 20, size = 1 }
+  links: Link[],
+  { offset, size = 1 }: LinksOptions,
 ) => {
-  // group links by source and target
-  const linksGroupBy: { [id: string]: { source: { x: number; y: number }, target: { x: number; y: number }, links: {}[] } } = {};
-  links.forEach(({ source, target, ...link }) => {
-    const id = `${source.x + target.x}_${source.y + target.y}`;
+  const groupLinks: Link[][] = [];
 
-    if (linksGroupBy[id] === undefined) {
-      linksGroupBy[id] = {
-        source,
-        target,
-        links: [link]
-      };
-    } else {
-      linksGroupBy[id] = {
-        source,
-        target,
-        links: [...linksGroupBy[id].links, link]
-      };
-    }
-  });
+  const iterateLinks = [...links];
+  while (iterateLinks.length > 0) {
+    const [currentLink] = iterateLinks;
 
-  return Object.values(linksGroupBy)
-    .flatMap(curves({ offset, size }))
+    const similarLinks: Link[] = iterateLinks.filter(isSimilarLink(currentLink));
+
+    groupLinks.push(similarLinks);
+    similarLinks.forEach(sl => iterateLinks.splice(iterateLinks.indexOf(sl), 1));
+  }
+
+  return groupLinks.flatMap(addSVGPath({ offset, size }))
 };
