@@ -1,15 +1,23 @@
-interface Link {
-  source: { x: number; y: number };
-  target: { x: number; y: number };
-}
+// references: https://stackoverflow.com/questions/31804392/create-svg-arcs-between-two-points
 
+interface Point {
+  x: number;
+  y: number;
+}
+interface Link {
+  source: Point;
+  target: Point;
+}
 interface LinksOptions {
   offset?: number;
   size: number;
 }
 
-const isSimilarLink = (a: Link) => (b: Link) => (a.source.x === b.source.x && a.source.y === b.source.y && a.target.x === b.target.x && a.target.y === b.target.y) ||
-  (a.source.x === b.target.x && a.source.y === b.target.y && a.target.x === b.source.x && a.target.y === b.source.y);
+const isSamePoint = (source: Point, target: Point) => source.x === target.x && source.y === target.y;
+const isSimilarLink = (a: Link) => (b: Link) => (
+  (isSamePoint(a.source, b.source) && isSamePoint(a.target, b.target)) ||
+  (isSamePoint(a.source, b.target) && isSamePoint(a.target, b.source))
+);
 
 const scale = ({ source, target }: Link, size: number) => ({
   source: {
