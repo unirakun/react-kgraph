@@ -45,6 +45,14 @@ const addSVGPath = ({ offset = 20, size }: LinksOptions) => (links: Link[]) => {
     // use size to scale all positions
     const { source, target } = scale(link, size);
 
+    // don't calcul the curve when only one link between two point
+    if (length === 1) {
+      return {
+        ...link,
+        d: `M ${source.x} ${source.y} A 0 0 0 0 0 ${target.x} ${target.y}`,
+      }
+    }
+
     // calcul coordinate point to curve the link
     const dx = calculDx({ source, target });
 
