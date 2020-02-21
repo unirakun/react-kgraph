@@ -3,6 +3,25 @@ import Chart from "./Chart";
 import Test from "./Test";
 import "./App.css";
 
+const CustomLink = ({ source, target, length, d, label }) => (
+  <>
+    <path
+      id="custom1"
+      strokeWidth={Math.sqrt(length) * 10}
+      fill="transparent"
+      d={d}
+      stroke="green"
+      markerEnd="url(#arrow-#999)"
+    ></path>
+    <text x="100" transform="translate(0, 30)">
+      {/* TODO: offset to process (not hardcoded) */}
+      <textPath href="custom1">
+        {label || `${source.label} -> ${target.label}`}
+      </textPath>
+    </text>
+  </>
+)
+
 function App() {
   const [data, setData] = useState({ nodes: [], links: [] });
 
@@ -31,20 +50,20 @@ function App() {
         {
           id: "REP",
           label: "REP",
-          // Component: ({ label }) => (
-          //   <>
-          //     <circle
-          //       r={70}
-          //       fill="#ff0000"
-          //       cx={0}
-          //       cy={0}
-          //       className="circle"
-          //     ></circle>
-          //     <text stroke="#333" textAnchor="middle" dy="0.5em" fontSize="1em">
-          //       {label}
-          //     </text>
-          //   </>
-          // )
+          Component: ({ label }) => (
+            <>
+              <circle
+                r={70}
+                fill="#ff0000"
+                cx={0}
+                cy={0}
+                className="circle"
+              ></circle>
+              <text stroke="#333" textAnchor="middle" dy="0.5em" fontSize="1em">
+                {label}
+              </text>
+            </>
+          )
         },
         {
           id: "COU",
@@ -58,7 +77,8 @@ function App() {
       links: [
         {
           source: 0,
-          target: 1
+          target: 1,
+          Component: CustomLink,
         },
         {
           source: 1,

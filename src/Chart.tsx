@@ -312,22 +312,28 @@ const Chart = ({
 
         <g stroke="#999" strokeOpacity={0.8}>
           {makeCurvedLinks(layout.links, { size }).map((link: any, index) => {
-            const { length, d, label, source, target } = link;
+            const { length, d, label, source, target, Component } = link;
             return (
               <g key={d} onClick={() => onLinkClick && onLinkClick(link)}>
-                <path
-                  id={index + ""}
-                  strokeWidth={Math.sqrt(length) * 10}
-                  fill="transparent"
-                  d={d}
-                  markerEnd="url(#arrow-#999)"
-                ></path>
-                <text x="100" transform="translate(0, 30)">
-                  {/* TODO: offset to process (not hardcoded) */}
-                  <textPath href={`#${index}`}>
-                    {label || `${source.label} -> ${target.label}`}
-                  </textPath>
-                </text>
+                {Component ? (
+                  <Component {...link} />
+                ) : (
+                  <>
+                    <path
+                      id={index + ""}
+                      strokeWidth={Math.sqrt(length) * 10}
+                      fill="transparent"
+                      d={d}
+                      markerEnd="url(#arrow-#999)"
+                    ></path>
+                    <text x="100" transform="translate(0, 30)">
+                      {/* TODO: offset to process (not hardcoded) */}
+                      <textPath href={`#${index}`}>
+                        {label || `${source.label} -> ${target.label}`}
+                      </textPath>
+                    </text>
+                  </>
+                )}
               </g>
             );
           })}
