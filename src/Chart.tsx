@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 // @ts-ignore
 import * as cola from "webcola";
-import * as d3 from "d3";
 import { drag } from "d3-drag";
 // import useTweenBetweenValues from "./useTweenBetweenValues";
 import makeCurvedLinks from "./makeCurvedLinks";
 import Node from "./Node";
+import Link from "./Link";
 
 function svgPoint(element: SVGSVGElement | null, x: number, y: number) {
   if (!element) return { x, y };
@@ -30,7 +30,6 @@ let height = 500;
 let width = 800;
 let padding = 20;
 let iterations = 1;
-let color = d3.scaleOrdinal(d3.schemeCategory10);
 
 type WithCoords = { x: number; y: number };
 interface ChartNode extends WithCoords {
@@ -153,16 +152,21 @@ const Chart = ({
 
     layout
       .on(cola.EventType.tick, () => {
-        // console.log("tick");
+        console.timeEnd("tick");
         setLayoutOnRaf(mapLayout(layout));
+        console.time("tick");
       })
       .on(cola.EventType.start, () => {
-        // console.log("start");
-        // blockZoom.current = false;
+        console.time("graph layout");
       })
       .on(cola.EventType.end, () => {
-        // console.log("end");
-        // blockZoom.current = true;
+        console.timeEnd("graph layout");
+        console.log(
+          "links",
+          layout.links().length,
+          "nodes",
+          layout.nodes().length
+        );
       })
       .avoidOverlaps(true)
       .size([width, height])
@@ -227,14 +231,20 @@ const Chart = ({
     [setZoom]
   );
 
-  const [, setTick] = useState(0);
-
   const [lineMarkerColors] = useState(["#999"]);
 
+  const findNode = useCallback(
+    nodeId => layout.nodes.find(n => n.id === nodeId),
+    [layout.nodes]
+  );
+
   const onDrag = useCallback(
-    (node, e: MouseEvent) => {
+    (nodeId, e: MouseEvent) => {
       canMoveViewportRef.current = false;
       onMouseUp();
+
+      const node = findNode(nodeId);
+      if (!node) return;
 
       const newPos = svgPoint(svgRef.current, e.clientX, e.clientY);
       node.x = newPos.x / size;
@@ -247,13 +257,19 @@ const Chart = ({
         layoutRef.current.resume();
       }
     },
-    [onMouseUp]
+    [onMouseUp, findNode]
   );
 
-  const onStart = useCallback(node => {
-    cola.Layout.dragStart(node);
-    blockZoom.current = true;
-  }, []);
+  const onStart = useCallback(
+    nodeId => {
+      const node = findNode(nodeId);
+      if (!node) return;
+
+      cola.Layout.dragStart(node);
+      blockZoom.current = true;
+    },
+    [findNode]
+  );
 
   const onEnd = useCallback(node => {
     // cola.Layout.dragEnd(node);
@@ -311,81 +327,66 @@ const Chart = ({
         ))}
 
         <g stroke="#999" strokeOpacity={0.8}>
-          {makeCurvedLinks(layout.links, { size }).map((link: any, index) => {
-            const { length, d, label, source, target, Component } = link;
-            return (
-              <g key={d} onClick={() => onLinkClick && onLinkClick(link)}>
-                {Component ? (
-                  <Component {...link} />
-                ) : (
-                  <>
-                    <path
-                      id={index + ""}
-                      strokeWidth={Math.sqrt(length) * 10}
-                      fill="transparent"
-                      d={d}
-                      markerEnd="url(#arrow-#999)"
-                    ></path>
-                    <text x="100" transform="translate(0, 30)">
-                      {/* TODO: offset to process (not hardcoded) */}
-                      <textPath href={`#${index}`}>
-                        {label || `${source.label} -> ${target.label}`}
-                      </textPath>
-                    </text>
-                  </>
-                )}
-              </g>
-            );
-          })}
+          {
+          makeCurvedLinks(layout.links, { size }) // TODO: memoize this
+            // layout.links
+            .map((link: any, index) => {
+              const { length, d, label, source, target, Component } = link;
+              return (
+                <Link
+                  id={index}
+                  length={length}
+                  d={d}
+                  source={{ x: source.x, y: source.y, label: source.label }}
+                  target={{ x: target.x, y: target.y, label: target.label }}
+                  Component={Component}
+                  onClick={onLinkClick}
+                />
+              );
+              // return (
+              //   <g key={d} onClick={() => onLinkClick && onLinkClick(link)}>
+              //     {Component ? (
+              //       <Component {...link} />
+              //     ) : (
+              //       <>
+              //         <path
+              //           id={index + ""}
+              //           strokeWidth={Math.sqrt(length) * 10}
+              //           fill="transparent"
+              //           d={d}
+              //           markerEnd="url(#arrow-#999)"
+              //         ></path>
+              //         {/* <text x="100" transform="translate(0, 30)"> */}
+              //         {/* TODO: offset to process (not hardcoded) */}
+              //         {/* <textPath href={`#${index}`}>
+              //           {label || `${source.label} -> ${target.label}`}
+              //         </textPath>
+              //       </text> */}
+              //       </>
+              //     )}
+              //   </g>
+              // );
+            })}
         </g>
         <g stroke="#fff" strokeWidth={1}>
           {layout.nodes.map(node => {
             const { id, group, x, y, label, Component } = node;
 
             return (
-              <Node
-                key={id}
-                node={node}
-                onClick={() => onNodeClick && onNodeClick(node)}
-                transform={`translate(${x * size} ${y * size})`}
-                style={{ cursor: "pointer" }}
-                onDrag={onDrag}
-                onStart={onStart}
-                onEnd={onEnd}
-                // ref={(elem: any) => {
-                //   if (!elem) return;
-
-                //   let nodeDraggable = drag();
-                //   // @ts-ignore
-                //   nodeDraggable.subject(cola.Layout.dragOrigin(node));
-                //   nodeDraggable.on("start", () => onStart(node));
-                //   // @ts-ignore
-                //   nodeDraggable.on("drag", () => onDrag(node, { clientX: d3.event.x, clientY: d3.event.y }))
-                //   nodeDraggable.on("end", () => onEnd(node));
-                //   nodeDraggable(d3.select(elem as Element));
-                // }}
-              >
-                {Component ? (
-                  <Component {...node} />
-                ) : (
-                  <>
-                    <circle
-                      r={size * 2}
-                      fill={color(group)}
-                      cx={0}
-                      cy={0}
-                    ></circle>
-                    <text
-                      stroke="#333"
-                      textAnchor="middle"
-                      dy="0.5em"
-                      fontSize="1em"
-                    >
-                      {label}
-                    </text>
-                  </>
-                )}
-              </Node>
+              <g transform={`translate(${x * size} ${y * size})`}>
+                <Node
+                  key={id}
+                  id={id}
+                  group={group}
+                  label={label}
+                  Component={Component}
+                  onClick={onNodeClick}
+                  size={size}
+                  onDrag={onDrag}
+                  onStart={onStart}
+                  onEnd={onEnd}
+                />
+              </g>
             );
           })}
         </g>

@@ -1,24 +1,32 @@
-import React, { useRef, useEffect, useCallback } from "react";
+import React, { memo, useRef, useEffect, useCallback } from "react";
+import * as d3 from "d3";
 
-// TODO: rename it MovableSvgItem
+let color = d3.scaleOrdinal(d3.schemeCategory10);
+
+// TODO: create a MovableSvgItem ?
 // TODO: remove the "node" parameter
 // TODO: to integrate with Chart component and keep perf, use an other Component to "useCallback" the callbacks with "node" parameter
 //      https://stackoverflow.com/questions/55963914/react-usecallback-hook-for-map-rendering
 const Node = ({
-  children,
+  onClick,
   onDrag,
   onStart,
   onEnd,
-  node,
   ...props
 }: {
-  children: any;
+  id: number | string;
+  size: number;
+  group: string;
+  label?: string;
+  Component?: any;
+  onClick?: any; // TODO: type
   onEnd?: any; // TODO: type
   onStart?: any; // TODO: type
   onDrag?: any; // TODO: type
-  node: any;
   [key: string]: any;
 }) => {
+  const { id, size, group, label, Component, ...gProps } = props;
+
   const nodeRef = useRef<SVGGElement>(null);
   const dragInfoRef = useRef({ thisIsMe: false, beforeX: 0, beforeY: 0 });
   const rafTimerRef = useRef(0);
@@ -35,10 +43,10 @@ const Node = ({
         dragInfoRef.current.beforeX = e.clientX;
         dragInfoRef.current.beforeY = e.clientY;
 
-        onStart(node);
+        onStart(id);
       }
     },
-    [onStart, node]
+    [onStart, id]
   );
 
   const mouseMove = useCallback(
@@ -54,24 +62,24 @@ const Node = ({
 
       if (rafTimerRef.current) cancelAnimationFrame(rafTimerRef.current);
       rafTimerRef.current = requestAnimationFrame(() => {
-        onDrag(node, e, { deltaX, deltaY });
+        onDrag(id, e, { deltaX, deltaY });
 
         dragInfoRef.current.beforeX = e.clientX;
         dragInfoRef.current.beforeY = e.clientY;
       });
     },
-    [onDrag, node]
+    [onDrag, id]
   );
 
   const mouseUp = useCallback(
     (e: MouseEvent) => {
       if (dragInfoRef.current.thisIsMe) {
-        onEnd(node);
+        onEnd(id);
       }
 
       dragInfoRef.current.thisIsMe = false;
     },
-    [onEnd, node]
+    [onEnd, id]
   );
 
   useEffect(() => {
@@ -86,11 +94,31 @@ const Node = ({
     };
   }, [mouseDown, mouseMove, mouseUp]);
 
+  const onInnerClick = useCallback(() => {
+    if (onClick) return onClick(id);
+    return undefined;
+  }, [onClick, id]);
+
+  console.log('in node')
+
   return (
-    <g ref={nodeRef} {...props}>
-      {children}
+    <g
+      ref={nodeRef}
+      {...gProps}
+      onClick={onInnerClick}
+    >
+      {Component ? (
+        <Component {...props} />
+      ) : (
+        <>
+          <circle r={size * 2} fill={color(group)} cx={0} cy={0}></circle>
+          <text stroke="#333" textAnchor="middle" dy="0.5em" fontSize="1em">
+            {label}
+          </text>
+        </>
+      )}
     </g>
   );
 };
 
-export default Node;
+export default memo(Node);
