@@ -106,6 +106,7 @@ const Node = ({
       ref={nodeRef}
       {...gProps}
       onClick={onInnerClick}
+      className="node-container"
     >
       {Component ? (
         <Component {...props} />

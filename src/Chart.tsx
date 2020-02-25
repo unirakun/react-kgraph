@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback, useLayoutEffect } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useLayoutEffect
+} from "react";
 // @ts-ignore
 import * as cola from "webcola";
 // import useTweenBetweenValues from "./useTweenBetweenValues";
@@ -137,7 +143,7 @@ const Chart = ({
   }, [nodes, links]);
 
   const layoutRef = useRef<ReactColaLayout>();
-  const layoutTickDraw = useRef(true)
+  const layoutTickDraw = useRef(true);
 
   useEffect(() => {
     const layout = new ReactColaLayout();
@@ -147,21 +153,21 @@ const Chart = ({
     let rafTimer = 0;
     layout
       .on(cola.EventType.tick, () => {
-        console.log('new tick')
+        console.log("new tick");
         console.timeEnd("tick");
         ticks += 1;
         console.time("tick");
-          if (!layoutTickDraw.current) {
-            console.log("SKIP this tick");
-            return;
-          }
-          layoutTickDraw.current = false;
-          if (!rafTimer) {
-            rafTimer = requestAnimationFrame(() => {
-              setLayout(() => mapLayout(layout))
-              rafTimer = 0
-            })
-          }
+        if (!layoutTickDraw.current) {
+          console.log("SKIP this tick");
+          return;
+        }
+        layoutTickDraw.current = false;
+        if (!rafTimer) {
+          rafTimer = requestAnimationFrame(() => {
+            setLayout(() => mapLayout(layout));
+            rafTimer = 0;
+          });
+        }
       })
       .on(cola.EventType.start, () => {
         console.time("graph layout");
@@ -190,9 +196,9 @@ const Chart = ({
 
   useLayoutEffect(() => {
     return () => {
-      layoutTickDraw.current = true
-    }
-  }, [layout])
+      layoutTickDraw.current = true;
+    };
+  }, [layout]);
 
   const canMoveViewportRef = useRef(false);
 
@@ -338,23 +344,21 @@ const Chart = ({
         ))}
 
         <g stroke="#999" strokeOpacity={0.8}>
-          {makeCurvedLinks(layout.links, { size }) // TODO: memoize this
-            // layout.links
-            .map((link: any, index) => {
-              const { length, d, label, source, target, Component } = link;
-              return (
-                <Link
-                  id={index}
-                  length={length}
-                  d={d}
-                  label={label}
-                  source={{ x: source.x, y: source.y, label: source.label }}
-                  target={{ x: target.x, y: target.y, label: target.label }}
-                  Component={Component}
-                  onClick={onLinkClick}
-                />
-              );
-            })}
+          {makeCurvedLinks(layout.links, { size }).map((link: any, index) => {
+            const { length, d, label, source, target, Component } = link;
+            return (
+              <Link
+                id={index}
+                length={length}
+                d={d}
+                label={label}
+                source={{ x: source.x, y: source.y, label: source.label }}
+                target={{ x: target.x, y: target.y, label: target.label }}
+                Component={Component}
+                onClick={onLinkClick}
+              />
+            );
+          })}
         </g>
         <g stroke="#fff" strokeWidth={1}>
           {layout.nodes.map(node => {
