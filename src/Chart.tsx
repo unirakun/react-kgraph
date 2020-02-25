@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useLayoutEffect } from "react";
 // @ts-ignore
 import * as cola from "webcola";
-import { drag } from "d3-drag";
 // import useTweenBetweenValues from "./useTweenBetweenValues";
 import makeCurvedLinks from "./makeCurvedLinks";
 import Node from "./Node";
@@ -44,7 +43,9 @@ interface SimplifiedLayout {
 // from https://github.com/cawfree/react-cola/blob/master/index.js
 class ReactColaLayout extends cola.Layout {
   kick() {
-    requestAnimationFrame(() => !this.tick() && this.kick());
+    // we don't use request animation frame and try to kick as fast as we can
+    // but we also want to look at "ticks" betweens frames, so we use a timeout!
+    setTimeout(() => !this.tick() && this.kick(), 0);
   }
 }
 
@@ -131,36 +132,44 @@ const Chart = ({
       layoutRef.current
         .nodes(nodes)
         .links(links)
-        .start(iterations, 0, 0, 0, true, true);
+        .start(iterations, 1, 1, 0, true, false);
     }
   }, [nodes, links]);
 
   const layoutRef = useRef<ReactColaLayout>();
+  const layoutTickDraw = useRef(true)
+
   useEffect(() => {
-    const setLayoutOnRaf = (layout: SimplifiedLayout) => {
-      if (rafTimer.current) {
-        cancelAnimationFrame(rafTimer.current);
-      }
-
-      rafTimer.current = requestAnimationFrame(() => {
-        setLayout(layout);
-      });
-    };
-
     const layout = new ReactColaLayout();
     layoutRef.current = layout;
 
+    let ticks = 0;
+    let rafTimer = 0;
     layout
       .on(cola.EventType.tick, () => {
+        console.log('new tick')
         console.timeEnd("tick");
-        setLayoutOnRaf(mapLayout(layout));
+        ticks += 1;
         console.time("tick");
+          if (!layoutTickDraw.current) {
+            console.log("SKIP this tick");
+            return;
+          }
+          layoutTickDraw.current = false;
+          if (!rafTimer) {
+            rafTimer = requestAnimationFrame(() => {
+              setLayout(() => mapLayout(layout))
+              rafTimer = 0
+            })
+          }
       })
       .on(cola.EventType.start, () => {
         console.time("graph layout");
       })
       .on(cola.EventType.end, () => {
+        console.log("ticks", ticks);
         console.timeEnd("graph layout");
+
         console.log(
           "links",
           layout.links().length,
@@ -178,6 +187,12 @@ const Chart = ({
   useEffect(() => {
     centerAndZoom();
   }, [layout, centerAndZoom]);
+
+  useLayoutEffect(() => {
+    return () => {
+      layoutTickDraw.current = true
+    }
+  }, [layout])
 
   const canMoveViewportRef = useRef(false);
 
@@ -282,10 +297,6 @@ const Chart = ({
   }, []);
 
   if (layout.nodes.length === 0) return null;
-  // FIXME:
-  // sometimes offsets are not ready, we have to dig why
-  // but for now we fix this bug like that...
-  if (Number.isNaN(offsets.x)) return null;
 
   return (
     <>
@@ -327,8 +338,7 @@ const Chart = ({
         ))}
 
         <g stroke="#999" strokeOpacity={0.8}>
-          {
-          makeCurvedLinks(layout.links, { size }) // TODO: memoize this
+          {makeCurvedLinks(layout.links, { size }) // TODO: memoize this
             // layout.links
             .map((link: any, index) => {
               const { length, d, label, source, target, Component } = link;
@@ -337,35 +347,13 @@ const Chart = ({
                   id={index}
                   length={length}
                   d={d}
+                  label={label}
                   source={{ x: source.x, y: source.y, label: source.label }}
                   target={{ x: target.x, y: target.y, label: target.label }}
                   Component={Component}
                   onClick={onLinkClick}
                 />
               );
-              // return (
-              //   <g key={d} onClick={() => onLinkClick && onLinkClick(link)}>
-              //     {Component ? (
-              //       <Component {...link} />
-              //     ) : (
-              //       <>
-              //         <path
-              //           id={index + ""}
-              //           strokeWidth={Math.sqrt(length) * 10}
-              //           fill="transparent"
-              //           d={d}
-              //           markerEnd="url(#arrow-#999)"
-              //         ></path>
-              //         {/* <text x="100" transform="translate(0, 30)"> */}
-              //         {/* TODO: offset to process (not hardcoded) */}
-              //         {/* <textPath href={`#${index}`}>
-              //           {label || `${source.label} -> ${target.label}`}
-              //         </textPath>
-              //       </text> */}
-              //       </>
-              //     )}
-              //   </g>
-              // );
             })}
         </g>
         <g stroke="#fff" strokeWidth={1}>

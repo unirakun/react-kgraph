@@ -1,5 +1,7 @@
 import React, { memo } from "react";
 
+const size = 35;
+
 interface LinkProps {
   onClick: any;
   Component: any;
@@ -22,12 +24,26 @@ interface LinkProps {
 const Link = ({ onClick, ...props }: LinkProps) => {
   const { Component, id, d, length, source, target, label } = props;
 
+  // console.log('line')
+
   return (
     <g key={d} onClick={onClick}>
       {Component ? (
         <Component {...props} />
       ) : (
         <>
+          {/* <line
+          x1={source.x * size}
+          y1={source.y * size}
+          x2={target.x * size}
+          y2={target.y * size}
+          /> */}
+          {/* <circle
+            cx={(source.x + 1.5) * size}
+            cy={(source.y + 1.5) * size}
+            r={size}
+            fill="red"
+          /> */}
           <path
             id={id + ""}
             strokeWidth={Math.sqrt(length) * 10}
@@ -35,12 +51,12 @@ const Link = ({ onClick, ...props }: LinkProps) => {
             d={d}
             markerEnd="url(#arrow-#999)"
           ></path>
-          {/* <text x="100" transform="translate(0, 30)"> */}
+          <text x="100" transform="translate(0, 30)">
           {/* TODO: offset to process (not hardcoded) */}
           {/* <textPath href={`#${id}`}>
               {label || `${source.label} -> ${target.label}`}
-            </textPath>
-          </text> */}
+            </textPath> */}
+          </text>
         </>
       )}
     </g>
@@ -59,6 +75,7 @@ const propsAreEqual = (prevProps: LinkProps, nextProps: LinkProps): boolean => {
 
     if (key === "target" || key === "source") {
       const nextValue = nextProps[key];
+      // TODO: should use zoom
       const treshold = 0.1;
 
       // there is a difference if we pass the treshold

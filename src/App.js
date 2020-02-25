@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import Chart from "./Chart";
+import getFlux from './getFlux'
 import Test from "./Test";
 import "./App.css";
 
 const TEST_BIG = false;
+const TEST_REAL = true;
 
 const CustomLink = ({ source, target, length, d, label }) => (
   <>
@@ -28,6 +30,7 @@ function App() {
   const [data, setData] = useState({ nodes: [], links: [] });
 
   useEffect(() => {
+    getFlux()
     const fetchAndSetData = async () => {
       const raw = await fetch(
         "https://gist.githubusercontent.com/mbostock/4062045/raw/5916d145c8c048a6e3086915a6be464467391c62/miserables.json"
@@ -47,6 +50,9 @@ function App() {
 
     if (TEST_BIG) {
       fetchAndSetData();
+    } else if (TEST_REAL) {
+      getFlux()
+        .then(setData)
     } else {
       setData({
         nodes: [
