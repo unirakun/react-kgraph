@@ -7,10 +7,12 @@ import React, {
 } from "react";
 // @ts-ignore
 import * as cola from "webcola";
+import { tree as d3tree, hierarchy } from "d3-hierarchy";
 // import useTweenBetweenValues from "./useTweenBetweenValues";
 import makeCurvedLinks from "./makeCurvedLinks";
 import Node from "./Node";
 import Link from "./Link";
+import useTraceUpdate from "./utils/useTraceUpdate";
 
 function svgPoint(element: SVGSVGElement | null, x: number, y: number) {
   if (!element) return { x, y };
@@ -41,8 +43,13 @@ interface ChartNode extends WithCoords {
   [key: string]: any;
 }
 
+interface TreeNode extends WithCoords {
+  [key: string]: any;
+  children?: TreeNode[];
+}
+
 interface SimplifiedLayout {
-  nodes: ChartNode[];
+  nodes: (ChartNode | TreeNode)[];
   links: any[];
 }
 
@@ -63,21 +70,18 @@ function mapLayout(layout: cola.Layout): SimplifiedLayout {
 }
 
 let size = 35;
-const Chart = ({
-  nodes,
-  links,
-  onNodeClick,
-  onLinkClick
-}: {
+const Chart = (props: {
   nodes: any[];
   links: any[];
+  tree: boolean;
+  root: TreeNode;
   onNodeClick?: (node: any) => any;
   onLinkClick?: (link: any) => any;
 }) => {
+  const { nodes, links, tree = false, root, onNodeClick, onLinkClick } = props;
   const svgRef = useRef<SVGSVGElement>(null);
 
   // layout part and it request animation frame timer
-  const rafTimer = useRef<number>();
   const [layout, setLayout] = useState<SimplifiedLayout>({
     nodes: [],
     links: []
@@ -146,6 +150,7 @@ const Chart = ({
   const layoutTickDraw = useRef(true);
 
   useEffect(() => {
+    if (tree) return;
     const layout = new ReactColaLayout();
     layoutRef.current = layout;
 
@@ -188,7 +193,7 @@ const Chart = ({
       .jaccardLinkLengths(10);
 
     startLayout();
-  }, [startLayout]);
+  }, [startLayout, tree]);
 
   useEffect(() => {
     centerAndZoom();
@@ -199,6 +204,38 @@ const Chart = ({
       layoutTickDraw.current = true;
     };
   }, [layout]);
+
+  useEffect(() => {
+    if (!tree) return;
+
+    const d3treelayout = d3tree().nodeSize([size / 2, size / 2])(
+      hierarchy(root)
+    );
+
+    const nodes: TreeNode[] = [];
+    const links: any[] = [];
+
+    const mapNode = (d3node: any): TreeNode => ({ ...d3node.data, ...d3node });
+
+    const addNodeAndChildren = (parentNode: TreeNode) => {
+      nodes.push(mapNode(parentNode));
+
+      if (parentNode.children) {
+        parentNode.children.forEach(node => {
+          links.push({
+            label: node.id,
+            source: mapNode(parentNode),
+            target: mapNode(node),
+            length: 2
+          });
+          addNodeAndChildren(node);
+        });
+      }
+    };
+    addNodeAndChildren(d3treelayout);
+
+    setLayout({ nodes, links });
+  }, [root, tree]);
 
   const canMoveViewportRef = useRef(false);
 
@@ -343,7 +380,7 @@ const Chart = ({
           </marker>
         ))}
 
-        <g stroke="#999" strokeOpacity={0.8}>
+        <g stroke="#999">
           {makeCurvedLinks(layout.links, { size }).map((link: any, index) => {
             const { length, d, label, source, target, Component } = link;
             return (
@@ -377,6 +414,7 @@ const Chart = ({
                   onDrag={onDrag}
                   onStart={onStart}
                   onEnd={onEnd}
+                  drag={!tree}
                 />
               </g>
             );

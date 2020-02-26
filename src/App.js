@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Chart from "./Chart";
-import getFlux from './getFlux'
+import getFlux from "./getFlux";
 import Test from "./Test";
 import "./App.css";
 
 const TEST_BIG = false;
-const TEST_REAL = true;
+const TEST_REAL = false;
+const TEST_TREE = true;
 
 const CustomLink = ({ source, target, length, d, label }) => (
   <>
@@ -28,9 +29,32 @@ const CustomLink = ({ source, target, length, d, label }) => (
 
 function App() {
   const [data, setData] = useState({ nodes: [], links: [] });
+  const [rootTree, setRootTree] = useState({
+    id: "ME18921921",
+    label: "ME18921921",
+    children: [
+      {
+        id: "GR38932"
+      },
+      {
+        id: "GR1239",
+        children: [
+          {
+            id: "SE83932"
+          },
+          {
+            id: "129219"
+          },
+          {
+            id: "3128921"
+          }
+        ]
+      }
+    ]
+  });
 
   useEffect(() => {
-    getFlux()
+    getFlux();
     const fetchAndSetData = async () => {
       const raw = await fetch(
         "https://gist.githubusercontent.com/mbostock/4062045/raw/5916d145c8c048a6e3086915a6be464467391c62/miserables.json"
@@ -51,8 +75,7 @@ function App() {
     if (TEST_BIG) {
       fetchAndSetData();
     } else if (TEST_REAL) {
-      getFlux()
-        .then(setData)
+      getFlux().then(setData);
     } else {
       setData({
         nodes: [
@@ -109,11 +132,31 @@ function App() {
 
   const [selectedNode, setSelectedNode] = useState({});
 
+  const onNodeClick = useCallback(
+    ({ id, value }) => setSelectedNode({ id, value }),
+    []
+  );
+  const onLinkClick = useCallback(link => console.log(link), []);
+
   return (
     <>
       <Test />
       <button
         onClick={() => {
+          if (TEST_TREE) {
+            setRootTree(old => ({
+              ...old,
+              children: [
+                ...old.children,
+                {
+                  id: 'new',
+                  label: 'new'
+                }
+              ]
+            }))
+            return;
+          }
+
           setData(old => ({
             ...old,
             nodes: [
@@ -143,8 +186,10 @@ function App() {
       </button>
       <Chart
         {...data}
-        onNodeClick={({ id, value }) => setSelectedNode({ id, value })}
-        onLinkClick={link => console.log(link)}
+        root={rootTree}
+        tree={TEST_TREE}
+        onNodeClick={onNodeClick}
+        onLinkClick={onLinkClick}
       />
       <pre>{JSON.stringify(selectedNode, null, 2)}</pre>
     </>
