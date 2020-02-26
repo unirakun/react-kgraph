@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useState, useLayoutEffect } from "react";
 
 interface LinkProps {
   onClick: any;
@@ -7,6 +7,7 @@ interface LinkProps {
   d: string;
   length: number;
   label?: string;
+  size: number;
   source: {
     x: number;
     y: number;
@@ -20,14 +21,21 @@ interface LinkProps {
 }
 
 const Link = ({ onClick, ...props }: LinkProps) => {
-  const { Component, id, d, length } = props;
+  const { Component, id, d, length, label, source, target, size } = props;
 
-  console.log('line')
+  const [textPosition, setTextPosition] = useState({ x: 0, y: 0 });
+
+  useLayoutEffect(() => {
+    setTextPosition({
+      x: size * (source.x + (target.x - source.x) / 2),
+      y: size * (source.y + (target.y - source.y) / 2)
+    });
+  }, [size, source.x, source.y, target.x, target.y]);
 
   return (
     <g key={d} onClick={onClick}>
       {Component ? (
-        <Component {...props} />
+        <Component {...props} textPosition={textPosition} />
       ) : (
         <>
           <path
@@ -37,12 +45,19 @@ const Link = ({ onClick, ...props }: LinkProps) => {
             d={d}
             markerEnd="url(#arrow-#999)"
           ></path>
-          <text x="100" transform="translate(0, 30)">
-          {/* TODO: offset to process (not hardcoded) */}
-          {/* <textPath href={`#${id}`}>
+          <foreignObject {...textPosition} width={250} height={100}>
+            <div
+              style={{
+                borderRadius: "5px",
+                backgroundColor: "rgba(100, 100, 100, 0.2)",
+                textAlign: "center",
+                padding: "1em",
+                border: "1px solid rgba(50, 50, 50, 0.2)"
+              }}
+            >
               {label || `${source.label} -> ${target.label}`}
-            </textPath> */}
-          </text>
+            </div>
+          </foreignObject>
         </>
       )}
     </g>

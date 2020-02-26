@@ -8,7 +8,7 @@ const TEST_BIG = false;
 const TEST_REAL = false;
 const TEST_TREE = false;
 
-const CustomLink = ({ source, target, length, d, label }) => (
+const CustomLink = ({ source, target, length, d, label, textPosition }) => (
   <>
     <path
       id="custom1"
@@ -18,12 +18,19 @@ const CustomLink = ({ source, target, length, d, label }) => (
       stroke="green"
       markerEnd="url(#arrow-green)"
     ></path>
-    <text x="100" transform="translate(0, 30)">
-      {/* TODO: offset to process (not hardcoded) */}
-      <textPath href="custom1">
+    <foreignObject {...textPosition} width={250} height={100}>
+      <div
+        style={{
+          borderRadius: "5px",
+          backgroundColor: "rgba(20, 150, 100, 0.2)",
+          textAlign: "center",
+          padding: "1em",
+          border: "1px solid rgba(50, 50, 50, 0.2)"
+        }}
+      >
         {label || `${source.label} -> ${target.label}`}
-      </textPath>
-    </text>
+      </div>
+    </foreignObject>
   </>
 );
 
@@ -149,11 +156,11 @@ function App() {
               children: [
                 ...old.children,
                 {
-                  id: 'new',
-                  label: 'new'
+                  id: "new",
+                  label: "new"
                 }
               ]
-            }))
+            }));
             return;
           }
 

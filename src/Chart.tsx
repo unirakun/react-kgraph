@@ -402,6 +402,7 @@ const Chart = (props: {
                 length={length}
                 d={d}
                 label={label}
+                size={size}
                 source={{ x: source.x, y: source.y, label: source.label }}
                 target={{ x: target.x, y: target.y, label: target.label }}
                 Component={Component}
