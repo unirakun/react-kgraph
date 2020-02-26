@@ -6,7 +6,7 @@ import "./App.css";
 
 const TEST_BIG = false;
 const TEST_REAL = false;
-const TEST_TREE = true;
+const TEST_TREE = false;
 
 const CustomLink = ({ source, target, length, d, label }) => (
   <>
@@ -16,7 +16,7 @@ const CustomLink = ({ source, target, length, d, label }) => (
       fill="transparent"
       d={d}
       stroke="green"
-      markerEnd="url(#arrow-#999)"
+      markerEnd="url(#arrow-green)"
     ></path>
     <text x="100" transform="translate(0, 30)">
       {/* TODO: offset to process (not hardcoded) */}

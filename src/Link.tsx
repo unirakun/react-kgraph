@@ -1,7 +1,5 @@
 import React, { memo } from "react";
 
-const size = 35;
-
 interface LinkProps {
   onClick: any;
   Component: any;
@@ -22,9 +20,9 @@ interface LinkProps {
 }
 
 const Link = ({ onClick, ...props }: LinkProps) => {
-  const { Component, id, d, length, source, target, label } = props;
+  const { Component, id, d, length } = props;
 
-  // console.log('line')
+  console.log('line')
 
   return (
     <g key={d} onClick={onClick}>
@@ -32,18 +30,6 @@ const Link = ({ onClick, ...props }: LinkProps) => {
         <Component {...props} />
       ) : (
         <>
-          {/* <line
-          x1={source.x * size}
-          y1={source.y * size}
-          x2={target.x * size}
-          y2={target.y * size}
-          /> */}
-          {/* <circle
-            cx={(source.x + 1.5) * size}
-            cy={(source.y + 1.5) * size}
-            r={size}
-            fill="red"
-          /> */}
           <path
             id={id + ""}
             strokeWidth={Math.sqrt(length) * 10}

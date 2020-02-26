@@ -8,11 +8,9 @@ import React, {
 // @ts-ignore
 import * as cola from "webcola";
 import { tree as d3tree, hierarchy } from "d3-hierarchy";
-// import useTweenBetweenValues from "./useTweenBetweenValues";
 import makeCurvedLinks from "./makeCurvedLinks";
 import Node from "./Node";
 import Link from "./Link";
-import useTraceUpdate from "./utils/useTraceUpdate";
 
 function svgPoint(element: SVGSVGElement | null, x: number, y: number) {
   if (!element) return { x, y };
@@ -289,7 +287,19 @@ const Chart = (props: {
     [setZoom]
   );
 
-  const [lineMarkerColors] = useState(["#999"]);
+  const [lineMarkerColors, setLineMarkerColors] = useState<string[]>(["#999"]);
+  useEffect(() => {
+    if (!svgRef.current) return;
+
+    // get all path child from svg
+    // to find stroke color and set new colors array
+    // @ts-ignore
+    const paths = [...svgRef.current.getElementsByTagName('path')]
+    const colors = new Set(paths.map(path => path.getAttribute('stroke')))
+    colors.add("#999") // default color
+    // @ts-ignore
+    setLineMarkerColors([...colors.values()].filter(Boolean))
+  }, [layout])
 
   const findNode = useCallback(
     nodeId => layout.nodes.find(n => n.id === nodeId),
