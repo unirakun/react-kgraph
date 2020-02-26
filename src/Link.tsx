@@ -22,7 +22,17 @@ interface LinkProps {
 }
 
 const Link = ({ onClick, ...props }: LinkProps) => {
-  const { Component, id, d, length, label, source, target, hover, size } = props;
+  const {
+    Component,
+    id,
+    d,
+    length,
+    label,
+    source,
+    target,
+    hover,
+    size
+  } = props;
 
   const [textPosition, setTextPosition] = useState({ x: 0, y: 0 });
 
@@ -34,7 +44,7 @@ const Link = ({ onClick, ...props }: LinkProps) => {
   }, [size, source.x, source.y, target.x, target.y]);
 
   return (
-    <g key={d} onClick={onClick} stroke={hover ? 'red' : undefined}>
+    <g key={d} onClick={onClick} stroke={hover ? "red" : undefined}>
       {Component ? (
         <Component {...props} textPosition={textPosition} />
       ) : (
@@ -46,26 +56,34 @@ const Link = ({ onClick, ...props }: LinkProps) => {
             d={d}
             markerEnd="url(#arrow-#999)"
           ></path>
-          <foreignObject {...textPosition} width={250} height={100}>
-            <div
-              style={{
-                borderRadius: "5px",
-                backgroundColor: "rgba(100, 100, 100, 0.2)",
-                textAlign: "center",
-                padding: "1em",
-                border: "1px solid rgba(50, 50, 50, 0.2)"
-              }}
-            >
-              {label || `${source.label} -> ${target.label}`}
-            </div>
-          </foreignObject>
+          {hover && (
+            <foreignObject {...textPosition} width={250} height={100}>
+              <div
+                style={{
+                  borderRadius: "5px",
+                  backgroundColor: "rgba(100, 100, 100, 0.2)",
+                  textAlign: "center",
+                  padding: "1em",
+                  border: "1px solid rgba(50, 50, 50, 0.2)"
+                }}
+              >
+                {label || `${source.label} -> ${target.label}`}
+              </div>
+            </foreignObject>
+          )}
         </>
       )}
     </g>
   );
 };
 
-const PROPS_TO_ALWAYS_COMPARE = ["onClick", "Component", "id", "length", 'hover'];
+const PROPS_TO_ALWAYS_COMPARE = [
+  "onClick",
+  "Component",
+  "id",
+  "length",
+  "hover"
+];
 
 const propsAreEqual = (prevProps: LinkProps, nextProps: LinkProps): boolean => {
   return !Object.entries(prevProps).some(([key, value]) => {
