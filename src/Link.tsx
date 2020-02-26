@@ -64,7 +64,7 @@ const Link = ({ onClick, ...props }: LinkProps) => {
                   backgroundColor: "rgba(100, 100, 100, 0.2)",
                   textAlign: "center",
                   padding: "1em",
-                  border: "1px solid rgba(50, 50, 50, 0.2)"
+                  border: "1px solid rgba(50, 50, 50, 0.2)",
                 }}
               >
                 {label || `${source.label} -> ${target.label}`}

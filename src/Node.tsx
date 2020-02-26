@@ -31,7 +31,16 @@ const Node = ({
   onMouseLeave?: any; // TODO: type
   [key: string]: any;
 }) => {
-  const { id, size, group, label, Component, onMouseEnter, onMouseLeave, ...gProps } = props;
+  const {
+    id,
+    size,
+    group,
+    label,
+    Component,
+    onMouseEnter,
+    onMouseLeave,
+    ...gProps
+  } = props;
 
   const nodeRef = useRef<SVGGElement>(null);
   const dragInfoRef = useRef({ thisIsMe: false, beforeX: 0, beforeY: 0 });
@@ -89,12 +98,12 @@ const Node = ({
   );
 
   const innerOnMouseLeave = useCallback(() => {
-    if (onMouseLeave) onMouseLeave(id)
-  }, [onMouseLeave, id])
+    if (onMouseLeave) onMouseLeave(id);
+  }, [onMouseLeave, id]);
 
   const innerOnMouseEnter = useCallback(() => {
-    if (onMouseEnter) onMouseEnter(id)
-  }, [onMouseEnter, id])
+    if (onMouseEnter) onMouseEnter(id);
+  }, [onMouseEnter, id]);
 
   useEffect(() => {
     if (!drag) return;
@@ -115,6 +124,10 @@ const Node = ({
   }, [onClick, id]);
 
   console.log("in node");
+  
+  const innerSize = (size + 10) * 3
+  const outerSize = innerSize + 20
+
   return (
     <g
       ref={nodeRef}
@@ -128,10 +141,24 @@ const Node = ({
         <Component {...props} />
       ) : (
         <>
-          <circle r={size * 2} fill={hover ? 'red' : color(group)} cx={0} cy={0}></circle>
-          <text stroke="#333" textAnchor="middle" dy="0.5em" fontSize="1em">
-            {label}
-          </text>
+          <foreignObject width={outerSize} height={outerSize} x={-outerSize/2} y={-outerSize/2}>
+            <div
+              style={{
+                borderRadius: "100%",
+                backgroundColor: hover ? 'red' : "rgba(243, 243, 243)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                border: "1px solid rgba(50, 50, 50)",
+                boxShadow: "0px 0px 10px -5px black",
+                width: innerSize,
+                height: innerSize,
+                margin: '5px auto'
+              }}
+            >
+              {label}
+            </div>
+          </foreignObject>
         </>
       )}
     </g>
