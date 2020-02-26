@@ -13,6 +13,7 @@ const Node = ({
   onStart,
   onEnd,
   drag,
+  hover,
   ...props
 }: {
   id: number | string;
@@ -20,14 +21,17 @@ const Node = ({
   group: string;
   label?: string;
   drag: boolean;
+  hover: boolean;
   Component?: any;
   onClick?: any; // TODO: type
   onEnd?: any; // TODO: type
   onStart?: any; // TODO: type
   onDrag?: any; // TODO: type
+  onMouseEnter?: any; // TODO: type
+  onMouseLeave?: any; // TODO: type
   [key: string]: any;
 }) => {
-  const { id, size, group, label, Component, ...gProps } = props;
+  const { id, size, group, label, Component, onMouseEnter, onMouseLeave, ...gProps } = props;
 
   const nodeRef = useRef<SVGGElement>(null);
   const dragInfoRef = useRef({ thisIsMe: false, beforeX: 0, beforeY: 0 });
@@ -84,8 +88,16 @@ const Node = ({
     [onEnd, id]
   );
 
+  const innerOnMouseLeave = useCallback(() => {
+    if (onMouseLeave) onMouseLeave(id)
+  }, [onMouseLeave, id])
+
+  const innerOnMouseEnter = useCallback(() => {
+    if (onMouseEnter) onMouseEnter(id)
+  }, [onMouseEnter, id])
+
   useEffect(() => {
-    if (!drag) return
+    if (!drag) return;
     window.addEventListener("mousedown", mouseDown);
     window.addEventListener("mousemove", mouseMove);
     window.addEventListener("mouseup", mouseUp);
@@ -102,19 +114,21 @@ const Node = ({
     return undefined;
   }, [onClick, id]);
 
-  console.log('in node')
+  console.log("in node");
   return (
     <g
       ref={nodeRef}
       {...gProps}
       onClick={onInnerClick}
       className="node-container"
+      onMouseLeave={innerOnMouseLeave}
+      onMouseEnter={innerOnMouseEnter}
     >
       {Component ? (
         <Component {...props} />
       ) : (
         <>
-          <circle r={size * 2} fill={color(group)} cx={0} cy={0}></circle>
+          <circle r={size * 2} fill={hover ? 'red' : color(group)} cx={0} cy={0}></circle>
           <text stroke="#333" textAnchor="middle" dy="0.5em" fontSize="1em">
             {label}
           </text>

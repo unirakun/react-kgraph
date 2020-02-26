@@ -352,6 +352,14 @@ const Chart = (props: {
     }
   }, []);
 
+  const [hoverNodes, setHoverNodes] = useState<any[]>([])
+  const onOverNode = useCallback(nodeId => {
+    setHoverNodes([nodeId])
+  }, [])
+  const onLeaveNode = useCallback(() => {
+    setHoverNodes([])
+  }, [])
+
   if (layout.nodes.length === 0) return null;
 
   return (
@@ -407,6 +415,7 @@ const Chart = (props: {
                 target={{ x: target.x, y: target.y, label: target.label }}
                 Component={Component}
                 onClick={onLinkClick}
+                hover={hoverNodes.includes(link.source.id) || hoverNodes.includes(link.target.id)}
               />
             );
           })}
@@ -424,11 +433,14 @@ const Chart = (props: {
                   label={label}
                   Component={Component}
                   onClick={onNodeClick}
+                  onMouseEnter={onOverNode}
+                  onMouseLeave={onLeaveNode}
                   size={size}
                   onDrag={onDrag}
                   onStart={onStart}
                   onEnd={onEnd}
                   drag={!tree}
+                  hover={hoverNodes.includes(id)}
                 />
               </g>
             );

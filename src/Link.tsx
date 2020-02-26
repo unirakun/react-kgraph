@@ -8,6 +8,7 @@ interface LinkProps {
   length: number;
   label?: string;
   size: number;
+  hover: boolean;
   source: {
     x: number;
     y: number;
@@ -21,7 +22,7 @@ interface LinkProps {
 }
 
 const Link = ({ onClick, ...props }: LinkProps) => {
-  const { Component, id, d, length, label, source, target, size } = props;
+  const { Component, id, d, length, label, source, target, hover, size } = props;
 
   const [textPosition, setTextPosition] = useState({ x: 0, y: 0 });
 
@@ -33,14 +34,14 @@ const Link = ({ onClick, ...props }: LinkProps) => {
   }, [size, source.x, source.y, target.x, target.y]);
 
   return (
-    <g key={d} onClick={onClick}>
+    <g key={d} onClick={onClick} stroke={hover ? 'red' : undefined}>
       {Component ? (
         <Component {...props} textPosition={textPosition} />
       ) : (
         <>
           <path
             id={id + ""}
-            strokeWidth={Math.sqrt(length) * 10}
+            strokeWidth={Math.sqrt(length) * (hover ? 12 : 10)}
             fill="transparent"
             d={d}
             markerEnd="url(#arrow-#999)"
@@ -64,7 +65,7 @@ const Link = ({ onClick, ...props }: LinkProps) => {
   );
 };
 
-const PROPS_TO_ALWAYS_COMPARE = ["onClick", "Component", "id", "length"];
+const PROPS_TO_ALWAYS_COMPARE = ["onClick", "Component", "id", "length", 'hover'];
 
 const propsAreEqual = (prevProps: LinkProps, nextProps: LinkProps): boolean => {
   return !Object.entries(prevProps).some(([key, value]) => {
