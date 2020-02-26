@@ -187,7 +187,7 @@ const Chart = (props: {
         );
 
         // mark all node as fixed (so this is performant)
-        layout.nodes().forEach(cola.Layout.dragStart)
+        layout.nodes().forEach(cola.Layout.dragStart);
       })
       .avoidOverlaps(true)
       .size([width, height])
@@ -291,17 +291,18 @@ const Chart = (props: {
   );
 
   const [lineMarkerColors, setLineMarkerColors] = useState<string[]>(["#999"]);
-  useEffect(() => {
+  const getMarkerColors = useCallback(() => {
     if (!svgRef.current) return;
 
     // get all path child from svg
     // to find stroke color and set new colors array
     // @ts-ignore
-    const paths = [...svgRef.current.getElementsByTagName('path')]
-    const colors = new Set(paths.map(path => path.getAttribute('stroke')))
+    const paths = [...svgRef.current.getElementsByTagName("path")];
+    const colors = new Set(paths.map(path => path.getAttribute("stroke")));
     // @ts-ignore
-    setLineMarkerColors([...colors.values()].filter(Boolean))
-  }, [layout])
+    setLineMarkerColors([...colors.values()].filter(Boolean));
+  }, []);
+  useEffect(getMarkerColors, [layout, getMarkerColors]);
 
   const findNode = useCallback(
     nodeId => layout.nodes.find(n => n.id === nodeId),
@@ -351,13 +352,14 @@ const Chart = (props: {
     }
   }, []);
 
-  const [hoverNodes, setHoverNodes] = useState<any[]>([])
+  const [hoverNodes, setHoverNodes] = useState<any[]>([]);
   const onOverNode = useCallback(nodeId => {
-    setHoverNodes([nodeId])
-  }, [])
+    setHoverNodes([nodeId]);
+    requestAnimationFrame(getMarkerColors)
+  }, [getMarkerColors]);
   const onLeaveNode = useCallback(() => {
-    setHoverNodes([])
-  }, [])
+    setHoverNodes([]);
+  }, []);
 
   if (layout.nodes.length === 0) return null;
 
@@ -414,7 +416,10 @@ const Chart = (props: {
                 target={{ x: target.x, y: target.y, label: target.label }}
                 Component={Component}
                 onClick={onLinkClick}
-                hover={hoverNodes.includes(link.source.id) || hoverNodes.includes(link.target.id)}
+                hover={
+                  hoverNodes.includes(link.source.id) ||
+                  hoverNodes.includes(link.target.id)
+                }
               />
             );
           })}
