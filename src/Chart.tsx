@@ -185,6 +185,9 @@ const Chart = (props: {
           "nodes",
           layout.nodes().length
         );
+
+        // mark all node as fixed (so this is performant)
+        layout.nodes().forEach(cola.Layout.dragStart)
       })
       .avoidOverlaps(true)
       .size([width, height])
@@ -345,7 +348,7 @@ const Chart = (props: {
     // unlock zoom and ask for a relayout (and a redaw as a consequence)
     blockZoom.current = false;
     if (layoutRef.current) {
-      layoutRef.current.resume();
+      // layoutRef.current.resume();
     }
   }, []);
 
