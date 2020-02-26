@@ -299,7 +299,6 @@ const Chart = (props: {
     // @ts-ignore
     const paths = [...svgRef.current.getElementsByTagName('path')]
     const colors = new Set(paths.map(path => path.getAttribute('stroke')))
-    colors.add("#999") // default color
     // @ts-ignore
     setLineMarkerColors([...colors.values()].filter(Boolean))
   }, [layout])
@@ -391,7 +390,7 @@ const Chart = (props: {
             id={`arrow-${color}`}
             key={`arrow-${color}`}
             viewBox="0 0 10 10"
-            refX={size / 2 - 2.5} // FIXME: find a function to process this number
+            refX={size / 2 + 11} // FIXME: find a function to process this number
             refY="2.5"
             markerWidth="6"
             markerHeight="6"

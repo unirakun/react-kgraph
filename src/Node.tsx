@@ -145,7 +145,7 @@ const Node = ({
             <div
               style={{
                 borderRadius: "100%",
-                backgroundColor: hover ? 'red' : "rgba(243, 243, 243)",
+                backgroundColor: hover ? 'red' : color(group),
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",

@@ -22,17 +22,7 @@ interface LinkProps {
 }
 
 const Link = ({ onClick, ...props }: LinkProps) => {
-  const {
-    Component,
-    id,
-    d,
-    length,
-    label,
-    source,
-    target,
-    hover,
-    size
-  } = props;
+  const { Component, id, d, label, source, target, hover, size } = props;
 
   const [textPosition, setTextPosition] = useState({ x: 0, y: 0 });
 
@@ -44,17 +34,18 @@ const Link = ({ onClick, ...props }: LinkProps) => {
   }, [size, source.x, source.y, target.x, target.y]);
 
   return (
-    <g key={d} onClick={onClick} stroke={hover ? "red" : undefined}>
+    <g key={d} onClick={onClick}>
       {Component ? (
         <Component {...props} textPosition={textPosition} />
       ) : (
         <>
           <path
             id={id + ""}
-            strokeWidth={Math.sqrt(length) * (hover ? 12 : 10)}
+            strokeWidth={hover ? 6 : 5}
             fill="transparent"
             d={d}
-            markerEnd="url(#arrow-#999)"
+            stroke={hover ? "red" : "#d1d1d1"}
+            markerEnd="url(#arrow-#d1d1d1)"
           ></path>
           {hover && (
             <foreignObject {...textPosition} width={250} height={100}>
@@ -64,7 +55,7 @@ const Link = ({ onClick, ...props }: LinkProps) => {
                   backgroundColor: "rgba(100, 100, 100, 0.2)",
                   textAlign: "center",
                   padding: "1em",
-                  border: "1px solid rgba(50, 50, 50, 0.2)",
+                  border: "1px solid rgba(50, 50, 50, 0.2)"
                 }}
               >
                 {label || `${source.label} -> ${target.label}`}
@@ -81,7 +72,6 @@ const PROPS_TO_ALWAYS_COMPARE = [
   "onClick",
   "Component",
   "id",
-  "length",
   "hover"
 ];
 
