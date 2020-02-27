@@ -41,7 +41,6 @@ const Link = ({ onClick, ...props }: LinkProps) => {
   const height = 100;
   const width = 250;
   useLayoutEffect(() => {
-    console.log(sweep);
     setTextPosition(
       sweep > 0
         ? {
