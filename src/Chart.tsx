@@ -353,10 +353,13 @@ const Chart = (props: {
   }, []);
 
   const [hoverNodes, setHoverNodes] = useState<any[]>([]);
-  const onOverNode = useCallback(nodeId => {
-    setHoverNodes([nodeId]);
-    requestAnimationFrame(getMarkerColors)
-  }, [getMarkerColors]);
+  const onOverNode = useCallback(
+    nodeId => {
+      setHoverNodes([nodeId]);
+      requestAnimationFrame(getMarkerColors);
+    },
+    [getMarkerColors]
+  );
   const onLeaveNode = useCallback(() => {
     setHoverNodes([]);
   }, []);
@@ -404,12 +407,23 @@ const Chart = (props: {
 
         <g stroke="#999">
           {makeCurvedLinks(layout.links, { size }).map((link: any, index) => {
-            const { length, d, label, source, target, Component } = link;
+            const {
+              length,
+              d,
+              quadraticPoint,
+              sweep,
+              label,
+              source,
+              target,
+              Component
+            } = link;
             return (
               <Link
                 id={index}
                 length={length}
                 d={d}
+                quadraticPoint={quadraticPoint}
+                sweep={sweep}
                 label={label}
                 size={size}
                 source={{ x: source.x, y: source.y, label: source.label }}
