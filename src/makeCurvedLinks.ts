@@ -30,45 +30,44 @@ const scale = ({ source, target }: Link, size: number) => ({
   }
 })
 
-const calculDx = ({ source, target }: Link) => Math.sqrt(
-  (source.x - target.x) * (source.x - target.x) +
-  (source.y - target.y) * (source.y - target.y)
-);
-
-const calculRadius = (dx: number, x: number) => !x ? 1e10 : (0.125 * dx * dx) / x + x / 2;
-
-const addSVGPath = ({ offset = 20, size }: LinksOptions) => (links: Link[]) => {
-
-  let reverseCount = 0;
-
+const addSVGPath = ({ offset = 500, size }: LinksOptions) => (links: Link[]) => {
   return links.map((link: any, i: number, { length }: { length: number }) => {
     // use size to scale all positions
     const { source, target } = scale(link, size);
 
     // don't calcul the curve when only one link between two point
-    if (length === 1) {
+    if (i === (length - 1) / 2) {
       return {
         ...link,
-        d: `M ${source.x} ${source.y} A 0 0 0 0 0 ${target.x} ${target.y}`,
+        d: `M ${source.x} ${source.y} ${target.x} ${target.y}`,
+        quadraticPoint: {
+          x: source.x + (target.x - source.x) / 2,
+          y: source.y + (target.y - source.y) / 2
+        },
+        sweep: 1,
       }
     }
 
-    // calcul coordinate point to curve the link
-    const dx = calculDx({ source, target });
+    var cx = (source.x + target.x) / 2;
+    var cy = (source.y + target.y) / 2;
+    var dx = (target.x - source.x) / 2;
+    var dy = (target.y - source.y) / 2;
 
-    const linkNumber = length % 2 && i === length - 1 ? 0 : 1 + (i / 2);
-    const radius = calculRadius(dx, offset * linkNumber);
+    const dd = Math.sqrt(dx * dx + dy * dy);
 
-    // 2 directions is possible with similar links.
-    // Sweep depend of the direction and the number of link with this direction.
-    let sweep = 0;
-    if (link.source.x - link.target.x > 0) sweep = (i - reverseCount) % 2; // sweep for normal direction
-    else sweep = (reverseCount++ % 2); // sweep for reverse direction
+    const sweep = (link.source.x - link.target.x > 0) ? 1 : -1;
+
+    const quadraticPoint = {
+      x: cx + dy / dd * (offset / links.length) * (i - (length - 1) / 2) * sweep,
+      y: cy - dx / dd * (offset / links.length) * (i - (length - 1) / 2) * sweep
+    };
 
     // add svg path of link 
     return {
       ...link,
-      d: `M ${source.x} ${source.y} A ${radius} ${radius} 0 0 ${sweep} ${target.x} ${target.y}`,
+      d: `M ${source.x} ${source.y} Q ${quadraticPoint.x} ${quadraticPoint.y} ${target.x} ${target.y}`,
+      quadraticPoint,
+      sweep,
     }
   });
 };

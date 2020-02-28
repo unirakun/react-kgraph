@@ -5,6 +5,8 @@ interface LinkProps {
   Component: any;
   id: string | number;
   d: string;
+  quadraticPoint: any;
+  sweep: number;
   length: number;
   label?: string;
   size: number;
@@ -22,17 +24,35 @@ interface LinkProps {
 }
 
 const Link = ({ onClick, ...props }: LinkProps) => {
-  const { Component, id, d, label, source, target, hover, size } = props;
+  const {
+    Component,
+    id,
+    d,
+    quadraticPoint,
+    sweep,
+    label,
+    source,
+    target,
+    hover,
+    size
+  } = props;
 
   const [textPosition, setTextPosition] = useState({ x: 0, y: 0 });
-
+  const height = 100;
+  const width = 250;
   useLayoutEffect(() => {
-    setTextPosition({
-      x: size * (source.x + (target.x - source.x) / 2),
-      y: size * (source.y + (target.y - source.y) / 2)
-    });
-  }, [size, source.x, source.y, target.x, target.y]);
-
+    setTextPosition(
+      sweep > 0
+        ? {
+            x: quadraticPoint.x - width / 2,
+            y: quadraticPoint.y - height / 2
+          }
+        : {
+            x: quadraticPoint.x - width / 2,
+            y: quadraticPoint.y
+          }
+    );
+  }, [size, source.x, source.y, target.x, target.y, quadraticPoint, sweep]);
   return (
     <g key={d} onClick={onClick}>
       {Component ? (
@@ -45,10 +65,10 @@ const Link = ({ onClick, ...props }: LinkProps) => {
             fill="transparent"
             d={d}
             stroke={hover ? "red" : "#d1d1d1"}
-            markerEnd={`url(#arrow-${hover ? 'red' : '#d1d1d1'})`}
+            markerEnd={`url(#arrow-${hover ? "red" : "#d1d1d1"})`}
           ></path>
-          {hover && (
-            <foreignObject {...textPosition} width={250} height={100}>
+          {hover &&
+            <foreignObject {...textPosition} width={width} height={height}>
               <div
                 style={{
                   borderRadius: "5px",
@@ -61,19 +81,14 @@ const Link = ({ onClick, ...props }: LinkProps) => {
                 {label || `${source.label} -> ${target.label}`}
               </div>
             </foreignObject>
-          )}
+          }
         </>
       )}
     </g>
   );
 };
 
-const PROPS_TO_ALWAYS_COMPARE = [
-  "onClick",
-  "Component",
-  "id",
-  "hover"
-];
+const PROPS_TO_ALWAYS_COMPARE = ["onClick", "Component", "id", "hover"];
 
 const propsAreEqual = (prevProps: LinkProps, nextProps: LinkProps): boolean => {
   return !Object.entries(prevProps).some(([key, value]) => {
