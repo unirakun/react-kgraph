@@ -30,7 +30,7 @@ const scale = ({ source, target }: Link, size: number) => ({
   }
 })
 
-const addSVGPath = ({ offset = 200, size }: LinksOptions) => (links: Link[]) => {
+const addSVGPath = ({ offset = 500, size }: LinksOptions) => (links: Link[]) => {
   return links.map((link: any, i: number, { length }: { length: number }) => {
     // use size to scale all positions
     const { source, target } = scale(link, size);
@@ -58,8 +58,8 @@ const addSVGPath = ({ offset = 200, size }: LinksOptions) => (links: Link[]) => 
     const sweep = (link.source.x - link.target.x > 0) ? 1 : -1;
 
     const quadraticPoint = {
-      x: cx + dy / dd * offset * (i - (length - 1) / 2) * sweep,
-      y: cy - dx / dd * offset * (i - (length - 1) / 2) * sweep
+      x: cx + dy / dd * (offset / links.length) * (i - (length - 1) / 2) * sweep,
+      y: cy - dx / dd * (offset / links.length) * (i - (length - 1) / 2) * sweep
     };
 
     // add svg path of link 

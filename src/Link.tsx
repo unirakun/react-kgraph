@@ -67,7 +67,7 @@ const Link = ({ onClick, ...props }: LinkProps) => {
             stroke={hover ? "red" : "#d1d1d1"}
             markerEnd={`url(#arrow-${hover ? "red" : "#d1d1d1"})`}
           ></path>
-          {
+          {hover &&
             <foreignObject {...textPosition} width={width} height={height}>
               <div
                 style={{
