@@ -90,6 +90,10 @@ const useGraphLayout = (
       .jaccardLinkLengths(10);
 
     startLayout();
+
+    return () => {
+      layoutRef.current?.stop()
+    }
   }, [startLayout, nodes, height, width]);
 
   const relayout = useCallback(() => {
