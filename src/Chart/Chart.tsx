@@ -10,8 +10,8 @@ import * as cola from "webcola";
 import makeCurvedLinks from "./makeCurvedLinks";
 import Node from "./Node";
 import Link from "./Link";
-import { TreeNode, SimplifiedLayout } from './types'
-import { useHoverNodes, useTreeLayout } from './hooks'
+import { TreeNode, SimplifiedLayout } from "./types";
+import { useHoverNodes, useTreeLayout, useCenterAndZoom } from "./hooks";
 
 function svgPoint(element: SVGSVGElement | null, x: number, y: number) {
   if (!element) return { x, y };
@@ -70,56 +70,6 @@ const Chart = (props: {
     nodes: [],
     links: []
   });
-
-  const mouseMovingInfos = useRef({ startX: 0, startY: 0, moving: false });
-  const rafOffsetTimer = useRef<number>();
-  const [offsets, setOffsets] = useState({ x: 0, y: 0 });
-
-  const blockZoom = useRef(false);
-  const rafZoomTimer = useRef<number>();
-  const [zoom, setZoom] = useState(1);
-  // const [zoom, setZoom] = useTweenBetweenValues(1, {
-  //   delay: 200,
-  //   duration: 300
-  // });
-
-  const centerAndZoom = useCallback(() => {
-    if (layout.nodes.length === 0) return;
-
-    let minX = Infinity;
-    let minY = Infinity;
-    let maxX = -Infinity;
-    let maxY = -Infinity;
-    layout.nodes.forEach(({ x, y }) => {
-      if (minX > x) minX = x;
-      if (minY > y) minY = y;
-      if (maxX < x) maxX = x;
-      if (maxY < y) maxY = y;
-    });
-    minX = minX * size - size * 2;
-    minY = minY * size - size * 2;
-    maxX = maxX * size + size * 2;
-    maxY = maxY * size + size * 2;
-    let chartWidth = maxX - minX;
-    let chartHeight = maxY - minY;
-    // intermediate zoom to process paddings
-    let newZoom = Math.max(chartWidth / width, chartHeight / height);
-    minX -= padding * newZoom;
-    minY -= padding * newZoom;
-    maxX += padding * newZoom;
-    maxY += padding * newZoom;
-    chartWidth = maxX - minX;
-    chartHeight = maxY - minY;
-    // final zoom
-    newZoom = Math.max(chartWidth / width, chartHeight / height);
-    // process center
-    let centerX = chartWidth / 2 + minX - (width * newZoom) / 2;
-    let centerY = chartHeight / 2 + minY - (height * newZoom) / 2;
-    if (!blockZoom.current) {
-      setZoom(newZoom);
-      setOffsets({ x: centerX, y: centerY });
-    }
-  }, [layout, setZoom]);
 
   const startLayout = useCallback(() => {
     if (layoutRef.current) {
@@ -182,72 +132,27 @@ const Chart = (props: {
     startLayout();
   }, [startLayout, tree]);
 
-  const treeLayout = useTreeLayout(root, { size })
+  const treeLayout = useTreeLayout(root, { size });
   useEffect(() => {
-    setLayout(treeLayout)
-  }, [treeLayout])
+    setLayout(treeLayout);
+  }, [treeLayout]);
 
-  useEffect(() => {
-    centerAndZoom();
-  }, [layout, centerAndZoom]);
+  const [
+    zoom,
+    offsets,
+    centerAndZoom,
+    onWheel,
+    onMouseMove,
+    onMouseDown,
+    onMouseUp,
+    blockCenterAndZoom
+  ] = useCenterAndZoom(layout, { size, padding, width, height });
 
   useLayoutEffect(() => {
     return () => {
       layoutTickDraw.current = true;
     };
   }, [layout]);
-
-  const canMoveViewportRef = useRef(false);
-
-  const onMouseMove = useCallback(
-    e => {
-      // TODO: add a timeout (with numbers, not setTimeout) instead of a boolean
-      if (!mouseMovingInfos.current.moving) return;
-
-      const { startX, startY } = mouseMovingInfos.current;
-      const { clientX, clientY } = e;
-
-      if (rafOffsetTimer.current) cancelAnimationFrame(rafOffsetTimer.current);
-      rafOffsetTimer.current = requestAnimationFrame(() => {
-        mouseMovingInfos.current.startX = clientX;
-        mouseMovingInfos.current.startY = clientY;
-        setOffsets(old => ({
-          x: old.x + (startX - clientX) * zoom,
-          y: old.y + (startY - clientY) * zoom
-        }));
-      });
-    },
-    [zoom]
-  );
-  const onMouseDown = useCallback(e => {
-    if (!canMoveViewportRef.current) return;
-    mouseMovingInfos.current = {
-      ...mouseMovingInfos.current,
-      moving: true,
-      startX: e.clientX,
-      startY: e.clientY
-    };
-  }, []);
-  const onMouseUp = useCallback(() => {
-    mouseMovingInfos.current = {
-      ...mouseMovingInfos.current,
-      moving: false
-    };
-  }, []);
-
-  // TODO: should offset to the cursor mouse while zooming
-  const onWheel = useCallback(
-    e => {
-      const { deltaY } = e;
-
-      if (rafZoomTimer.current) cancelAnimationFrame(rafZoomTimer.current);
-      rafZoomTimer.current = requestAnimationFrame(() => {
-        // console.log("WHEEL?");
-        setZoom((old: number) => old - deltaY / 1000);
-      });
-    },
-    [setZoom]
-  );
 
   const [lineMarkerColors, setLineMarkerColors] = useState<string[]>(["#999"]);
   const getMarkerColors = useCallback(() => {
@@ -269,10 +174,7 @@ const Chart = (props: {
   );
 
   const onDrag = useCallback(
-    (nodeId, e: MouseEvent) => {
-      canMoveViewportRef.current = false;
-      onMouseUp();
-
+    (nodeId, e: React.MouseEvent) => {
       const node = findNode(nodeId);
       if (!node) return;
 
@@ -287,7 +189,7 @@ const Chart = (props: {
         layoutRef.current.resume();
       }
     },
-    [onMouseUp, findNode]
+    [findNode]
   );
 
   const onStart = useCallback(
@@ -296,23 +198,27 @@ const Chart = (props: {
       if (!node) return;
 
       cola.Layout.dragStart(node);
-      blockZoom.current = true;
+      blockCenterAndZoom(true);
     },
-    [findNode]
+    [findNode, blockCenterAndZoom]
   );
 
-  const onEnd = useCallback(node => {
-    // cola.Layout.dragEnd(node);
+  const onEnd = useCallback(
+    node => {
+      // unlock zoom and ask for a relayout (and a redaw as a consequence)
+      blockCenterAndZoom(false);
+      centerAndZoom();
+    },
+    [centerAndZoom, blockCenterAndZoom]
+  );
 
-    // unlock zoom and ask for a relayout (and a redaw as a consequence)
-    blockZoom.current = false;
-    if (layoutRef.current) {
-      // layoutRef.current.resume();
-    }
-  }, []);
+  const [
+    hoverNode,
+    hiddenNodes,
+    onOverNode,
+    onLeaveNode
+  ] = useHoverNodes(layout, { getMarkerColors });
 
-  const [hoverNode, hiddenNodes, onOverNode, onLeaveNode] = useHoverNodes(layout, { getMarkerColors })
-  
   if (layout.nodes.length === 0) return null;
 
   return (
@@ -332,11 +238,10 @@ const Chart = (props: {
         width={width}
         height={height}
         viewBox={`${offsets.x} ${offsets.y} ${width * zoom} ${height * zoom}`}
+        onWheel={onWheel}
         onMouseMove={onMouseMove}
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
-        onMouseLeave={onMouseUp}
-        onWheel={onWheel}
         xmlns="http://www.w3.org/2000/svg"
       >
         {lineMarkerColors.map(color => (
