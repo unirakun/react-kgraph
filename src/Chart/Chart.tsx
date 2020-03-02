@@ -235,7 +235,7 @@ const Chart = (props: {
         </g>
         <g stroke="#fff" strokeWidth={1}>
           {layout.nodes.map(node => {
-            const { id, group, x, y, label, Component } = node;
+            const { id, group, x, y, label, Component, color } = node;
 
             return (
               <g transform={`translate(${x * size} ${y * size})`}>
@@ -244,6 +244,7 @@ const Chart = (props: {
                   id={id}
                   group={group}
                   label={label}
+                  color={color}
                   Component={Component}
                   onClick={innerOnNodeClick}
                   onMouseEnter={onOverNode}

@@ -3,16 +3,33 @@ import Chart from "./Chart";
 import getFlux from "./utils/getFlux";
 import "./App.css";
 
-const CustomLink = ({ source, target, length, d, label, textPosition }) => (
+const CustomLink = ({
+  source,
+  target,
+  length,
+  d,
+  label,
+  textPosition,
+  hover
+}) => (
   <>
     <path
       id="custom1"
-      strokeWidth={Math.sqrt(length) * 10}
+      strokeWidth={5}
       fill="transparent"
       d={d}
-      stroke="green"
-      markerEnd="url(#arrow-green)"
+      stroke="#6de090"
+      markerEnd="url(#arrow-#6de090)"
     ></path>
+    {hover && (
+      <path
+        id={"custom1"}
+        strokeWidth={20}
+        fill="transparent"
+        d={d}
+        stroke="rgba(249, 121, 117, 0.5)"
+      ></path>
+    )}
     <foreignObject {...textPosition} width={250} height={100}>
       <div
         style={{
@@ -39,28 +56,28 @@ function App() {
         {
           id: "REP",
           label: "REP",
-          Component: ({ label }) => (
-            <>
-              <circle
-                r={70}
-                fill="#ff0000"
-                cx={0}
-                cy={0}
-                className="circle"
-              ></circle>
-              <text stroke="#333" textAnchor="middle" dy="0.5em" fontSize="1em">
+          Component: ({ label, style, outerSize }) => (
+            <foreignObject
+              width={outerSize}
+              height={outerSize}
+              x={-outerSize / 2}
+              y={-outerSize / 2}
+            >
+              <div style={{ ...style, backgroundColor: "#6de090" }}>
                 {label}
-              </text>
-            </>
+              </div>
+            </foreignObject>
           )
         },
         {
           id: "COU",
-          label: "COU"
+          label: "COU",
+          color: "#4f9ceb"
         },
         {
           id: "ASS",
-          label: "ASS"
+          label: "ASS",
+          color: "#4f9ceb"
         }
       ],
       links: [

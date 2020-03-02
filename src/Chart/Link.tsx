@@ -1,5 +1,4 @@
 import React, { memo, useState, useLayoutEffect, useCallback } from "react";
-import useTraceUpdate from "../utils/useTraceUpdate";
 
 interface LinkProps {
   onClick: any;
@@ -84,7 +83,7 @@ const Link = ({ onClick, ...props }: LinkProps) => {
               strokeWidth={20}
               fill="transparent"
               d={d}
-              stroke="rgba(255, 0, 0, 0.5)"
+              stroke="rgba(249, 121, 117, 0.5)"
             ></path>
           )}
           {hover && (

@@ -1,8 +1,8 @@
 import React, { memo, useRef, useEffect, useCallback } from "react";
 import * as d3 from "d3";
-import './Node.css'
+import "./Node.css";
 
-let color = d3.scaleOrdinal(d3.schemeCategory10);
+const getColor = d3.scaleOrdinal(d3.schemeCategory10);
 
 // TODO: create a MovableSvgItem ?
 // TODO: remove the "node" parameter
@@ -23,6 +23,7 @@ const Node = ({
   drag: boolean;
   hover: boolean;
   hidden: boolean;
+  color?: string;
   Component?: any;
   onClick?: any; // TODO: type
   onEnd?: any; // TODO: type
@@ -39,6 +40,7 @@ const Node = ({
     label,
     hover,
     hidden,
+    color,
     Component,
     onMouseEnter,
     onMouseLeave,
@@ -131,6 +133,19 @@ const Node = ({
   const innerSize = (size + 10) * 3;
   const outerSize = innerSize + 20;
 
+  const style = {
+    borderRadius: "100%",
+    backgroundColor: hover ? "#f97975" : color || getColor(group),
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    border: "1px solid rgba(50, 50, 50, 0.4)",
+    boxShadow: "0px 0px 10px -5px black",
+    width: innerSize,
+    height: innerSize,
+    margin: "5px auto"
+  };
+
   return (
     <g
       ref={nodeRef}
@@ -141,33 +156,16 @@ const Node = ({
       onMouseEnter={innerOnMouseEnter}
     >
       {Component ? (
-        <Component {...props} />
+        <Component style={style} outerSize={outerSize} {...props} />
       ) : (
-        <>
-          <foreignObject
-            width={outerSize}
-            height={outerSize}
-            x={-outerSize / 2}
-            y={-outerSize / 2}
-          >
-            <div
-              style={{
-                borderRadius: "100%",
-                backgroundColor: hover ? "red" : color(group),
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                border: "1px solid rgba(50, 50, 50)",
-                boxShadow: "0px 0px 10px -5px black",
-                width: innerSize,
-                height: innerSize,
-                margin: "5px auto"
-              }}
-            >
-              {label}
-            </div>
-          </foreignObject>
-        </>
+        <foreignObject
+          width={outerSize}
+          height={outerSize}
+          x={-outerSize / 2}
+          y={-outerSize / 2}
+        >
+          <div style={style}>{label}</div>
+        </foreignObject>
       )}
     </g>
   );
