@@ -11,6 +11,8 @@ import { tree as d3tree, hierarchy } from "d3-hierarchy";
 import makeCurvedLinks from "./makeCurvedLinks";
 import Node from "./Node";
 import Link from "./Link";
+import { TreeNode, SimplifiedLayout } from './types'
+import { useHoverNodes } from './hooks'
 
 function svgPoint(element: SVGSVGElement | null, x: number, y: number) {
   if (!element) return { x, y };
@@ -35,21 +37,6 @@ let height = 500;
 let width = 800;
 let padding = 20;
 let iterations = 1;
-
-type WithCoords = { x: number; y: number };
-interface ChartNode extends WithCoords {
-  [key: string]: any;
-}
-
-interface TreeNode extends WithCoords {
-  [key: string]: any;
-  children?: TreeNode[];
-}
-
-interface SimplifiedLayout {
-  nodes: (ChartNode | TreeNode)[];
-  links: any[];
-}
 
 // from https://github.com/cawfree/react-cola/blob/master/index.js
 class ReactColaLayout extends cola.Layout {
@@ -352,38 +339,8 @@ const Chart = (props: {
     }
   }, []);
 
-  const [hoverNode, setHoverNode] = useState<ChartNode>();
-  const [hiddenNodes, setHiddenNodes] = useState<any[]>([]);
-  const onOverNode = useCallback(
-    nodeId => {
-      const notHiddenNodes = new Set();
-
-      // get hidden links and NOT hidden nodes
-      layout.links.forEach(({ source, target }, index) => {
-        if (nodeId !== source.id && nodeId !== target.id) {
-          return;
-        }
-        notHiddenNodes.add(source.id);
-        notHiddenNodes.add(target.id);
-      });
-
-      // hidden nodes are NOT nodes that are NOT hidden
-      const newHiddenNodes = layout.nodes.filter(
-        ({ id }) => !notHiddenNodes.has(id)
-      );
-      console.log({ newHiddenNodes, notHiddenNodes })
-
-      setHiddenNodes(newHiddenNodes.map(({ id }) => id));
-      setHoverNode(nodeId);
-      requestAnimationFrame(getMarkerColors);
-    },
-    [getMarkerColors, layout.links, layout.nodes]
-  );
-  const onLeaveNode = useCallback(() => {
-    setHoverNode(undefined);
-    setHiddenNodes([]);
-  }, []);
-
+  const [hoverNode, hiddenNodes, onOverNode, onLeaveNode] = useHoverNodes(layout, { getMarkerColors })
+  
   if (layout.nodes.length === 0) return null;
 
   return (
