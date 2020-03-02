@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import Chart from "./Chart";
-import getFlux from "./getFlux";
-import Test from "./Test";
+import getFlux from "./utils/getFlux";
 import "./App.css";
 
 const CustomLink = ({ source, target, length, d, label, textPosition }) => (
@@ -96,8 +95,8 @@ function App() {
   const onLinkClick = useCallback(link => console.log(link), []);
 
   return (
-    <>
-      <Test />
+    <div style={{ display: 'flex' }}>
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
       <button
         onClick={() => {
           setRootTree({
@@ -203,6 +202,7 @@ function App() {
       >
         Add
       </button>
+      </div>
       {(data || rootTree) && (
         <Chart
           {...data}
@@ -213,7 +213,7 @@ function App() {
         />
       )}
       <pre>{JSON.stringify(selectedNode, null, 2)}</pre>
-    </>
+    </div>
   );
 }
 

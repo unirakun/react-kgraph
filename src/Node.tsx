@@ -13,7 +13,6 @@ const Node = ({
   onStart,
   onEnd,
   drag,
-  hover,
   ...props
 }: {
   id: number | string;
@@ -22,6 +21,7 @@ const Node = ({
   label?: string;
   drag: boolean;
   hover: boolean;
+  hidden: boolean;
   Component?: any;
   onClick?: any; // TODO: type
   onEnd?: any; // TODO: type
@@ -36,6 +36,8 @@ const Node = ({
     size,
     group,
     label,
+    hover,
+    hidden,
     Component,
     onMouseEnter,
     onMouseLeave,
@@ -124,16 +126,16 @@ const Node = ({
   }, [onClick, id]);
 
   console.log("in node");
-  
-  const innerSize = (size + 10) * 3
-  const outerSize = innerSize + 20
+
+  const innerSize = (size + 10) * 3;
+  const outerSize = innerSize + 20;
 
   return (
     <g
       ref={nodeRef}
       {...gProps}
       onClick={onInnerClick}
-      className="node-container"
+      className={`node-container ${hidden ? "node-hidden" : ""}`}
       onMouseLeave={innerOnMouseLeave}
       onMouseEnter={innerOnMouseEnter}
     >
@@ -141,11 +143,16 @@ const Node = ({
         <Component {...props} />
       ) : (
         <>
-          <foreignObject width={outerSize} height={outerSize} x={-outerSize/2} y={-outerSize/2}>
+          <foreignObject
+            width={outerSize}
+            height={outerSize}
+            x={-outerSize / 2}
+            y={-outerSize / 2}
+          >
             <div
               style={{
                 borderRadius: "100%",
-                backgroundColor: hover ? 'red' : color(group),
+                backgroundColor: hover ? "red" : color(group),
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -153,7 +160,7 @@ const Node = ({
                 boxShadow: "0px 0px 10px -5px black",
                 width: innerSize,
                 height: innerSize,
-                margin: '5px auto'
+                margin: "5px auto"
               }}
             >
               {label}

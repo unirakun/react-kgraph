@@ -352,16 +352,36 @@ const Chart = (props: {
     }
   }, []);
 
-  const [hoverNodes, setHoverNodes] = useState<any[]>([]);
+  const [hoverNode, setHoverNode] = useState<ChartNode>();
+  const [hiddenNodes, setHiddenNodes] = useState<any[]>([]);
   const onOverNode = useCallback(
     nodeId => {
-      setHoverNodes([nodeId]);
+      const notHiddenNodes = new Set();
+
+      // get hidden links and NOT hidden nodes
+      layout.links.forEach(({ source, target }, index) => {
+        if (nodeId !== source.id && nodeId !== target.id) {
+          return;
+        }
+        notHiddenNodes.add(source.id);
+        notHiddenNodes.add(target.id);
+      });
+
+      // hidden nodes are NOT nodes that are NOT hidden
+      const newHiddenNodes = layout.nodes.filter(
+        ({ id }) => !notHiddenNodes.has(id)
+      );
+      console.log({ newHiddenNodes, notHiddenNodes })
+
+      setHiddenNodes(newHiddenNodes.map(({ id }) => id));
+      setHoverNode(nodeId);
       requestAnimationFrame(getMarkerColors);
     },
-    [getMarkerColors]
+    [getMarkerColors, layout.links, layout.nodes]
   );
   const onLeaveNode = useCallback(() => {
-    setHoverNodes([]);
+    setHoverNode(undefined);
+    setHiddenNodes([]);
   }, []);
 
   if (layout.nodes.length === 0) return null;
@@ -431,8 +451,7 @@ const Chart = (props: {
                 Component={Component}
                 onClick={onLinkClick}
                 hover={
-                  hoverNodes.includes(link.source.id) ||
-                  hoverNodes.includes(link.target.id)
+                  hoverNode === link.source.id || hoverNode === link.target.id
                 }
               />
             );
@@ -458,7 +477,8 @@ const Chart = (props: {
                   onStart={onStart}
                   onEnd={onEnd}
                   drag={!tree}
-                  hover={hoverNodes.includes(id)}
+                  hover={hoverNode === id}
+                  hidden={hoverNode !== id && hiddenNodes.includes(id)}
                 />
               </g>
             );

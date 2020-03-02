@@ -6,3 +6,7 @@
 .node-container:hover {
   transform: scale(1.2);
 }
+
+.node-container.node-hidden {
+  opacity: 0.3;
+}

@@ -61,13 +61,22 @@ const Link = ({ onClick, ...props }: LinkProps) => {
         <>
           <path
             id={id + ""}
-            strokeWidth={hover ? 6 : 5}
+            strokeWidth={5}
             fill="transparent"
             d={d}
-            stroke={hover ? "red" : "#d1d1d1"}
-            markerEnd={`url(#arrow-${hover ? "red" : "#d1d1d1"})`}
+            stroke="#d1d1d1"
+            markerEnd="url(#arrow-#d1d1d1)"
           ></path>
-          {hover &&
+          {hover && (
+            <path
+              id={id + ""}
+              strokeWidth={20}
+              fill="transparent"
+              d={d}
+              stroke="rgba(255, 0, 0, 0.5)"
+            ></path>
+          )}
+          {hover && (
             <foreignObject {...textPosition} width={width} height={height}>
               <div
                 style={{
@@ -81,7 +90,7 @@ const Link = ({ onClick, ...props }: LinkProps) => {
                 {label || `${source.label} -> ${target.label}`}
               </div>
             </foreignObject>
-          }
+          )}
         </>
       )}
     </g>
