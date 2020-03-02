@@ -1,5 +1,5 @@
 import { useRef, useState, useCallback, useLayoutEffect } from "react";
-import { SimplifiedLayout } from "../types";
+import { SimplifiedLayout, ChartNode } from "../types";
 
 const useCenterAndZoom = (
   layout: SimplifiedLayout,
@@ -12,7 +12,7 @@ const useCenterAndZoom = (
 ): [
   number,
   { x: number; y: number },
-  () => void,
+  (nodes: ChartNode[]) => void,
   (e: React.MouseEvent) => void,
   (e: React.MouseEvent) => void,
   (e: React.MouseEvent) => void,
@@ -28,15 +28,15 @@ const useCenterAndZoom = (
   //   duration: 300
   // });
 
-  const centerAndZoom = useCallback(() => {
-    if (layout.nodes.length === 0) return;
+  const centerAndZoom = useCallback((nodes: ChartNode[]) => {
+    if (nodes.length === 0) return;
     if (blockAll.current) return;
 
     let minX = Infinity;
     let minY = Infinity;
     let maxX = -Infinity;
     let maxY = -Infinity;
-    layout.nodes.forEach(({ x, y }) => {
+    nodes.forEach(({ x, y }) => {
       if (minX > x) minX = x;
       if (minY > y) minY = y;
       if (maxX < x) maxX = x;
@@ -63,11 +63,11 @@ const useCenterAndZoom = (
     let centerY = chartHeight / 2 + minY - (height * newZoom) / 2;
     setZoom(newZoom);
     setOffsets({ x: centerX, y: centerY });
-  }, [layout, setZoom, padding, size, height, width]);
+  }, [setZoom, padding, size, height, width]);
 
   useLayoutEffect(() => {
-    centerAndZoom();
-  }, [centerAndZoom]);
+    centerAndZoom(layout.nodes);
+  }, [centerAndZoom, layout]);
 
   // TODO: should offset to the cursor mouse while zooming
   const onWheel = useCallback(

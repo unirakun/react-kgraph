@@ -1,6 +1,7 @@
 import React, { memo, useRef, useEffect, useCallback } from "react";
 import * as d3 from "d3";
 import './Node.css'
+import useTraceUpdate from "../utils/useTraceUpdate";
 
 let color = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -127,6 +128,12 @@ const Node = ({
   }, [onClick, id]);
 
   console.log("in node");
+
+  useTraceUpdate({   onClick,
+    onDrag,
+    onStart,
+    onEnd,
+    drag, ...props  })
 
   const innerSize = (size + 10) * 3;
   const outerSize = innerSize + 20;

@@ -5,13 +5,16 @@ import React, {
   useCallback,
   useLayoutEffect
 } from "react";
-// @ts-ignore
-import * as cola from "webcola";
 import makeCurvedLinks from "./makeCurvedLinks";
 import Node from "./Node";
 import Link from "./Link";
 import { TreeNode, SimplifiedLayout } from "./types";
-import { useHoverNodes, useTreeLayout, useCenterAndZoom } from "./hooks";
+import {
+  useHoverNodes,
+  useTreeLayout,
+  useCenterAndZoom,
+  useGraphLayout
+} from "./hooks";
 
 function svgPoint(element: SVGSVGElement | null, x: number, y: number) {
   if (!element) return { x, y };
@@ -35,23 +38,6 @@ function svgPoint(element: SVGSVGElement | null, x: number, y: number) {
 let height = 500;
 let width = 800;
 let padding = 20;
-let iterations = 1;
-
-// from https://github.com/cawfree/react-cola/blob/master/index.js
-class ReactColaLayout extends cola.Layout {
-  kick() {
-    // we don't use request animation frame and try to kick as fast as we can
-    // but we also want to look at "ticks" betweens frames, so we use a timeout!
-    setTimeout(() => !this.tick() && this.kick(), 0);
-  }
-}
-
-function mapLayout(layout: cola.Layout): SimplifiedLayout {
-  return {
-    nodes: layout.nodes(),
-    links: layout.links()
-  };
-}
 
 let size = 35;
 const Chart = (props: {
@@ -71,66 +57,17 @@ const Chart = (props: {
     links: []
   });
 
-  const startLayout = useCallback(() => {
-    if (layoutRef.current) {
-      layoutRef.current
-        .nodes(nodes)
-        .links(links)
-        .start(iterations, 1, 1, 0, true, false);
+  const [graphLayout, relayout, { dragStart, drag }, drawn] = useGraphLayout(
+    nodes,
+    links,
+    {
+      width,
+      height
     }
-  }, [nodes, links]);
-
-  const layoutRef = useRef<ReactColaLayout>();
-  const layoutTickDraw = useRef(true);
-
+  );
   useEffect(() => {
-    if (tree) return;
-    const layout = new ReactColaLayout();
-    layoutRef.current = layout;
-
-    let ticks = 0;
-    let rafTimer = 0;
-    layout
-      .on(cola.EventType.tick, () => {
-        console.log("new tick");
-        console.timeEnd("tick");
-        ticks += 1;
-        console.time("tick");
-        if (!layoutTickDraw.current) {
-          console.log("SKIP this tick");
-          return;
-        }
-        layoutTickDraw.current = false;
-        if (!rafTimer) {
-          rafTimer = requestAnimationFrame(() => {
-            setLayout(() => mapLayout(layout));
-            rafTimer = 0;
-          });
-        }
-      })
-      .on(cola.EventType.start, () => {
-        console.time("graph layout");
-      })
-      .on(cola.EventType.end, () => {
-        console.log("ticks", ticks);
-        console.timeEnd("graph layout");
-
-        console.log(
-          "links",
-          layout.links().length,
-          "nodes",
-          layout.nodes().length
-        );
-
-        // mark all node as fixed (so this is performant)
-        layout.nodes().forEach(cola.Layout.dragStart);
-      })
-      .avoidOverlaps(true)
-      .size([width, height])
-      .jaccardLinkLengths(10);
-
-    startLayout();
-  }, [startLayout, tree]);
+    setLayout(graphLayout);
+  }, [graphLayout]);
 
   const treeLayout = useTreeLayout(root, { size });
   useEffect(() => {
@@ -149,10 +86,8 @@ const Chart = (props: {
   ] = useCenterAndZoom(layout, { size, padding, width, height });
 
   useLayoutEffect(() => {
-    return () => {
-      layoutTickDraw.current = true;
-    };
-  }, [layout]);
+    return drawn;
+  }, [layout, drawn]);
 
   const [lineMarkerColors, setLineMarkerColors] = useState<string[]>(["#999"]);
   const getMarkerColors = useCallback(() => {
@@ -181,15 +116,9 @@ const Chart = (props: {
       const newPos = svgPoint(svgRef.current, e.clientX, e.clientY);
       node.x = newPos.x / size;
       node.y = newPos.y / size;
-      cola.Layout.drag(node, {
-        x: newPos.x / size,
-        y: newPos.y / size
-      });
-      if (layoutRef.current) {
-        layoutRef.current.resume();
-      }
+      drag(node, { x: newPos.x / size, y: newPos.y / size });
     },
-    [findNode]
+    [findNode, drag]
   );
 
   const onStart = useCallback(
@@ -197,20 +126,17 @@ const Chart = (props: {
       const node = findNode(nodeId);
       if (!node) return;
 
-      cola.Layout.dragStart(node);
+      dragStart(node);
       blockCenterAndZoom(true);
     },
-    [findNode, blockCenterAndZoom]
+    [findNode, dragStart, blockCenterAndZoom]
   );
 
-  const onEnd = useCallback(
-    node => {
-      // unlock zoom and ask for a relayout (and a redaw as a consequence)
-      blockCenterAndZoom(false);
-      centerAndZoom();
-    },
-    [centerAndZoom, blockCenterAndZoom]
-  );
+  const onEnd = useCallback(() => {
+    // unlock zoom and ask for a relayout (and a redaw as a consequence)
+    blockCenterAndZoom(false);
+    centerAndZoom(layout.nodes);
+  }, [centerAndZoom, blockCenterAndZoom, layout.nodes]);
 
   const [
     hoverNode,
@@ -224,12 +150,7 @@ const Chart = (props: {
   return (
     <>
       <button // TODO: move it in parent code ?
-        onClick={() => {
-          layout.nodes.forEach(node => {
-            cola.Layout.dragEnd(node);
-          });
-          layoutRef.current?.resume();
-        }}
+        onClick={relayout}
       >
         Relayout
       </button>
