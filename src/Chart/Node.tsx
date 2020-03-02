@@ -1,5 +1,6 @@
 import React, { memo, useRef, useEffect, useCallback } from "react";
 import * as d3 from "d3";
+import './Node.css'
 
 let color = d3.scaleOrdinal(d3.schemeCategory10);
 
