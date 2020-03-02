@@ -108,6 +108,10 @@ const Chart = (props: {
     [layout.nodes]
   );
 
+  const findLink = useCallback(linkIndex => layout.links[linkIndex], [
+    layout.links
+  ]);
+
   const onDrag = useCallback(
     (nodeId, e: React.MouseEvent) => {
       const node = findNode(nodeId);
@@ -144,6 +148,23 @@ const Chart = (props: {
     onOverNode,
     onLeaveNode
   ] = useHoverNodes(layout, { getMarkerColors });
+
+  const innerOnNodeClick = useCallback(
+    id => {
+      if (!onNodeClick) return undefined;
+      const node = findNode(id);
+      return onNodeClick(node);
+    },
+    [onNodeClick, findNode]
+  );
+
+  const innerOnLinkClick = useCallback(
+    index => {
+      if (!onLinkClick) return undefined;
+      return onLinkClick(findLink(index));
+    },
+    [onLinkClick, findLink]
+  );
 
   if (layout.nodes.length === 0) return null;
 
@@ -204,7 +225,7 @@ const Chart = (props: {
                 source={{ x: source.x, y: source.y, label: source.label }}
                 target={{ x: target.x, y: target.y, label: target.label }}
                 Component={Component}
-                onClick={onLinkClick}
+                onClick={innerOnLinkClick}
                 hover={
                   hoverNode === link.source.id || hoverNode === link.target.id
                 }
@@ -224,7 +245,7 @@ const Chart = (props: {
                   group={group}
                   label={label}
                   Component={Component}
-                  onClick={onNodeClick}
+                  onClick={innerOnNodeClick}
                   onMouseEnter={onOverNode}
                   onMouseLeave={onLeaveNode}
                   size={size}

@@ -87,132 +87,151 @@ function App() {
   }, [setSimpleTestData]);
 
   const [selectedNode, setSelectedNode] = useState({});
+  const [selectedLink, setSelectedLink] = useState({});
 
   const onNodeClick = useCallback(
-    ({ id, value }) => setSelectedNode({ id, value }),
+    ({ variable, ...node }) => setSelectedNode(node),
     []
   );
-  const onLinkClick = useCallback(link => console.log(link), []);
+  const onLinkClick = useCallback(
+    ({
+      source: { variable, ...source },
+      target: { variable: targetVariable, ...target },
+      ...link
+    }) => setSelectedLink({ ...link, source, target }),
+    []
+  );
 
   return (
-    <div style={{ display: 'flex' }}>
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
-      <button
-        onClick={() => {
-          setRootTree({
-            id: "ME18921921",
-            label: "ME18921921",
-            children: [
-              {
-                id: "GR38932"
-              },
-              {
-                id: "GR1239",
+    <div>
+      <div style={{ display: "flex" }}>
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <button
+            onClick={() => {
+              setRootTree({
+                id: "ME18921921",
+                label: "ME18921921",
                 children: [
                   {
-                    id: "SE83932"
+                    id: "GR38932"
                   },
                   {
-                    id: "129219"
-                  },
-                  {
-                    id: "3128921"
+                    id: "GR1239",
+                    children: [
+                      {
+                        id: "SE83932"
+                      },
+                      {
+                        id: "129219"
+                      },
+                      {
+                        id: "3128921"
+                      }
+                    ]
                   }
                 ]
-              }
-            ]
-          });
-          setData(null);
-        }}
-      >
-        Tree
-      </button>
-      <button
-        onClick={() => {
-          getFlux().then(data => {
-            setData(data);
-            setRootTree(null);
-          });
-        }}
-      >
-        Real data
-      </button>
-      <button onClick={setSimpleTestData}>Simple data</button>
-      <button
-        onClick={async () => {
-          const raw = await fetch(
-            "https://gist.githubusercontent.com/mbostock/4062045/raw/5916d145c8c048a6e3086915a6be464467391c62/miserables.json"
-          );
-          const data = await raw.json();
-          const nodes = data.nodes.map(d => ({ ...d, value: d.id }));
-          const index = new Map(nodes.map(d => [d.id, d]));
-          const links = data.links.map(d =>
-            Object.assign(Object.create(d), {
-              source: index.get(d.source),
-              target: index.get(d.target)
-            })
-          );
+              });
+              setData(null);
+            }}
+          >
+            Tree
+          </button>
+          <button
+            onClick={() => {
+              getFlux().then(data => {
+                setData(data);
+                setRootTree(null);
+              });
+            }}
+          >
+            Real data
+          </button>
+          <button onClick={setSimpleTestData}>Simple data</button>
+          <button
+            onClick={async () => {
+              const raw = await fetch(
+                "https://gist.githubusercontent.com/mbostock/4062045/raw/5916d145c8c048a6e3086915a6be464467391c62/miserables.json"
+              );
+              const data = await raw.json();
+              const nodes = data.nodes.map(d => ({ ...d, value: d.id }));
+              const index = new Map(nodes.map(d => [d.id, d]));
+              const links = data.links.map(d =>
+                Object.assign(Object.create(d), {
+                  source: index.get(d.source),
+                  target: index.get(d.target)
+                })
+              );
 
-          setData({ nodes, links });
-          setRootTree(null);
-        }}
-      >
-        Big data
-      </button>
-      <button
-        onClick={() => {
-          if (rootTree) {
-            setRootTree(old => ({
-              ...old,
-              children: [
-                ...old.children,
-                {
-                  id: "new",
-                  label: "new"
-                }
-              ]
-            }));
-            return;
-          }
-
-          setData(old => ({
-            ...old,
-            nodes: [
-              ...old.nodes,
-              {
-                id: "DARVA",
-                value: "DARVA",
-                Component: () => (
-                  <>
-                    <circle cx={0} cy={0} fill="white" r={70}></circle>
-                    <image
-                      href="https://s.qwant.com/fav/d/a/www_darva_com.ico"
-                      x="-45"
-                      y="-45"
-                      height="90"
-                      width="90"
-                    />
-                  </>
-                )
+              setData({ nodes, links });
+              setRootTree(null);
+            }}
+          >
+            Big data
+          </button>
+          <button
+            onClick={() => {
+              if (rootTree) {
+                setRootTree(old => ({
+                  ...old,
+                  children: [
+                    ...old.children,
+                    {
+                      id: "new",
+                      label: "new"
+                    }
+                  ]
+                }));
+                return;
               }
-            ],
-            links: [...old.links, { source: 0, target: 3 }]
-          }));
-        }}
-      >
-        Add
-      </button>
+
+              setData(old => ({
+                ...old,
+                nodes: [
+                  ...old.nodes,
+                  {
+                    id: "DARVA",
+                    value: "DARVA",
+                    Component: () => (
+                      <>
+                        <circle cx={0} cy={0} fill="white" r={70}></circle>
+                        <image
+                          href="https://s.qwant.com/fav/d/a/www_darva_com.ico"
+                          x="-45"
+                          y="-45"
+                          height="90"
+                          width="90"
+                        />
+                      </>
+                    )
+                  }
+                ],
+                links: [...old.links, { source: 0, target: 3 }]
+              }));
+            }}
+          >
+            Add
+          </button>
+        </div>
+        {(data || rootTree) && (
+          <Chart
+            {...data}
+            root={rootTree}
+            tree={!!rootTree}
+            onNodeClick={onNodeClick}
+            onLinkClick={onLinkClick}
+          />
+        )}
       </div>
-      {(data || rootTree) && (
-        <Chart
-          {...data}
-          root={rootTree}
-          tree={!!rootTree}
-          onNodeClick={onNodeClick}
-          onLinkClick={onLinkClick}
-        />
-      )}
-      <pre>{JSON.stringify(selectedNode, null, 2)}</pre>
+      <div className="infos">
+        <div>
+          <b>selected node</b>
+          <pre>{JSON.stringify(selectedNode, null, 2)}</pre>
+        </div>
+        <div>
+          <b>selected link</b>
+          <pre>{JSON.stringify(selectedLink, null, 2)}</pre>
+        </div>
+      </div>
     </div>
   );
 }

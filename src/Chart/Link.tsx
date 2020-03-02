@@ -1,4 +1,5 @@
-import React, { memo, useState, useLayoutEffect } from "react";
+import React, { memo, useState, useLayoutEffect, useCallback } from "react";
+import useTraceUpdate from "../utils/useTraceUpdate";
 
 interface LinkProps {
   onClick: any;
@@ -38,8 +39,10 @@ const Link = ({ onClick, ...props }: LinkProps) => {
   } = props;
 
   const [textPosition, setTextPosition] = useState({ x: 0, y: 0 });
+
   const height = 100;
   const width = 250;
+
   useLayoutEffect(() => {
     setTextPosition(
       sweep > 0
@@ -53,8 +56,16 @@ const Link = ({ onClick, ...props }: LinkProps) => {
           }
     );
   }, [size, source.x, source.y, target.x, target.y, quadraticPoint, sweep]);
+
+  const innerOnClick = useCallback(() => {
+    if (!onClick) return;
+    onClick(id);
+  }, [onClick, id]);
+
+  // useTraceUpdate(props)
+
   return (
-    <g key={d} onClick={onClick}>
+    <g key={d} onClick={innerOnClick}>
       {Component ? (
         <Component {...props} textPosition={textPosition} />
       ) : (
@@ -104,7 +115,8 @@ const propsAreEqual = (prevProps: LinkProps, nextProps: LinkProps): boolean => {
     if (PROPS_TO_ALWAYS_COMPARE.includes(key)) {
       // @ts-ignore TODO:
       const nextValue = nextProps[key];
-      return nextValue !== value;
+      const hasChanged = nextValue !== value;
+      return hasChanged
     }
 
     if (key === "target" || key === "source") {
@@ -121,7 +133,7 @@ const propsAreEqual = (prevProps: LinkProps, nextProps: LinkProps): boolean => {
       }
     }
 
-    // means this is not equal (we found a difference)
+    // means this is equal (we have NOT found a difference)
     return false;
   });
 };
