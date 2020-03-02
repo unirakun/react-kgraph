@@ -7,12 +7,11 @@ import React, {
 } from "react";
 // @ts-ignore
 import * as cola from "webcola";
-import { tree as d3tree, hierarchy } from "d3-hierarchy";
 import makeCurvedLinks from "./makeCurvedLinks";
 import Node from "./Node";
 import Link from "./Link";
 import { TreeNode, SimplifiedLayout } from './types'
-import { useHoverNodes } from './hooks'
+import { useHoverNodes, useTreeLayout } from './hooks'
 
 function svgPoint(element: SVGSVGElement | null, x: number, y: number) {
   if (!element) return { x, y };
@@ -183,6 +182,11 @@ const Chart = (props: {
     startLayout();
   }, [startLayout, tree]);
 
+  const treeLayout = useTreeLayout(root, { size })
+  useEffect(() => {
+    setLayout(treeLayout)
+  }, [treeLayout])
+
   useEffect(() => {
     centerAndZoom();
   }, [layout, centerAndZoom]);
@@ -192,38 +196,6 @@ const Chart = (props: {
       layoutTickDraw.current = true;
     };
   }, [layout]);
-
-  useEffect(() => {
-    if (!tree) return;
-
-    const d3treelayout = d3tree().nodeSize([size / 2, size / 2])(
-      hierarchy(root)
-    );
-
-    const nodes: TreeNode[] = [];
-    const links: any[] = [];
-
-    const mapNode = (d3node: any): TreeNode => ({ ...d3node.data, ...d3node });
-
-    const addNodeAndChildren = (parentNode: TreeNode) => {
-      nodes.push(mapNode(parentNode));
-
-      if (parentNode.children) {
-        parentNode.children.forEach(node => {
-          links.push({
-            label: node.id,
-            source: mapNode(parentNode),
-            target: mapNode(node),
-            length: 2
-          });
-          addNodeAndChildren(node);
-        });
-      }
-    };
-    addNodeAndChildren(d3treelayout);
-
-    setLayout({ nodes, links });
-  }, [root, tree]);
 
   const canMoveViewportRef = useRef(false);
 
