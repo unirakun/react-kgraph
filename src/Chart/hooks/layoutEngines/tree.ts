@@ -38,6 +38,9 @@ const createTreeLayout = ({ size }: { size: number }): LayoutEngine => {
       }
     };
     addNodeAndChildren(d3treelayout);
+    
+    view.nodes = mappedNodes
+    view.links = mappedLinks
   };
 
   const stop = () => {

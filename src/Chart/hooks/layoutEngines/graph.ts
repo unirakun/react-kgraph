@@ -7,10 +7,18 @@ let iterations = 1;
 
 // from https://github.com/cawfree/react-cola/blob/master/index.js
 class ReactColaLayout extends cola.Layout {
+  private kickTimeoutTimer: any;
+
+  stop() {
+    super.stop();
+    if (this.kickTimeoutTimer) clearTimeout(this.kickTimeoutTimer);
+    return this;
+  }
+
   kick() {
     // we don't use request animation frame and try to kick as fast as we can
     // but we also want to look at "ticks" betweens frames, so we use a timeout!
-    setTimeout(() => !this.tick() && this.kick(), 0);
+    this.kickTimeoutTimer = setTimeout(() => !this.tick() && this.kick(), 0);
   }
 }
 

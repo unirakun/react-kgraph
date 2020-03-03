@@ -1,6 +1,11 @@
 import { useRef, useCallback, useEffect, useState } from "react";
 import { SimplifiedLayout, ChartNode, WithCoords } from "../types";
-import { createGraphLayout, createTreeLayout, LayoutEngine, Link } from "./layoutEngines";
+import {
+  createGraphLayout,
+  createTreeLayout,
+  LayoutEngine,
+  Link
+} from "./layoutEngines";
 
 const useLayout = (
   nodes: ChartNode[],
@@ -32,6 +37,8 @@ const useLayout = (
   });
 
   useEffect(() => {
+    engine.current?.stop();
+    console.log('init new layout engine', type)
     if (type === "graph") {
       engine.current = createGraphLayout({ width, height });
     } else if (type === "tree") {
@@ -56,12 +63,17 @@ const useLayout = (
     }
 
     return () => {
-      if (rafTimer) cancelAnimationFrame(rafTimer);
+      if (rafTimer) {
+        console.log('stopping view timer...')
+        cancelAnimationFrame(rafTimer);
+      }
     };
   }, [type, width, height, size]);
 
   useEffect(() => {
     if (!nodes || nodes.length === 0) return;
+
+    console.log('starting engine', nodes)
 
     if (engine.current) {
       engine.current.start(nodes, links);
