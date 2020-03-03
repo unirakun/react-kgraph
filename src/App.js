@@ -48,9 +48,10 @@ const CustomLink = ({
 
 function App() {
   const [data, setData] = useState({ nodes: [], links: [] });
-  const [rootTree, setRootTree] = useState();
+  const [graphType, setGraphType] = useState("graph");
 
   const setSimpleTestData = useCallback(() => {
+    setGraphType("graph");
     setData({
       nodes: [
         {
@@ -96,7 +97,6 @@ function App() {
         }
       ]
     });
-    setRootTree(null);
   }, []);
 
   useEffect(() => {
@@ -125,30 +125,34 @@ function App() {
         <div style={{ display: "flex", flexDirection: "column" }}>
           <button
             onClick={() => {
-              setRootTree({
-                id: "ME18921921",
-                label: "ME18921921",
-                children: [
+              setGraphType("tree");
+              setData({
+                nodes: [
                   {
-                    id: "GR38932"
-                  },
-                  {
-                    id: "GR1239",
+                    id: "ME18921921",
+                    label: "ME18921921",
                     children: [
                       {
-                        id: "SE83932"
+                        id: "GR38932"
                       },
                       {
-                        id: "129219"
-                      },
-                      {
-                        id: "3128921"
+                        id: "GR1239",
+                        children: [
+                          {
+                            id: "SE83932"
+                          },
+                          {
+                            id: "129219"
+                          },
+                          {
+                            id: "3128921"
+                          }
+                        ]
                       }
                     ]
                   }
                 ]
               });
-              setData(null);
             }}
           >
             Tree
@@ -157,7 +161,7 @@ function App() {
             onClick={() => {
               getFlux().then(data => {
                 setData(data);
-                setRootTree(null);
+                setGraphType("graph");
               });
             }}
           >
@@ -180,21 +184,26 @@ function App() {
               );
 
               setData({ nodes, links });
-              setRootTree(null);
+              setGraphType("graph");
             }}
           >
             Big data
           </button>
           <button
             onClick={() => {
-              if (rootTree) {
-                setRootTree(old => ({
+              if (graphType === "tree") {
+                setData(old => ({
                   ...old,
-                  children: [
-                    ...old.children,
+                  nodes: [
                     {
-                      id: "new",
-                      label: "new"
+                      ...old.nodes[0],
+                      children: [
+                        ...old.nodes[0].children,
+                        {
+                          id: "new",
+                          label: "new"
+                        }
+                      ]
                     }
                   ]
                 }));
@@ -229,11 +238,10 @@ function App() {
             Add
           </button>
         </div>
-        {(data || rootTree) && (
+        {data && (
           <Chart
             {...data}
-            root={rootTree}
-            tree={!!rootTree}
+            type={graphType}
             onNodeClick={onNodeClick}
             onLinkClick={onLinkClick}
           />

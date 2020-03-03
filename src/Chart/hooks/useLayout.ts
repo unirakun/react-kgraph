@@ -1,7 +1,6 @@
 import { useRef, useCallback, useEffect, useState } from "react";
 import { SimplifiedLayout, ChartNode, WithCoords } from "../types";
-import { createGraphLayout } from "./layoutEngines";
-import { LayoutEngine, Link } from "./layoutEngines/layoutEngine";
+import { createGraphLayout, createTreeLayout, LayoutEngine, Link } from "./layoutEngines";
 
 const useLayout = (
   nodes: ChartNode[],
@@ -9,8 +8,9 @@ const useLayout = (
   {
     width,
     height,
+    size,
     type = "graph"
-  }: { width: number; height: number; type: "tree" | "graph" }
+  }: { width: number; height: number; size: number; type: "tree" | "graph" }
 ): [
   SimplifiedLayout,
   {
@@ -34,12 +34,15 @@ const useLayout = (
   useEffect(() => {
     if (type === "graph") {
       engine.current = createGraphLayout({ width, height });
+    } else if (type === "tree") {
+      engine.current = createTreeLayout({ size });
     }
 
     // get the layout view once per frame
     let rafTimer: any;
     if (engine.current) {
       const getViewOnRaf = (frame: number) => {
+        // TODO: make it stop when layout ends
         let innerFrame = frame + 1;
         if (frame >= framesPerView.current && engine.current) {
           innerFrame = 0;
@@ -55,7 +58,7 @@ const useLayout = (
     return () => {
       if (rafTimer) cancelAnimationFrame(rafTimer);
     };
-  }, [type, width, height]);
+  }, [type, width, height, size]);
 
   useEffect(() => {
     if (!nodes || nodes.length === 0) return;

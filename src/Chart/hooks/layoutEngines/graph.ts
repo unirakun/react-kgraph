@@ -14,7 +14,6 @@ class ReactColaLayout extends cola.Layout {
   }
 }
 
-// TODO: types
 const createGraphLayout = ({
   width,
   height

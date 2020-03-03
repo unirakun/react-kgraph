@@ -1,18 +1,8 @@
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-} from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import makeCurvedLinks from "./makeCurvedLinks";
 import Node from "./Node";
 import Link from "./Link";
-import { TreeNode } from "./types";
-import {
-  useHoverNodes,
-  useCenterAndZoom,
-  useLayout
-} from "./hooks";
+import { useHoverNodes, useCenterAndZoom, useLayout } from "./hooks";
 
 function svgPoint(element: SVGSVGElement | null, x: number, y: number) {
   if (!element) return { x, y };
@@ -41,19 +31,23 @@ let size = 35;
 const Chart = (props: {
   nodes: any[];
   links: any[];
-  tree: boolean;
-  root: TreeNode;
+  type: "tree" | "graph";
   onNodeClick?: (node: any) => any;
   onLinkClick?: (link: any) => any;
 }) => {
-  const { nodes, links, tree = false, root, onNodeClick, onLinkClick } = props;
+  const { nodes, links, type = "graph", onNodeClick, onLinkClick } = props;
   const svgRef = useRef<SVGSVGElement>(null);
 
-  const [layout, { drag, dragStart, dragEnd, restart }] = useLayout(nodes, links, {
-    width,
-    height,
-    type: "graph"
-  });
+  const [layout, { drag, dragStart, dragEnd, restart }] = useLayout(
+    nodes,
+    links,
+    {
+      width,
+      height,
+      size,
+      type
+    }
+  );
 
   const [
     zoom,
@@ -113,15 +107,18 @@ const Chart = (props: {
     [findNode, dragStart, blockCenterAndZoom]
   );
 
-  const onEnd = useCallback((nodeId) => {
-    const node = findNode(nodeId);
-    if (!node) return;
+  const onEnd = useCallback(
+    nodeId => {
+      const node = findNode(nodeId);
+      if (!node) return;
 
-    dragEnd(node);
+      dragEnd(node);
 
-    blockCenterAndZoom(false);
-    centerAndZoom(layout.nodes);
-  }, [centerAndZoom, blockCenterAndZoom, layout.nodes, dragEnd, findNode]);
+      blockCenterAndZoom(false);
+      centerAndZoom(layout.nodes);
+    },
+    [centerAndZoom, blockCenterAndZoom, layout.nodes, dragEnd, findNode]
+  );
 
   const [
     hoverNode,
@@ -234,7 +231,7 @@ const Chart = (props: {
                   onDrag={onDrag}
                   onStart={onStart}
                   onEnd={onEnd}
-                  drag={!tree}
+                  drag={type !== "tree"}
                   hover={hoverNode === id}
                   hidden={hoverNode !== id && hiddenNodes.includes(id)}
                 />

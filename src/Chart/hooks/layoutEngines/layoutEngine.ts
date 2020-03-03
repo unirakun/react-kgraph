@@ -1,8 +1,8 @@
 import { ChartNode, WithCoords } from "../../types";
 
 export interface Link {
-    target: ChartNode
-    source: ChartNode
+  target: ChartNode;
+  source: ChartNode;
 }
 
 export interface LayoutEngine {
@@ -12,6 +12,6 @@ export interface LayoutEngine {
   restart: () => void;
   start: (nodes: ChartNode[], links: Link[]) => void;
   stop: () => void;
-  getLayout: () => ({ nodes: ChartNode[], links: Link[] });
+  getLayout: () => { nodes: ChartNode[]; links: Link[] };
   type: "graph" | "tree";
 }
