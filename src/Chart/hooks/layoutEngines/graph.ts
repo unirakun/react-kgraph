@@ -1,6 +1,7 @@
 // @ts-ignore
 import * as cola from "webcola";
 import { ChartNode, WithCoords, SimplifiedLayout } from "../../types";
+import { LayoutEngine } from "./layoutEngine";
 
 let iterations = 1;
 
@@ -20,7 +21,7 @@ const createGraphLayout = ({
 }: {
   width: number;
   height: number;
-}) => {
+}): LayoutEngine => {
   const layout = new ReactColaLayout();
   const view: SimplifiedLayout = {
     nodes: [],
@@ -30,15 +31,11 @@ const createGraphLayout = ({
   let ticks = 0;
   layout
     .on(cola.EventType.tick, () => {
-      console.log("new tick");
-      console.timeEnd("tick");
       ticks += 1;
 
       // TODO: make copy!!!!
       view.nodes = layout.nodes();
       view.links = layout.links();
-
-      console.time("tick");
     })
     .on(cola.EventType.start, () => {
       console.time("graph layout");

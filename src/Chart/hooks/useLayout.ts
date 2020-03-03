@@ -1,10 +1,11 @@
 import { useRef, useCallback, useEffect, useState } from "react";
 import { SimplifiedLayout, ChartNode, WithCoords } from "../types";
-import { createGraphLayout } from "./layouts";
+import { createGraphLayout } from "./layoutEngines";
+import { LayoutEngine, Link } from "./layoutEngines/layoutEngine";
 
 const useLayout = (
-  nodes: any[],
-  links: any[],
+  nodes: ChartNode[],
+  links: Link[],
   {
     width,
     height,
@@ -19,7 +20,7 @@ const useLayout = (
     dragEnd: (node: ChartNode) => void;
   }
 ] => {
-  const engine = useRef<any>(); // TODO: make a type for the engine!!
+  const engine = useRef<LayoutEngine>();
   const framesPerView = useRef<number>(10); // TODO: make it dynamic based on frame time
 
   // so we can move from 1 frame per view to previous value (used in drag)
