@@ -3,6 +3,14 @@ import Chart from "./Chart";
 import getFlux from "./utils/getFlux";
 import "./App.css";
 
+const mapNode = ({ variable, children, parent, ...node }) => {
+  return {
+    ...node,
+    children: children?.map(mapNode),
+    parent: parent && parent.id
+  };
+};
+
 const CustomLink = ({
   source,
   target,
@@ -106,16 +114,14 @@ function App() {
   const [selectedNode, setSelectedNode] = useState({});
   const [selectedLink, setSelectedLink] = useState({});
 
-  const onNodeClick = useCallback(
-    ({ variable, ...node }) => setSelectedNode(node),
-    []
-  );
+  const onNodeClick = useCallback(node => setSelectedNode(mapNode(node)), []);
   const onLinkClick = useCallback(
-    ({
-      source: { variable, ...source },
-      target: { variable: targetVariable, ...target },
-      ...link
-    }) => setSelectedLink({ ...link, source, target }),
+    ({ source, target, ...link }) =>
+      setSelectedLink({
+        ...link,
+        source: mapNode(source),
+        target: mapNode(target)
+      }),
     []
   );
 
