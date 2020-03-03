@@ -1,0 +1,89 @@
+import { useRef, useCallback, useEffect, useState } from "react";
+import { SimplifiedLayout, ChartNode, WithCoords } from "../types";
+import { createGraphLayout } from "./layouts";
+
+const useLayout = (
+  nodes: any[],
+  links: any[],
+  {
+    width,
+    height,
+    type = "graph"
+  }: { width: number; height: number; type: "tree" | "graph" }
+): [
+  SimplifiedLayout,
+  {
+    restart: () => void;
+    dragStart: (node: ChartNode) => void;
+    drag: (node: ChartNode, newPos: WithCoords) => void;
+    dragEnd: (node: ChartNode) => void;
+  }
+] => {
+  const engine = useRef<any>(); // TODO: make a type for the engine!!
+  const framesPerView = useRef<number>(10); // TODO: make it dynamic based on frame time
+
+  // so we can move from 1 frame per view to previous value (used in drag)
+  const previousFramesPerView = useRef<number>(framesPerView.current);
+
+  const [layout, setLayout] = useState<SimplifiedLayout>({
+    nodes: [],
+    links: []
+  });
+
+  useEffect(() => {
+    if (type === "graph") {
+      engine.current = createGraphLayout({ width, height });
+    }
+
+    // get the layout view once per frame
+    let rafTimer: any;
+    if (engine.current) {
+      const getViewOnRaf = (frame: number) => {
+        let innerFrame = frame + 1;
+        if (frame >= framesPerView.current && engine.current) {
+          innerFrame = 0;
+          setLayout({ ...engine.current.getLayout() });
+        }
+
+        rafTimer = requestAnimationFrame(() => getViewOnRaf(innerFrame));
+      };
+
+      getViewOnRaf(0);
+    }
+
+    return () => {
+      if (rafTimer) cancelAnimationFrame(rafTimer);
+    };
+  }, [type, width, height]);
+
+  useEffect(() => {
+    if (!nodes || nodes.length === 0) return;
+
+    if (engine.current) {
+      engine.current.start(nodes, links);
+      setLayout(engine.current.getLayout());
+    }
+  }, [nodes, links]);
+
+  const restart = useCallback(() => {
+    engine.current?.restart();
+  }, []);
+
+  const dragStart = useCallback(node => {
+    framesPerView.current = 1; // make it smooth
+    engine.current?.dragStart(node);
+  }, []);
+
+  const drag = useCallback((node, newPos) => {
+    engine.current?.drag(node, newPos);
+  }, []);
+
+  const dragEnd = useCallback(node => {
+    engine.current?.dragEnd(node);
+    framesPerView.current = previousFramesPerView.current;
+  }, []);
+
+  return [layout, { restart, dragStart, drag, dragEnd }];
+};
+
+export default useLayout;

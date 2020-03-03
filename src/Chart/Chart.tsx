@@ -3,17 +3,15 @@ import React, {
   useEffect,
   useRef,
   useCallback,
-  useLayoutEffect
 } from "react";
 import makeCurvedLinks from "./makeCurvedLinks";
 import Node from "./Node";
 import Link from "./Link";
-import { TreeNode, SimplifiedLayout } from "./types";
+import { TreeNode } from "./types";
 import {
   useHoverNodes,
-  useTreeLayout,
   useCenterAndZoom,
-  useGraphLayout
+  useLayout
 } from "./hooks";
 
 function svgPoint(element: SVGSVGElement | null, x: number, y: number) {
@@ -51,28 +49,11 @@ const Chart = (props: {
   const { nodes, links, tree = false, root, onNodeClick, onLinkClick } = props;
   const svgRef = useRef<SVGSVGElement>(null);
 
-  // layout part and it request animation frame timer
-  const [layout, setLayout] = useState<SimplifiedLayout>({
-    nodes: [],
-    links: []
+  const [layout, { drag, dragStart, dragEnd, restart }] = useLayout(nodes, links, {
+    width,
+    height,
+    type: "graph"
   });
-
-  const [graphLayout, relayout, { dragStart, drag }, drawn] = useGraphLayout(
-    nodes,
-    links,
-    {
-      width,
-      height
-    }
-  );
-  useEffect(() => {
-    setLayout(graphLayout);
-  }, [graphLayout]);
-
-  const treeLayout = useTreeLayout(root, { size });
-  useEffect(() => {
-    setLayout(treeLayout);
-  }, [treeLayout]);
 
   const [
     zoom,
@@ -84,10 +65,6 @@ const Chart = (props: {
     onMouseUp,
     blockCenterAndZoom
   ] = useCenterAndZoom(layout, { size, padding, width, height });
-
-  useLayoutEffect(() => {
-    return drawn;
-  }, [layout, drawn]);
 
   const [lineMarkerColors, setLineMarkerColors] = useState<string[]>(["#999"]);
   const getMarkerColors = useCallback(() => {
@@ -136,11 +113,15 @@ const Chart = (props: {
     [findNode, dragStart, blockCenterAndZoom]
   );
 
-  const onEnd = useCallback(() => {
-    // unlock zoom and ask for a relayout (and a redaw as a consequence)
+  const onEnd = useCallback((nodeId) => {
+    const node = findNode(nodeId);
+    if (!node) return;
+
+    dragEnd(node);
+
     blockCenterAndZoom(false);
     centerAndZoom(layout.nodes);
-  }, [centerAndZoom, blockCenterAndZoom, layout.nodes]);
+  }, [centerAndZoom, blockCenterAndZoom, layout.nodes, dragEnd, findNode]);
 
   const [
     hoverNode,
@@ -171,7 +152,7 @@ const Chart = (props: {
   return (
     <>
       <button // TODO: move it in parent code ?
-        onClick={relayout}
+        onClick={restart}
       >
         Relayout
       </button>
