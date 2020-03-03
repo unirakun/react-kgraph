@@ -1,7 +1,7 @@
 // @ts-ignore
 import * as cola from "webcola";
 import { ChartNode, WithCoords, SimplifiedLayout } from "../../types";
-import { LayoutEngine } from "./layoutEngine";
+import { LayoutEngine, Link } from "./layoutEngine";
 
 let iterations = 1;
 
@@ -65,7 +65,7 @@ const createGraphLayout = ({
     .size([width, height])
     .jaccardLinkLengths(10);
 
-  const start = (nodes: any[], links: any[]) => {
+  const start = (nodes: ChartNode[], links: Link[]) => {
     if (!nodes || nodes.length === 0) return;
 
     layout
@@ -93,7 +93,8 @@ const createGraphLayout = ({
   };
 
   const dragEnd = (node: ChartNode) => {
-    cola.Layout.dragEnd(node);
+    // we don't tell cola we finish to drag because we want the node to be fixed
+    // cola.Layout.dragEnd(node);
   };
 
   const getLayout = (): SimplifiedLayout => view;
