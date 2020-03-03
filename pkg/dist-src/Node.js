@@ -1,5 +1,5 @@
-import React, { memo, useRef, useEffect, useCallback } from "react";
-import * as d3 from "d3";
+import React, { memo, useRef, useEffect, useCallback } from 'react';
+import * as d3 from 'd3';
 const getColor = d3.scaleOrdinal(d3.schemeCategory10);
 // TODO: create a MovableSvgItem ?
 // TODO: remove the "node" parameter
@@ -15,7 +15,7 @@ const Node = ({ onClick, onDrag, onStart, onEnd, ...props }) => {
             return;
         dragInfoRef.current.thisIsMe = e
             .composedPath()
-            .some(n => n === nodeRef.current);
+            .some((n) => n === nodeRef.current);
         if (dragInfoRef.current.thisIsMe) {
             dragInfoRef.current.beforeX = e.clientX;
             dragInfoRef.current.beforeY = e.clientY;
@@ -54,13 +54,13 @@ const Node = ({ onClick, onDrag, onStart, onEnd, ...props }) => {
             onMouseEnter(id);
     }, [onMouseEnter, id]);
     useEffect(() => {
-        window.addEventListener("mousedown", mouseDown);
-        window.addEventListener("mousemove", mouseMove);
-        window.addEventListener("mouseup", mouseUp);
+        window.addEventListener('mousedown', mouseDown);
+        window.addEventListener('mousemove', mouseMove);
+        window.addEventListener('mouseup', mouseUp);
         return () => {
-            window.removeEventListener("mousedown", mouseDown);
-            window.removeEventListener("mousemove", mouseMove);
-            window.removeEventListener("mouseup", mouseUp);
+            window.removeEventListener('mousedown', mouseDown);
+            window.removeEventListener('mousemove', mouseMove);
+            window.removeEventListener('mouseup', mouseUp);
         };
     }, [mouseDown, mouseMove, mouseUp]);
     const onInnerClick = useCallback(() => {
@@ -68,22 +68,22 @@ const Node = ({ onClick, onDrag, onStart, onEnd, ...props }) => {
             return onClick(id);
         return undefined;
     }, [onClick, id]);
-    console.log("in node");
+    console.log('in node');
     const innerSize = (size + 10) * 3;
     const outerSize = innerSize + 20;
     const style = {
-        borderRadius: "100%",
-        backgroundColor: hover ? "#f97975" : color || getColor(group),
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        border: "1px solid rgba(50, 50, 50, 0.4)",
-        boxShadow: "0px 0px 10px -5px black",
+        borderRadius: '100%',
+        backgroundColor: hover ? '#f97975' : color || getColor(group),
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        border: '1px solid rgba(50, 50, 50, 0.4)',
+        boxShadow: '0px 0px 10px -5px black',
         width: innerSize,
         height: innerSize,
-        margin: "5px auto"
+        margin: '5px auto',
     };
-    return (React.createElement("g", Object.assign({ ref: nodeRef }, gProps, { onClick: onInnerClick, className: `node-container ${hidden ? "node-hidden" : ""}`, onMouseLeave: innerOnMouseLeave, onMouseEnter: innerOnMouseEnter }), Component ? (React.createElement(Component, Object.assign({ style: style, outerSize: outerSize }, props))) : (React.createElement("foreignObject", { width: outerSize, height: outerSize, x: -outerSize / 2, y: -outerSize / 2 },
+    return (React.createElement("g", Object.assign({ ref: nodeRef }, gProps, { onClick: onInnerClick, className: `node-container ${hidden ? 'node-hidden' : ''}`, onMouseLeave: innerOnMouseLeave, onMouseEnter: innerOnMouseEnter }), Component ? (React.createElement(Component, Object.assign({ style: style, outerSize: outerSize }, props))) : (React.createElement("foreignObject", { width: outerSize, height: outerSize, x: -outerSize / 2, y: -outerSize / 2 },
         React.createElement("div", { style: style }, label)))));
 };
 export default memo(Node);

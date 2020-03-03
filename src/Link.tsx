@@ -1,26 +1,26 @@
-import React, { memo, useState, useLayoutEffect, useCallback } from "react";
+import React, { memo, useState, useLayoutEffect, useCallback } from 'react'
 
 interface LinkProps {
-  onClick: any;
-  Component: any;
-  id: string | number;
-  d: string;
-  quadraticPoint: any;
-  sweep: number;
-  length: number;
-  label?: string;
-  size: number;
-  hover: boolean;
+  onClick: any
+  Component: any
+  id: string | number
+  d: string
+  quadraticPoint: any
+  sweep: number
+  length: number
+  label?: string
+  size: number
+  hover: boolean
   source: {
-    x: number;
-    y: number;
-    label: string;
-  };
+    x: number
+    y: number
+    label: string
+  }
   target: {
-    x: number;
-    y: number;
-    label: string;
-  };
+    x: number
+    y: number
+    label: string
+  }
 }
 
 const Link = ({ onClick, ...props }: LinkProps) => {
@@ -34,32 +34,32 @@ const Link = ({ onClick, ...props }: LinkProps) => {
     source,
     target,
     hover,
-    size
-  } = props;
+    size,
+  } = props
 
-  const [textPosition, setTextPosition] = useState({ x: 0, y: 0 });
+  const [textPosition, setTextPosition] = useState({ x: 0, y: 0 })
 
-  const height = 100;
-  const width = 250;
+  const height = 100
+  const width = 250
 
   useLayoutEffect(() => {
     setTextPosition(
       sweep > 0
         ? {
             x: quadraticPoint.x - width / 2,
-            y: quadraticPoint.y - height / 2
+            y: quadraticPoint.y - height / 2,
           }
         : {
             x: quadraticPoint.x - width / 2,
-            y: quadraticPoint.y
-          }
-    );
-  }, [size, source.x, source.y, target.x, target.y, quadraticPoint, sweep]);
+            y: quadraticPoint.y,
+          },
+    )
+  }, [size, source.x, source.y, target.x, target.y, quadraticPoint, sweep])
 
   const innerOnClick = useCallback(() => {
-    if (!onClick) return;
-    onClick(id);
-  }, [onClick, id]);
+    if (!onClick) return
+    onClick(id)
+  }, [onClick, id])
 
   // useTraceUpdate(props)
 
@@ -70,7 +70,7 @@ const Link = ({ onClick, ...props }: LinkProps) => {
       ) : (
         <>
           <path
-            id={id + ""}
+            id={id + ''}
             strokeWidth={5}
             fill="transparent"
             d={d}
@@ -79,7 +79,7 @@ const Link = ({ onClick, ...props }: LinkProps) => {
           ></path>
           {hover && (
             <path
-              id={id + ""}
+              id={id + ''}
               strokeWidth={20}
               fill="transparent"
               d={d}
@@ -90,11 +90,11 @@ const Link = ({ onClick, ...props }: LinkProps) => {
             <foreignObject {...textPosition} width={width} height={height}>
               <div
                 style={{
-                  borderRadius: "5px",
-                  backgroundColor: "rgba(100, 100, 100, 0.2)",
-                  textAlign: "center",
-                  padding: "1em",
-                  border: "1px solid rgba(50, 50, 50, 0.2)"
+                  borderRadius: '5px',
+                  backgroundColor: 'rgba(100, 100, 100, 0.2)',
+                  textAlign: 'center',
+                  padding: '1em',
+                  border: '1px solid rgba(50, 50, 50, 0.2)',
                 }}
               >
                 {label || `${source.label} -> ${target.label}`}
@@ -104,37 +104,37 @@ const Link = ({ onClick, ...props }: LinkProps) => {
         </>
       )}
     </g>
-  );
-};
+  )
+}
 
-const PROPS_TO_ALWAYS_COMPARE = ["onClick", "Component", "id", "hover"];
+const PROPS_TO_ALWAYS_COMPARE = ['onClick', 'Component', 'id', 'hover']
 
 const propsAreEqual = (prevProps: LinkProps, nextProps: LinkProps): boolean => {
   return !Object.entries(prevProps).some(([key, value]) => {
     if (PROPS_TO_ALWAYS_COMPARE.includes(key)) {
       // @ts-ignore TODO:
-      const nextValue = nextProps[key];
-      const hasChanged = nextValue !== value;
+      const nextValue = nextProps[key]
+      const hasChanged = nextValue !== value
       return hasChanged
     }
 
-    if (key === "target" || key === "source") {
-      const nextValue = nextProps[key];
+    if (key === 'target' || key === 'source') {
+      const nextValue = nextProps[key]
       // TODO: should use zoom
-      const treshold = 0.1;
+      const treshold = 0.1
 
       // there is a difference if we pass the treshold
       if (
         Math.abs(nextValue.x - value.x) > treshold ||
         Math.abs(nextValue.y - value.y) > treshold
       ) {
-        return true;
+        return true
       }
     }
 
     // means this is equal (we have NOT found a difference)
-    return false;
-  });
-};
+    return false
+  })
+}
 
-export default memo(Link, propsAreEqual);
+export default memo(Link, propsAreEqual)

@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from 'react';
 const useTweenBetweenValues = (initialTarget, { duration = 1000, delay = 0 } = {
     duration: 1000,
-    delay: 0
+    delay: 0,
 }) => {
     const timeoutTimer = useRef();
     const rafTimer = useRef(0);

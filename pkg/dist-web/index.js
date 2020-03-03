@@ -5,8 +5,8 @@ import { tree, hierarchy } from 'd3-hierarchy';
 
 // references: https://stackoverflow.com/questions/31804392/create-svg-arcs-between-two-points
 const isSamePoint = (source, target) => source.x === target.x && source.y === target.y;
-const isSimilarLink = (a) => (b) => ((isSamePoint(a.source, b.source) && isSamePoint(a.target, b.target)) ||
-    (isSamePoint(a.source, b.target) && isSamePoint(a.target, b.source)));
+const isSimilarLink = (a) => (b) => (isSamePoint(a.source, b.source) && isSamePoint(a.target, b.target)) ||
+    (isSamePoint(a.source, b.target) && isSamePoint(a.target, b.source));
 const scale = ({ source, target }, size) => ({
     source: {
         x: source.x * size,
@@ -15,7 +15,7 @@ const scale = ({ source, target }, size) => ({
     target: {
         x: target.x * size,
         y: target.y * size,
-    }
+    },
 });
 const addSVGPath = ({ offset = 500, size }) => (links) => {
     return links.map((link, i, { length }) => {
@@ -28,7 +28,7 @@ const addSVGPath = ({ offset = 500, size }) => (links) => {
                 d: `M ${source.x} ${source.y} ${target.x} ${target.y}`,
                 quadraticPoint: {
                     x: source.x + (target.x - source.x) / 2,
-                    y: source.y + (target.y - source.y) / 2
+                    y: source.y + (target.y - source.y) / 2,
                 },
                 sweep: 1,
             };
@@ -38,12 +38,14 @@ const addSVGPath = ({ offset = 500, size }) => (links) => {
         var dx = (target.x - source.x) / 2;
         var dy = (target.y - source.y) / 2;
         const dd = Math.sqrt(dx * dx + dy * dy);
-        const sweep = (link.source.x - link.target.x > 0) ? 1 : -1;
+        const sweep = link.source.x - link.target.x > 0 ? 1 : -1;
         const quadraticPoint = {
-            x: cx + dy / dd * (offset / links.length) * (i - (length - 1) / 2) * sweep,
-            y: cy - dx / dd * (offset / links.length) * (i - (length - 1) / 2) * sweep
+            x: cx +
+                (dy / dd) * (offset / links.length) * (i - (length - 1) / 2) * sweep,
+            y: cy -
+                (dx / dd) * (offset / links.length) * (i - (length - 1) / 2) * sweep,
         };
-        // add svg path of link 
+        // add svg path of link
         return {
             ...link,
             d: `M ${source.x} ${source.y} Q ${quadraticPoint.x} ${quadraticPoint.y} ${target.x} ${target.y}`,
@@ -59,7 +61,7 @@ var makeCurvedLinks = (links, { offset, size = 1 }) => {
         const [currentLink] = iterateLinks;
         const similarLinks = iterateLinks.filter(isSimilarLink(currentLink));
         groupLinks.push(similarLinks);
-        similarLinks.forEach(sl => iterateLinks.splice(iterateLinks.indexOf(sl), 1));
+        similarLinks.forEach((sl) => iterateLinks.splice(iterateLinks.indexOf(sl), 1));
     }
     return groupLinks.flatMap(addSVGPath({ offset, size }));
 };
@@ -79,7 +81,7 @@ const Node = ({ onClick, onDrag, onStart, onEnd, ...props }) => {
             return;
         dragInfoRef.current.thisIsMe = e
             .composedPath()
-            .some(n => n === nodeRef.current);
+            .some((n) => n === nodeRef.current);
         if (dragInfoRef.current.thisIsMe) {
             dragInfoRef.current.beforeX = e.clientX;
             dragInfoRef.current.beforeY = e.clientY;
@@ -118,13 +120,13 @@ const Node = ({ onClick, onDrag, onStart, onEnd, ...props }) => {
             onMouseEnter(id);
     }, [onMouseEnter, id]);
     useEffect(() => {
-        window.addEventListener("mousedown", mouseDown);
-        window.addEventListener("mousemove", mouseMove);
-        window.addEventListener("mouseup", mouseUp);
+        window.addEventListener('mousedown', mouseDown);
+        window.addEventListener('mousemove', mouseMove);
+        window.addEventListener('mouseup', mouseUp);
         return () => {
-            window.removeEventListener("mousedown", mouseDown);
-            window.removeEventListener("mousemove", mouseMove);
-            window.removeEventListener("mouseup", mouseUp);
+            window.removeEventListener('mousedown', mouseDown);
+            window.removeEventListener('mousemove', mouseMove);
+            window.removeEventListener('mouseup', mouseUp);
         };
     }, [mouseDown, mouseMove, mouseUp]);
     const onInnerClick = useCallback(() => {
@@ -132,28 +134,28 @@ const Node = ({ onClick, onDrag, onStart, onEnd, ...props }) => {
             return onClick(id);
         return undefined;
     }, [onClick, id]);
-    console.log("in node");
+    console.log('in node');
     const innerSize = (size + 10) * 3;
     const outerSize = innerSize + 20;
     const style = {
-        borderRadius: "100%",
-        backgroundColor: hover ? "#f97975" : color || getColor(group),
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        border: "1px solid rgba(50, 50, 50, 0.4)",
-        boxShadow: "0px 0px 10px -5px black",
+        borderRadius: '100%',
+        backgroundColor: hover ? '#f97975' : color || getColor(group),
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        border: '1px solid rgba(50, 50, 50, 0.4)',
+        boxShadow: '0px 0px 10px -5px black',
         width: innerSize,
         height: innerSize,
-        margin: "5px auto"
+        margin: '5px auto',
     };
-    return (React.createElement("g", Object.assign({ ref: nodeRef }, gProps, { onClick: onInnerClick, className: `node-container ${hidden ? "node-hidden" : ""}`, onMouseLeave: innerOnMouseLeave, onMouseEnter: innerOnMouseEnter }), Component ? (React.createElement(Component, Object.assign({ style: style, outerSize: outerSize }, props))) : (React.createElement("foreignObject", { width: outerSize, height: outerSize, x: -outerSize / 2, y: -outerSize / 2 },
+    return (React.createElement("g", Object.assign({ ref: nodeRef }, gProps, { onClick: onInnerClick, className: `node-container ${hidden ? 'node-hidden' : ''}`, onMouseLeave: innerOnMouseLeave, onMouseEnter: innerOnMouseEnter }), Component ? (React.createElement(Component, Object.assign({ style: style, outerSize: outerSize }, props))) : (React.createElement("foreignObject", { width: outerSize, height: outerSize, x: -outerSize / 2, y: -outerSize / 2 },
         React.createElement("div", { style: style }, label)))));
 };
 var Node$1 = memo(Node);
 
 const Link = ({ onClick, ...props }) => {
-    const { Component, id, d, quadraticPoint, sweep, label, source, target, hover, size } = props;
+    const { Component, id, d, quadraticPoint, sweep, label, source, target, hover, size, } = props;
     const [textPosition, setTextPosition] = useState({ x: 0, y: 0 });
     const height = 100;
     const width = 250;
@@ -161,11 +163,11 @@ const Link = ({ onClick, ...props }) => {
         setTextPosition(sweep > 0
             ? {
                 x: quadraticPoint.x - width / 2,
-                y: quadraticPoint.y - height / 2
+                y: quadraticPoint.y - height / 2,
             }
             : {
                 x: quadraticPoint.x - width / 2,
-                y: quadraticPoint.y
+                y: quadraticPoint.y,
             });
     }, [size, source.x, source.y, target.x, target.y, quadraticPoint, sweep]);
     const innerOnClick = useCallback(() => {
@@ -175,18 +177,18 @@ const Link = ({ onClick, ...props }) => {
     }, [onClick, id]);
     // useTraceUpdate(props)
     return (React.createElement("g", { key: d, onClick: innerOnClick }, Component ? (React.createElement(Component, Object.assign({}, props, { textPosition: textPosition }))) : (React.createElement(React.Fragment, null,
-        React.createElement("path", { id: id + "", strokeWidth: 5, fill: "transparent", d: d, stroke: "#d1d1d1", markerEnd: "url(#arrow-#d1d1d1)" }),
-        hover && (React.createElement("path", { id: id + "", strokeWidth: 20, fill: "transparent", d: d, stroke: "rgba(249, 121, 117, 0.5)" })),
+        React.createElement("path", { id: id + '', strokeWidth: 5, fill: "transparent", d: d, stroke: "#d1d1d1", markerEnd: "url(#arrow-#d1d1d1)" }),
+        hover && (React.createElement("path", { id: id + '', strokeWidth: 20, fill: "transparent", d: d, stroke: "rgba(249, 121, 117, 0.5)" })),
         hover && (React.createElement("foreignObject", Object.assign({}, textPosition, { width: width, height: height }),
             React.createElement("div", { style: {
-                    borderRadius: "5px",
-                    backgroundColor: "rgba(100, 100, 100, 0.2)",
-                    textAlign: "center",
-                    padding: "1em",
-                    border: "1px solid rgba(50, 50, 50, 0.2)"
+                    borderRadius: '5px',
+                    backgroundColor: 'rgba(100, 100, 100, 0.2)',
+                    textAlign: 'center',
+                    padding: '1em',
+                    border: '1px solid rgba(50, 50, 50, 0.2)',
                 } }, label || `${source.label} -> ${target.label}`)))))));
 };
-const PROPS_TO_ALWAYS_COMPARE = ["onClick", "Component", "id", "hover"];
+const PROPS_TO_ALWAYS_COMPARE = ['onClick', 'Component', 'id', 'hover'];
 const propsAreEqual = (prevProps, nextProps) => {
     return !Object.entries(prevProps).some(([key, value]) => {
         if (PROPS_TO_ALWAYS_COMPARE.includes(key)) {
@@ -195,7 +197,7 @@ const propsAreEqual = (prevProps, nextProps) => {
             const hasChanged = nextValue !== value;
             return hasChanged;
         }
-        if (key === "target" || key === "source") {
+        if (key === 'target' || key === 'source') {
             const nextValue = nextProps[key];
             // TODO: should use zoom
             const treshold = 0.1;
@@ -214,7 +216,7 @@ var Link$1 = memo(Link, propsAreEqual);
 const useHoverNode = (layout, { getMarkerColors }) => {
     const [hoverNode, setHoverNode] = useState();
     const [hiddenNodes, setHiddenNodes] = useState([]);
-    const onOverNode = useCallback(nodeId => {
+    const onOverNode = useCallback((nodeId) => {
         const notHiddenNodes = new Set();
         // get hidden links and NOT hidden nodes
         layout.links.forEach(({ source, target }) => {
@@ -237,7 +239,7 @@ const useHoverNode = (layout, { getMarkerColors }) => {
     return [hoverNode, hiddenNodes, onOverNode, onLeaveNode];
 };
 
-const useCenterAndZoom = (layout, { size, padding, width, height }) => {
+const useCenterAndZoom = (layout, { size, padding, width, height, }) => {
     const [offsets, setOffsets] = useState({ x: 0, y: 0 });
     const blockAll = useRef(false);
     const [zoom, setZoom] = useState(1);
@@ -292,14 +294,14 @@ const useCenterAndZoom = (layout, { size, padding, width, height }) => {
     // TODO: should offset to the cursor mouse while zooming
     const onWheel = useCallback((e) => {
         const { deltaY } = e;
-        setZoom(old => old - deltaY / 1000);
+        setZoom((old) => old - deltaY / 1000);
     }, [setZoom]);
     const setBlockAll = useCallback((block) => {
         blockAll.current = block;
     }, []);
     const rafOffsetTimer = useRef();
     const mouseMovingInfos = useRef({ startX: 0, startY: 0, moving: false });
-    const onMouseMove = useCallback(e => {
+    const onMouseMove = useCallback((e) => {
         // TODO: add a timeout (with numbers, not setTimeout) instead of a boolean
         if (!mouseMovingInfos.current.moving)
             return;
@@ -312,26 +314,26 @@ const useCenterAndZoom = (layout, { size, padding, width, height }) => {
         rafOffsetTimer.current = requestAnimationFrame(() => {
             mouseMovingInfos.current.startX = clientX;
             mouseMovingInfos.current.startY = clientY;
-            setOffsets(old => ({
+            setOffsets((old) => ({
                 x: old.x + (startX - clientX) * zoom,
-                y: old.y + (startY - clientY) * zoom
+                y: old.y + (startY - clientY) * zoom,
             }));
         });
     }, [zoom]);
-    const onMouseDown = useCallback(e => {
+    const onMouseDown = useCallback((e) => {
         if (blockAll.current)
             return;
         mouseMovingInfos.current = {
             ...mouseMovingInfos.current,
             moving: true,
             startX: e.clientX,
-            startY: e.clientY
+            startY: e.clientY,
         };
     }, []);
     const onMouseUp = useCallback(() => {
         mouseMovingInfos.current = {
             ...mouseMovingInfos.current,
-            moving: false
+            moving: false,
         };
     }, []);
     return [
@@ -342,7 +344,7 @@ const useCenterAndZoom = (layout, { size, padding, width, height }) => {
         onMouseMove,
         onMouseDown,
         onMouseUp,
-        setBlockAll
+        setBlockAll,
     ];
 };
 
@@ -362,11 +364,11 @@ class ReactColaLayout extends Layout {
         this.kickTimeoutTimer = setTimeout(() => !this.tick() && this.kick(), 0);
     }
 }
-const createGraphLayout = ({ width, height }) => {
+const createGraphLayout = ({ width, height, }) => {
     const layout = new ReactColaLayout();
     const view = {
         nodes: [],
-        links: []
+        links: [],
     };
     let ticks = 0;
     layout
@@ -377,12 +379,12 @@ const createGraphLayout = ({ width, height }) => {
         view.links = layout.links();
     })
         .on(EventType.start, () => {
-        console.time("graph layout");
+        console.time('graph layout');
     })
         .on(EventType.end, () => {
-        console.log("ticks", ticks);
-        console.timeEnd("graph layout");
-        console.log("links", layout.links().length, "nodes", layout.nodes().length);
+        console.log('ticks', ticks);
+        console.timeEnd('graph layout');
+        console.log('links', layout.links().length, 'nodes', layout.nodes().length);
         // mark all node as fixed (so this is performant)
         layout.nodes().forEach(Layout.dragStart);
     })
@@ -424,7 +426,7 @@ const createGraphLayout = ({ width, height }) => {
         start,
         stop,
         getLayout,
-        type: "graph"
+        type: 'graph',
     };
 };
 
@@ -432,7 +434,7 @@ const createTreeLayout = ({ size }) => {
     let previousRootNode;
     const view = {
         nodes: [],
-        links: []
+        links: [],
     };
     const start = (nodes, links) => {
         const [rootNode] = nodes;
@@ -444,12 +446,12 @@ const createTreeLayout = ({ size }) => {
         const addNodeAndChildren = (parentNode) => {
             mappedNodes.push(mapNode(parentNode));
             if (parentNode.children) {
-                parentNode.children.forEach(node => {
+                parentNode.children.forEach((node) => {
                     mappedLinks.push({
                         label: node.id,
                         source: mapNode(parentNode),
                         target: mapNode(node),
-                        length: 2
+                        length: 2,
                     });
                     addNodeAndChildren(node);
                 });
@@ -484,18 +486,18 @@ const createTreeLayout = ({ size }) => {
         start,
         stop,
         getLayout,
-        type: "tree"
+        type: 'tree',
     };
 };
 
-const useLayout = (nodes, links, { width, height, size, type = "graph" }) => {
+const useLayout = (nodes, links, { width, height, size, type = 'graph', }) => {
     const engine = useRef();
     const framesPerView = useRef(10); // TODO: make it dynamic based on frame time
     // so we can move from 1 frame per view to previous value (used in drag)
     const previousFramesPerView = useRef(framesPerView.current);
     const [layout, setLayout] = useState({
         nodes: [],
-        links: []
+        links: [],
     });
     const startEngine = useCallback(() => {
         if (!nodes || nodes.length === 0)
@@ -508,10 +510,10 @@ const useLayout = (nodes, links, { width, height, size, type = "graph" }) => {
     const initEngine = useCallback(() => {
         var _a;
         (_a = engine.current) === null || _a === void 0 ? void 0 : _a.stop();
-        if (type === "graph") {
+        if (type === 'graph') {
             engine.current = createGraphLayout({ width, height });
         }
-        else if (type === "tree") {
+        else if (type === 'tree') {
             engine.current = createTreeLayout({ size });
         }
         // get the layout view once per frame
@@ -552,7 +554,7 @@ const useLayout = (nodes, links, { width, height, size, type = "graph" }) => {
         var _a;
         (_a = engine.current) === null || _a === void 0 ? void 0 : _a.restart();
     }, []);
-    const dragStart = useCallback(node => {
+    const dragStart = useCallback((node) => {
         var _a;
         framesPerView.current = 1; // make it smooth
         (_a = engine.current) === null || _a === void 0 ? void 0 : _a.dragStart(node);
@@ -561,7 +563,7 @@ const useLayout = (nodes, links, { width, height, size, type = "graph" }) => {
         var _a;
         (_a = engine.current) === null || _a === void 0 ? void 0 : _a.drag(node, newPos);
     }, []);
-    const dragEnd = useCallback(node => {
+    const dragEnd = useCallback((node) => {
         var _a;
         (_a = engine.current) === null || _a === void 0 ? void 0 : _a.dragEnd(node);
         framesPerView.current = previousFramesPerView.current;
@@ -581,7 +583,7 @@ function svgPoint(element, x, y) {
     }
     return {
         x,
-        y
+        y,
     };
 }
 let height = 500;
@@ -589,32 +591,32 @@ let width = 800;
 let padding = 20;
 let size = 35;
 const Chart = (props) => {
-    const { nodes, links, type = "graph", onNodeClick, onLinkClick } = props;
+    const { nodes, links, type = 'graph', onNodeClick, onLinkClick } = props;
     const svgRef = useRef(null);
     const [layout, { drag, dragStart, dragEnd, restart }] = useLayout(nodes, links, {
         width,
         height,
         size,
-        type
+        type,
     });
-    const [zoom, offsets, centerAndZoom, onWheel, onMouseMove, onMouseDown, onMouseUp, blockCenterAndZoom] = useCenterAndZoom(layout, { size, padding, width, height });
-    const [lineMarkerColors, setLineMarkerColors] = useState(["#999"]);
+    const [zoom, offsets, centerAndZoom, onWheel, onMouseMove, onMouseDown, onMouseUp, blockCenterAndZoom,] = useCenterAndZoom(layout, { size, padding, width, height });
+    const [lineMarkerColors, setLineMarkerColors] = useState(['#999']);
     const getMarkerColors = useCallback(() => {
         if (!svgRef.current)
             return;
         // get all path child from svg
         // to find stroke color and set new colors array
         // @ts-ignore
-        const paths = [...svgRef.current.getElementsByTagName("path")];
-        const colors = new Set(paths.map(path => path.getAttribute("stroke")));
+        const paths = [...svgRef.current.getElementsByTagName('path')];
+        const colors = new Set(paths.map((path) => path.getAttribute('stroke')));
         // @ts-ignore
         setLineMarkerColors([...colors.values()].filter(Boolean));
     }, []);
     useEffect(getMarkerColors, [layout, getMarkerColors]);
     // TODO: move this to the layout engine?
-    const findNode = useCallback(nodeId => layout.nodes.find(n => n.id === nodeId), [layout.nodes]);
-    const findLink = useCallback(linkIndex => layout.links[linkIndex], [
-        layout.links
+    const findNode = useCallback((nodeId) => layout.nodes.find((n) => n.id === nodeId), [layout.nodes]);
+    const findLink = useCallback((linkIndex) => layout.links[linkIndex], [
+        layout.links,
     ]);
     const onDrag = useCallback((nodeId, e) => {
         const node = findNode(nodeId);
@@ -625,14 +627,14 @@ const Chart = (props) => {
         node.y = newPos.y / size;
         drag(node, { x: newPos.x / size, y: newPos.y / size });
     }, [findNode, drag]);
-    const onStart = useCallback(nodeId => {
+    const onStart = useCallback((nodeId) => {
         const node = findNode(nodeId);
         if (!node)
             return;
         dragStart(node);
         blockCenterAndZoom(true);
     }, [findNode, dragStart, blockCenterAndZoom]);
-    const onEnd = useCallback(nodeId => {
+    const onEnd = useCallback((nodeId) => {
         const node = findNode(nodeId);
         if (!node)
             return;
@@ -640,14 +642,14 @@ const Chart = (props) => {
         blockCenterAndZoom(false);
         centerAndZoom(layout.nodes);
     }, [centerAndZoom, blockCenterAndZoom, layout.nodes, dragEnd, findNode]);
-    const [hoverNode, hiddenNodes, onOverNode, onLeaveNode] = useHoverNode(layout, { getMarkerColors });
-    const innerOnNodeClick = useCallback(id => {
+    const [hoverNode, hiddenNodes, onOverNode, onLeaveNode,] = useHoverNode(layout, { getMarkerColors });
+    const innerOnNodeClick = useCallback((id) => {
         if (!onNodeClick)
             return undefined;
         const node = findNode(id);
         return onNodeClick(node);
     }, [onNodeClick, findNode]);
-    const innerOnLinkClick = useCallback(index => {
+    const innerOnLinkClick = useCallback((index) => {
         if (!onLinkClick)
             return undefined;
         return onLinkClick(findLink(index));
@@ -657,16 +659,16 @@ const Chart = (props) => {
     return (React.createElement(React.Fragment, null,
         React.createElement("button", { onClick: restart }, "Relayout"),
         React.createElement("svg", { ref: svgRef, width: width, height: height, viewBox: `${offsets.x} ${offsets.y} ${width * zoom} ${height * zoom}`, onWheel: onWheel, onMouseMove: onMouseMove, onMouseDown: onMouseDown, onMouseUp: onMouseUp, xmlns: "http://www.w3.org/2000/svg" },
-            lineMarkerColors.map(color => (React.createElement("marker", { id: `arrow-${color}`, key: `arrow-${color}`, viewBox: "0 0 10 10", refX: size / 2 + 11, refY: "2.5", markerWidth: "6", markerHeight: "6", orient: "auto-start-reverse" },
+            lineMarkerColors.map((color) => (React.createElement("marker", { id: `arrow-${color}`, key: `arrow-${color}`, viewBox: "0 0 10 10", refX: size / 2 + 11, refY: "2.5", markerWidth: "6", markerHeight: "6", orient: "auto-start-reverse" },
                 React.createElement("path", { d: "M 0 0 L 5 2.5 L 0 5 z", fill: color })))),
             React.createElement("g", { stroke: "#999" }, makeCurvedLinks(layout.links, { size }).map((link, index) => {
-                const { length, d, quadraticPoint, sweep, label, source, target, Component } = link;
+                const { length, d, quadraticPoint, sweep, label, source, target, Component, } = link;
                 return (React.createElement(Link$1, { id: index, length: length, d: d, quadraticPoint: quadraticPoint, sweep: sweep, label: label, size: size, source: { x: source.x, y: source.y, label: source.label }, target: { x: target.x, y: target.y, label: target.label }, Component: Component, onClick: innerOnLinkClick, hover: hoverNode === link.source.id || hoverNode === link.target.id }));
             })),
-            React.createElement("g", { stroke: "#fff", strokeWidth: 1 }, layout.nodes.map(node => {
+            React.createElement("g", { stroke: "#fff", strokeWidth: 1 }, layout.nodes.map((node) => {
                 const { id, group, x, y, label, Component, color } = node;
                 return (React.createElement("g", { transform: `translate(${x * size} ${y * size})` },
-                    React.createElement(Node$1, { key: id, id: id, group: group, label: label, color: color, Component: Component, onClick: innerOnNodeClick, onMouseEnter: onOverNode, onMouseLeave: onLeaveNode, size: size, onDrag: onDrag, onStart: onStart, onEnd: onEnd, drag: type !== "tree", hover: hoverNode === id, hidden: hoverNode !== id && hiddenNodes.includes(id) })));
+                    React.createElement(Node$1, { key: id, id: id, group: group, label: label, color: color, Component: Component, onClick: innerOnNodeClick, onMouseEnter: onOverNode, onMouseLeave: onLeaveNode, size: size, onDrag: onDrag, onStart: onStart, onEnd: onEnd, drag: type !== 'tree', hover: hoverNode === id, hidden: hoverNode !== id && hiddenNodes.includes(id) })));
             })))));
 };
 

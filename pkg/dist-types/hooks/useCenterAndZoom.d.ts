@@ -1,6 +1,6 @@
 /// <reference types="react" />
-import { SimplifiedLayout, ChartNode } from "../types";
-declare const useCenterAndZoom: (layout: SimplifiedLayout, { size, padding, width, height }: {
+import { SimplifiedLayout, ChartNode } from '../types';
+declare const useCenterAndZoom: (layout: SimplifiedLayout, { size, padding, width, height, }: {
     size: number;
     padding: number;
     width: number;

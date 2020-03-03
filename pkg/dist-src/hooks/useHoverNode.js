@@ -1,8 +1,8 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback } from 'react';
 const useHoverNode = (layout, { getMarkerColors }) => {
     const [hoverNode, setHoverNode] = useState();
     const [hiddenNodes, setHiddenNodes] = useState([]);
-    const onOverNode = useCallback(nodeId => {
+    const onOverNode = useCallback((nodeId) => {
         const notHiddenNodes = new Set();
         // get hidden links and NOT hidden nodes
         layout.links.forEach(({ source, target }) => {

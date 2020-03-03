@@ -1,4 +1,4 @@
-import { ChartNode, WithCoords } from "../../types";
+import { ChartNode, WithCoords } from '../../types';
 export interface Link {
     target: ChartNode;
     source: ChartNode;
@@ -14,5 +14,5 @@ export interface LayoutEngine {
         nodes: ChartNode[];
         links: Link[];
     };
-    type: "graph" | "tree";
+    type: 'graph' | 'tree';
 }

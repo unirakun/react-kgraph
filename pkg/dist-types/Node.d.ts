@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 declare const _default: React.MemoExoticComponent<({ onClick, onDrag, onStart, onEnd, ...props }: {
     [key: string]: any;
     id: string | number;

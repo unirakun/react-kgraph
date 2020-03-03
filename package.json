@@ -9,7 +9,8 @@
     "pikapublish": "pika publish",
     "build": "pika build",
     "version": "npm run build",
-    "test": "echo \"todo\""
+    "test": "echo \"todo\"",
+    "format": "prettier \"**/*.{ts,tsx,js,jsx,md,json}\" --write"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -37,6 +38,9 @@
     "@types/lodash": "^4.14.149",
     "d3": "^5.15.0",
     "d3-hierarchy": "^1.1.9",
+    "husky": ">=4",
+    "lint-staged": ">=10",
+    "prettier": "1.19.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "typescript": "^3.7.5"
@@ -56,5 +60,13 @@
         "@pika/plugin-build-web"
       ]
     ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,css,md}": "prettier --write"
   }
 }

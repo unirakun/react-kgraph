@@ -1,42 +1,42 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import makeCurvedLinks from "./makeCurvedLinks";
-import Node from "./Node";
-import Link from "./Link";
-import { useHoverNodes, useCenterAndZoom, useLayout } from "./hooks/index";
+import React, { useState, useEffect, useRef, useCallback } from 'react'
+import makeCurvedLinks from './makeCurvedLinks'
+import Node from './Node'
+import Link from './Link'
+import { useHoverNodes, useCenterAndZoom, useLayout } from './hooks/index'
 
 function svgPoint(element: SVGSVGElement | null, x: number, y: number) {
-  if (!element) return { x, y };
+  if (!element) return { x, y }
 
-  let pt = element.createSVGPoint();
+  let pt = element.createSVGPoint()
 
-  pt.x = x;
-  pt.y = y;
+  pt.x = x
+  pt.y = y
 
-  let screenCTM = element.getScreenCTM();
+  let screenCTM = element.getScreenCTM()
   if (screenCTM) {
-    return pt.matrixTransform(screenCTM.inverse());
+    return pt.matrixTransform(screenCTM.inverse())
   }
 
   return {
     x,
-    y
-  };
+    y,
+  }
 }
 
-let height = 500;
-let width = 800;
-let padding = 20;
+let height = 500
+let width = 800
+let padding = 20
 
-let size = 35;
+let size = 35
 const Chart = (props: {
-  nodes: any[];
-  links: any[];
-  type: "tree" | "graph";
-  onNodeClick?: (node: any) => any;
-  onLinkClick?: (link: any) => any;
+  nodes: any[]
+  links: any[]
+  type: 'tree' | 'graph'
+  onNodeClick?: (node: any) => any
+  onLinkClick?: (link: any) => any
 }) => {
-  const { nodes, links, type = "graph", onNodeClick, onLinkClick } = props;
-  const svgRef = useRef<SVGSVGElement>(null);
+  const { nodes, links, type = 'graph', onNodeClick, onLinkClick } = props
+  const svgRef = useRef<SVGSVGElement>(null)
 
   const [layout, { drag, dragStart, dragEnd, restart }] = useLayout(
     nodes,
@@ -45,9 +45,9 @@ const Chart = (props: {
       width,
       height,
       size,
-      type
-    }
-  );
+      type,
+    },
+  )
 
   const [
     zoom,
@@ -57,94 +57,94 @@ const Chart = (props: {
     onMouseMove,
     onMouseDown,
     onMouseUp,
-    blockCenterAndZoom
-  ] = useCenterAndZoom(layout, { size, padding, width, height });
+    blockCenterAndZoom,
+  ] = useCenterAndZoom(layout, { size, padding, width, height })
 
-  const [lineMarkerColors, setLineMarkerColors] = useState<string[]>(["#999"]);
+  const [lineMarkerColors, setLineMarkerColors] = useState<string[]>(['#999'])
   const getMarkerColors = useCallback(() => {
-    if (!svgRef.current) return;
+    if (!svgRef.current) return
 
     // get all path child from svg
     // to find stroke color and set new colors array
     // @ts-ignore
-    const paths = [...svgRef.current.getElementsByTagName("path")];
-    const colors = new Set(paths.map(path => path.getAttribute("stroke")));
+    const paths = [...svgRef.current.getElementsByTagName('path')]
+    const colors = new Set(paths.map((path) => path.getAttribute('stroke')))
     // @ts-ignore
-    setLineMarkerColors([...colors.values()].filter(Boolean));
-  }, []);
-  useEffect(getMarkerColors, [layout, getMarkerColors]);
+    setLineMarkerColors([...colors.values()].filter(Boolean))
+  }, [])
+  useEffect(getMarkerColors, [layout, getMarkerColors])
 
   // TODO: move this to the layout engine?
   const findNode = useCallback(
-    nodeId => layout.nodes.find(n => n.id === nodeId),
-    [layout.nodes]
-  );
-  const findLink = useCallback(linkIndex => layout.links[linkIndex], [
-    layout.links
-  ]);
+    (nodeId) => layout.nodes.find((n) => n.id === nodeId),
+    [layout.nodes],
+  )
+  const findLink = useCallback((linkIndex) => layout.links[linkIndex], [
+    layout.links,
+  ])
 
   const onDrag = useCallback(
     (nodeId, e: React.MouseEvent) => {
-      const node = findNode(nodeId);
-      if (!node) return;
+      const node = findNode(nodeId)
+      if (!node) return
 
-      const newPos = svgPoint(svgRef.current, e.clientX, e.clientY);
-      node.x = newPos.x / size;
-      node.y = newPos.y / size;
-      drag(node, { x: newPos.x / size, y: newPos.y / size });
+      const newPos = svgPoint(svgRef.current, e.clientX, e.clientY)
+      node.x = newPos.x / size
+      node.y = newPos.y / size
+      drag(node, { x: newPos.x / size, y: newPos.y / size })
     },
-    [findNode, drag]
-  );
+    [findNode, drag],
+  )
 
   const onStart = useCallback(
-    nodeId => {
-      const node = findNode(nodeId);
-      if (!node) return;
+    (nodeId) => {
+      const node = findNode(nodeId)
+      if (!node) return
 
-      dragStart(node);
-      blockCenterAndZoom(true);
+      dragStart(node)
+      blockCenterAndZoom(true)
     },
-    [findNode, dragStart, blockCenterAndZoom]
-  );
+    [findNode, dragStart, blockCenterAndZoom],
+  )
 
   const onEnd = useCallback(
-    nodeId => {
-      const node = findNode(nodeId);
-      if (!node) return;
+    (nodeId) => {
+      const node = findNode(nodeId)
+      if (!node) return
 
-      dragEnd(node);
+      dragEnd(node)
 
-      blockCenterAndZoom(false);
-      centerAndZoom(layout.nodes);
+      blockCenterAndZoom(false)
+      centerAndZoom(layout.nodes)
     },
-    [centerAndZoom, blockCenterAndZoom, layout.nodes, dragEnd, findNode]
-  );
+    [centerAndZoom, blockCenterAndZoom, layout.nodes, dragEnd, findNode],
+  )
 
   const [
     hoverNode,
     hiddenNodes,
     onOverNode,
-    onLeaveNode
-  ] = useHoverNodes(layout, { getMarkerColors });
+    onLeaveNode,
+  ] = useHoverNodes(layout, { getMarkerColors })
 
   const innerOnNodeClick = useCallback(
-    id => {
-      if (!onNodeClick) return undefined;
-      const node = findNode(id);
-      return onNodeClick(node);
+    (id) => {
+      if (!onNodeClick) return undefined
+      const node = findNode(id)
+      return onNodeClick(node)
     },
-    [onNodeClick, findNode]
-  );
+    [onNodeClick, findNode],
+  )
 
   const innerOnLinkClick = useCallback(
-    index => {
-      if (!onLinkClick) return undefined;
-      return onLinkClick(findLink(index));
+    (index) => {
+      if (!onLinkClick) return undefined
+      return onLinkClick(findLink(index))
     },
-    [onLinkClick, findLink]
-  );
+    [onLinkClick, findLink],
+  )
 
-  if (layout.nodes.length === 0) return null;
+  if (layout.nodes.length === 0) return null
 
   return (
     <>
@@ -164,7 +164,7 @@ const Chart = (props: {
         onMouseUp={onMouseUp}
         xmlns="http://www.w3.org/2000/svg"
       >
-        {lineMarkerColors.map(color => (
+        {lineMarkerColors.map((color) => (
           <marker
             id={`arrow-${color}`}
             key={`arrow-${color}`}
@@ -189,8 +189,8 @@ const Chart = (props: {
               label,
               source,
               target,
-              Component
-            } = link;
+              Component,
+            } = link
             return (
               <Link
                 id={index}
@@ -208,12 +208,12 @@ const Chart = (props: {
                   hoverNode === link.source.id || hoverNode === link.target.id
                 }
               />
-            );
+            )
           })}
         </g>
         <g stroke="#fff" strokeWidth={1}>
-          {layout.nodes.map(node => {
-            const { id, group, x, y, label, Component, color } = node;
+          {layout.nodes.map((node) => {
+            const { id, group, x, y, label, Component, color } = node
 
             return (
               <g transform={`translate(${x * size} ${y * size})`}>
@@ -231,17 +231,17 @@ const Chart = (props: {
                   onDrag={onDrag}
                   onStart={onStart}
                   onEnd={onEnd}
-                  drag={type !== "tree"}
+                  drag={type !== 'tree'}
                   hover={hoverNode === id}
                   hidden={hoverNode !== id && hiddenNodes.includes(id)}
                 />
               </g>
-            );
+            )
           })}
         </g>
       </svg>
     </>
-  );
-};
+  )
+}
 
-export default Chart;
+export default Chart

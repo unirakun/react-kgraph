@@ -1,6 +1,6 @@
-import { SimplifiedLayout, ChartNode, WithCoords } from "../types";
-import { Link } from "./layoutEngines/index";
-declare const useLayout: (nodes: ChartNode[], links: Link[], { width, height, size, type }: {
+import { SimplifiedLayout, ChartNode, WithCoords } from '../types';
+import { Link } from './layoutEngines/index';
+declare const useLayout: (nodes: ChartNode[], links: Link[], { width, height, size, type, }: {
     width: number;
     height: number;
     size: number;

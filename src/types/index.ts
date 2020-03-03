@@ -1,15 +1,15 @@
-export type WithCoords = { x: number; y: number };
+export type WithCoords = { x: number; y: number }
 
 export interface ChartNode extends WithCoords {
-  [key: string]: any;
+  [key: string]: any
 }
 
 export interface TreeNode extends ChartNode {
-  [key: string]: any;
-  children?: TreeNode[];
+  [key: string]: any
+  children?: TreeNode[]
 }
 
 export interface SimplifiedLayout {
-  nodes: (ChartNode | TreeNode)[];
-  links: any[];
+  nodes: (ChartNode | TreeNode)[]
+  links: any[]
 }

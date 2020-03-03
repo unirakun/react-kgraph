@@ -1,9 +1,9 @@
-import { tree as d3tree, hierarchy } from "d3-hierarchy";
+import { tree as d3tree, hierarchy } from 'd3-hierarchy';
 const createTreeLayout = ({ size }) => {
     let previousRootNode;
     const view = {
         nodes: [],
-        links: []
+        links: [],
     };
     const start = (nodes, links) => {
         const [rootNode] = nodes;
@@ -15,12 +15,12 @@ const createTreeLayout = ({ size }) => {
         const addNodeAndChildren = (parentNode) => {
             mappedNodes.push(mapNode(parentNode));
             if (parentNode.children) {
-                parentNode.children.forEach(node => {
+                parentNode.children.forEach((node) => {
                     mappedLinks.push({
                         label: node.id,
                         source: mapNode(parentNode),
                         target: mapNode(node),
-                        length: 2
+                        length: 2,
                     });
                     addNodeAndChildren(node);
                 });
@@ -55,7 +55,7 @@ const createTreeLayout = ({ size }) => {
         start,
         stop,
         getLayout,
-        type: "tree"
+        type: 'tree',
     };
 };
 export default createTreeLayout;

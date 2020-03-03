@@ -1,5 +1,5 @@
-import { useRef, useState, useCallback, useLayoutEffect } from "react";
-const useCenterAndZoom = (layout, { size, padding, width, height }) => {
+import { useRef, useState, useCallback, useLayoutEffect } from 'react';
+const useCenterAndZoom = (layout, { size, padding, width, height, }) => {
     const [offsets, setOffsets] = useState({ x: 0, y: 0 });
     const blockAll = useRef(false);
     const [zoom, setZoom] = useState(1);
@@ -54,14 +54,14 @@ const useCenterAndZoom = (layout, { size, padding, width, height }) => {
     // TODO: should offset to the cursor mouse while zooming
     const onWheel = useCallback((e) => {
         const { deltaY } = e;
-        setZoom(old => old - deltaY / 1000);
+        setZoom((old) => old - deltaY / 1000);
     }, [setZoom]);
     const setBlockAll = useCallback((block) => {
         blockAll.current = block;
     }, []);
     const rafOffsetTimer = useRef();
     const mouseMovingInfos = useRef({ startX: 0, startY: 0, moving: false });
-    const onMouseMove = useCallback(e => {
+    const onMouseMove = useCallback((e) => {
         // TODO: add a timeout (with numbers, not setTimeout) instead of a boolean
         if (!mouseMovingInfos.current.moving)
             return;
@@ -74,26 +74,26 @@ const useCenterAndZoom = (layout, { size, padding, width, height }) => {
         rafOffsetTimer.current = requestAnimationFrame(() => {
             mouseMovingInfos.current.startX = clientX;
             mouseMovingInfos.current.startY = clientY;
-            setOffsets(old => ({
+            setOffsets((old) => ({
                 x: old.x + (startX - clientX) * zoom,
-                y: old.y + (startY - clientY) * zoom
+                y: old.y + (startY - clientY) * zoom,
             }));
         });
     }, [zoom]);
-    const onMouseDown = useCallback(e => {
+    const onMouseDown = useCallback((e) => {
         if (blockAll.current)
             return;
         mouseMovingInfos.current = {
             ...mouseMovingInfos.current,
             moving: true,
             startX: e.clientX,
-            startY: e.clientY
+            startY: e.clientY,
         };
     }, []);
     const onMouseUp = useCallback(() => {
         mouseMovingInfos.current = {
             ...mouseMovingInfos.current,
-            moving: false
+            moving: false,
         };
     }, []);
     return [
@@ -104,7 +104,7 @@ const useCenterAndZoom = (layout, { size, padding, width, height }) => {
         onMouseMove,
         onMouseDown,
         onMouseUp,
-        setBlockAll
+        setBlockAll,
     ];
 };
 export default useCenterAndZoom;
