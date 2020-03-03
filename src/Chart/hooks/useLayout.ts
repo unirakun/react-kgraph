@@ -36,9 +36,17 @@ const useLayout = (
     links: []
   });
 
-  useEffect(() => {
+  const startEngine = useCallback(() => {
+    if (!nodes || nodes.length === 0) return;
+
+    if (engine.current) {
+      engine.current.start(nodes, links);
+      setLayout(engine.current.getLayout());
+    }
+  }, [nodes, links]);
+
+  const initEngine = useCallback(() => {
     engine.current?.stop();
-    console.log('init new layout engine', type)
     if (type === "graph") {
       engine.current = createGraphLayout({ width, height });
     } else if (type === "tree") {
@@ -64,22 +72,24 @@ const useLayout = (
 
     return () => {
       if (rafTimer) {
-        console.log('stopping view timer...')
         cancelAnimationFrame(rafTimer);
       }
     };
   }, [type, width, height, size]);
 
+  const previousInitEngineRef = useRef<any>();
+  const previousStartEngineRef = useRef<any>();
   useEffect(() => {
-    if (!nodes || nodes.length === 0) return;
-
-    console.log('starting engine', nodes)
-
-    if (engine.current) {
-      engine.current.start(nodes, links);
-      setLayout(engine.current.getLayout());
+    if (previousInitEngineRef.current !== initEngine) {
+      previousInitEngineRef.current = initEngine;
+      previousStartEngineRef.current = startEngine;
+      initEngine();
+      startEngine();
+    } else if (previousStartEngineRef.current !== startEngine) {
+      previousStartEngineRef.current = startEngine;
+      startEngine();
     }
-  }, [nodes, links]);
+  }, [initEngine, startEngine]);
 
   const restart = useCallback(() => {
     engine.current?.restart();

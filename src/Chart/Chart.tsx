@@ -74,11 +74,11 @@ const Chart = (props: {
   }, []);
   useEffect(getMarkerColors, [layout, getMarkerColors]);
 
+  // TODO: move this to the layout engine?
   const findNode = useCallback(
     nodeId => layout.nodes.find(n => n.id === nodeId),
     [layout.nodes]
   );
-
   const findLink = useCallback(linkIndex => layout.links[linkIndex], [
     layout.links
   ]);
