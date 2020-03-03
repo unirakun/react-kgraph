@@ -1,20 +1,8 @@
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-  useLayoutEffect
-} from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import makeCurvedLinks from "./makeCurvedLinks";
 import Node from "./Node";
 import Link from "./Link";
-import { TreeNode, SimplifiedLayout } from "./types";
-import {
-  useHoverNodes,
-  useTreeLayout,
-  useCenterAndZoom,
-  useGraphLayout
-} from "./hooks";
+import { useHoverNodes, useCenterAndZoom, useLayout } from "./hooks";
 
 function svgPoint(element: SVGSVGElement | null, x: number, y: number) {
   if (!element) return { x, y };
@@ -43,36 +31,23 @@ let size = 35;
 const Chart = (props: {
   nodes: any[];
   links: any[];
-  tree: boolean;
-  root: TreeNode;
+  type: "tree" | "graph";
   onNodeClick?: (node: any) => any;
   onLinkClick?: (link: any) => any;
 }) => {
-  const { nodes, links, tree = false, root, onNodeClick, onLinkClick } = props;
+  const { nodes, links, type = "graph", onNodeClick, onLinkClick } = props;
   const svgRef = useRef<SVGSVGElement>(null);
 
-  // layout part and it request animation frame timer
-  const [layout, setLayout] = useState<SimplifiedLayout>({
-    nodes: [],
-    links: []
-  });
-
-  const [graphLayout, relayout, { dragStart, drag }, drawn] = useGraphLayout(
+  const [layout, { drag, dragStart, dragEnd, restart }] = useLayout(
     nodes,
     links,
     {
       width,
-      height
+      height,
+      size,
+      type
     }
   );
-  useEffect(() => {
-    setLayout(graphLayout);
-  }, [graphLayout]);
-
-  const treeLayout = useTreeLayout(root, { size });
-  useEffect(() => {
-    setLayout(treeLayout);
-  }, [treeLayout]);
 
   const [
     zoom,
@@ -84,10 +59,6 @@ const Chart = (props: {
     onMouseUp,
     blockCenterAndZoom
   ] = useCenterAndZoom(layout, { size, padding, width, height });
-
-  useLayoutEffect(() => {
-    return drawn;
-  }, [layout, drawn]);
 
   const [lineMarkerColors, setLineMarkerColors] = useState<string[]>(["#999"]);
   const getMarkerColors = useCallback(() => {
@@ -103,11 +74,11 @@ const Chart = (props: {
   }, []);
   useEffect(getMarkerColors, [layout, getMarkerColors]);
 
+  // TODO: move this to the layout engine?
   const findNode = useCallback(
     nodeId => layout.nodes.find(n => n.id === nodeId),
     [layout.nodes]
   );
-
   const findLink = useCallback(linkIndex => layout.links[linkIndex], [
     layout.links
   ]);
@@ -136,11 +107,18 @@ const Chart = (props: {
     [findNode, dragStart, blockCenterAndZoom]
   );
 
-  const onEnd = useCallback(() => {
-    // unlock zoom and ask for a relayout (and a redaw as a consequence)
-    blockCenterAndZoom(false);
-    centerAndZoom(layout.nodes);
-  }, [centerAndZoom, blockCenterAndZoom, layout.nodes]);
+  const onEnd = useCallback(
+    nodeId => {
+      const node = findNode(nodeId);
+      if (!node) return;
+
+      dragEnd(node);
+
+      blockCenterAndZoom(false);
+      centerAndZoom(layout.nodes);
+    },
+    [centerAndZoom, blockCenterAndZoom, layout.nodes, dragEnd, findNode]
+  );
 
   const [
     hoverNode,
@@ -171,7 +149,7 @@ const Chart = (props: {
   return (
     <>
       <button // TODO: move it in parent code ?
-        onClick={relayout}
+        onClick={restart}
       >
         Relayout
       </button>
@@ -253,7 +231,7 @@ const Chart = (props: {
                   onDrag={onDrag}
                   onStart={onStart}
                   onEnd={onEnd}
-                  drag={!tree}
+                  drag={type !== "tree"}
                   hover={hoverNode === id}
                   hidden={hoverNode !== id && hiddenNodes.includes(id)}
                 />

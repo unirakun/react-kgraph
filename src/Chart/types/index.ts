@@ -1,9 +1,10 @@
 export type WithCoords = { x: number; y: number };
+
 export interface ChartNode extends WithCoords {
   [key: string]: any;
 }
 
-export interface TreeNode extends WithCoords {
+export interface TreeNode extends ChartNode {
   [key: string]: any;
   children?: TreeNode[];
 }
