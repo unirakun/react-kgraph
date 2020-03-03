@@ -13,14 +13,12 @@ const Node = ({
   onDrag,
   onStart,
   onEnd,
-  drag,
   ...props
 }: {
   id: number | string;
   size: number;
   group: string;
   label?: string;
-  drag: boolean;
   hover: boolean;
   hidden: boolean;
   color?: string;
@@ -111,7 +109,6 @@ const Node = ({
   }, [onMouseEnter, id]);
 
   useEffect(() => {
-    if (!drag) return;
     window.addEventListener("mousedown", mouseDown);
     window.addEventListener("mousemove", mouseMove);
     window.addEventListener("mouseup", mouseUp);
@@ -121,7 +118,7 @@ const Node = ({
       window.removeEventListener("mousemove", mouseMove);
       window.removeEventListener("mouseup", mouseUp);
     };
-  }, [drag, mouseDown, mouseMove, mouseUp]);
+  }, [mouseDown, mouseMove, mouseUp]);
 
   const onInnerClick = useCallback(() => {
     if (onClick) return onClick(id);
