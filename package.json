@@ -12,21 +12,6 @@
     "test": "echo \"todo\"",
     "format": "prettier \"**/*.{ts,tsx,js,jsx,md,json}\" --write"
   },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
   "devDependencies": {
     "@pika/pack": "^0.5.0",
     "@pika/plugin-build-web": "^0.9.2",
@@ -67,6 +52,6 @@
     }
   },
   "lint-staged": {
-    "*.{js,css,md}": "prettier --write"
+    "*.{js,css,md,ts,tsx,json}": "prettier --write"
   }
 }
