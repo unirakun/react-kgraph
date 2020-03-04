@@ -10,22 +10,10 @@
     "build": "pika build",
     "version": "npm run build",
     "test": "echo \"todo\"",
-    "format": "prettier \"**/*.{ts,tsx,js,jsx,md,json}\" --write"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "lint": "echo \"todo\"",
+    "format": "prettier \"**/*.{ts,tsx,js,jsx,md,json}\" --write",
+    "ci:check": "prettier \"**/*.{ts,tsx,js,jsx,md,json}\" --check",
+    "ci": "run-p lint test ci:*"
   },
   "devDependencies": {
     "@pika/pack": "^0.5.0",
@@ -40,6 +28,7 @@
     "d3-hierarchy": "^1.1.9",
     "husky": ">=4",
     "lint-staged": ">=10",
+    "npm-run-all": "^4.1.5",
     "prettier": "1.19.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
@@ -67,6 +56,6 @@
     }
   },
   "lint-staged": {
-    "*.{js,css,md}": "prettier --write"
+    "*.{js,css,md,ts,tsx,json}": "prettier --write"
   }
 }
