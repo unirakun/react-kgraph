@@ -2,6 +2,11 @@
 
 > A graph lib that uses SVG and webcola to render.
 
+[![Documentation](https://img.shields.io/badge/doc-storybook-ff69b4)](https://unirakun.github.io/react-kgraph)
+[![npm](https://img.shields.io/npm/v/react-kgraph)](https://www.npmjs.com/package/react-kgraph)
+[![npm bundle size](https://img.shields.io/bundlephobia/minzip/react-kgraph)](https://bundlephobia.com/result?p=react-kgraph@0.1.4)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/unirakun/react-kgraph/quality)](https://github.com/unirakun/react-kgraph/actions?query=branch%3Amaster)
+
 ## Installation
 
 `npm install --save react-kgraph d3@^5.15.0 d3-hierarchy@^1.1.9`
