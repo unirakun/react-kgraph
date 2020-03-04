@@ -28,9 +28,9 @@ function svgPoint(element: SVGSVGElement | null, x: number, y: number) {
 const height = 500
 const width = 800
 const padding = 20
-
 const size = 35
-const Chart = (props: {
+
+const Graph = (props: {
   nodes: any[]
   links: any[]
   type: 'tree' | 'graph'
@@ -247,4 +247,4 @@ const Chart = (props: {
   )
 }
 
-export default Chart
+export default Graph
