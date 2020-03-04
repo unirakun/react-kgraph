@@ -61,8 +61,6 @@ const Link = ({ onClick, ...props }: LinkProps) => {
     onClick(id)
   }, [onClick, id])
 
-  // useTraceUpdate(props)
-
   return (
     <g key={d} onClick={innerOnClick}>
       {Component ? (
@@ -70,21 +68,21 @@ const Link = ({ onClick, ...props }: LinkProps) => {
       ) : (
         <>
           <path
-            id={id + ''}
+            id={`${id}`}
             strokeWidth={5}
             fill="transparent"
             d={d}
             stroke="#d1d1d1"
             markerEnd="url(#arrow-#d1d1d1)"
-          ></path>
+          />
           {hover && (
             <path
-              id={id + ''}
+              id={`${id}`}
               strokeWidth={20}
               fill="transparent"
               d={d}
               stroke="rgba(249, 121, 117, 0.5)"
-            ></path>
+            />
           )}
           {hover && (
             <foreignObject {...textPosition} width={width} height={height}>

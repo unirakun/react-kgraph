@@ -1,6 +1,6 @@
 import { tree as d3tree, hierarchy } from 'd3-hierarchy'
-import { ChartNode, WithCoords, SimplifiedLayout, TreeNode } from '../../types'
-import { LayoutEngine, Link } from './layoutEngine'
+import { SimplifiedLayout, TreeNode } from '../../types'
+import { LayoutEngine } from './layoutEngine'
 
 const createTreeLayout = ({ size }: { size: number }): LayoutEngine => {
   let previousRootNode: TreeNode
@@ -9,7 +9,7 @@ const createTreeLayout = ({ size }: { size: number }): LayoutEngine => {
     links: [],
   }
 
-  const start = (nodes: TreeNode[], links: Link[]) => {
+  const start = (nodes: TreeNode[]) => {
     const [rootNode] = nodes
     previousRootNode = rootNode
 
@@ -48,18 +48,18 @@ const createTreeLayout = ({ size }: { size: number }): LayoutEngine => {
   }
 
   const restart = () => {
-    if (previousRootNode) start([previousRootNode], [])
+    if (previousRootNode) start([previousRootNode])
   }
 
-  const drag = (node: ChartNode, newPos: WithCoords) => {
+  const drag = () => {
     // n/a
   }
 
-  const dragStart = (node: ChartNode) => {
+  const dragStart = () => {
     // n/a
   }
 
-  const dragEnd = (node: ChartNode) => {
+  const dragEnd = () => {
     // n/a
   }
 

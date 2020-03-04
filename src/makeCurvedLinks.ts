@@ -50,10 +50,10 @@ const addSVGPath = ({ offset = 500, size }: LinksOptions) => (
       }
     }
 
-    var cx = (source.x + target.x) / 2
-    var cy = (source.y + target.y) / 2
-    var dx = (target.x - source.x) / 2
-    var dy = (target.y - source.y) / 2
+    const cx = (source.x + target.x) / 2
+    const cy = (source.y + target.y) / 2
+    const dx = (target.x - source.x) / 2
+    const dy = (target.y - source.y) / 2
 
     const dd = Math.sqrt(dx * dx + dy * dy)
 

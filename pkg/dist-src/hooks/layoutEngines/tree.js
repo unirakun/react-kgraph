@@ -5,7 +5,7 @@ const createTreeLayout = ({ size }) => {
         nodes: [],
         links: [],
     };
-    const start = (nodes, links) => {
+    const start = (nodes) => {
         const [rootNode] = nodes;
         previousRootNode = rootNode;
         const d3treelayout = d3tree().nodeSize([size / 2, size / 2])(hierarchy(rootNode));
@@ -35,15 +35,15 @@ const createTreeLayout = ({ size }) => {
     };
     const restart = () => {
         if (previousRootNode)
-            start([previousRootNode], []);
+            start([previousRootNode]);
     };
-    const drag = (node, newPos) => {
+    const drag = () => {
         // n/a
     };
-    const dragStart = (node) => {
+    const dragStart = () => {
         // n/a
     };
-    const dragEnd = (node) => {
+    const dragEnd = () => {
         // n/a
     };
     const getLayout = () => view;

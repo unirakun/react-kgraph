@@ -60,8 +60,8 @@ const useCenterAndZoom = (
       // final zoom
       newZoom = Math.max(chartWidth / width, chartHeight / height)
       // process center
-      let centerX = chartWidth / 2 + minX - (width * newZoom) / 2
-      let centerY = chartHeight / 2 + minY - (height * newZoom) / 2
+      const centerX = chartWidth / 2 + minX - (width * newZoom) / 2
+      const centerY = chartHeight / 2 + minY - (height * newZoom) / 2
       setZoom(newZoom)
       setOffsets({ x: centerX, y: centerY })
     },

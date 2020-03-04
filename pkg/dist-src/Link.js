@@ -20,10 +20,9 @@ const Link = ({ onClick, ...props }) => {
             return;
         onClick(id);
     }, [onClick, id]);
-    // useTraceUpdate(props)
     return (React.createElement("g", { key: d, onClick: innerOnClick }, Component ? (React.createElement(Component, Object.assign({}, props, { textPosition: textPosition }))) : (React.createElement(React.Fragment, null,
-        React.createElement("path", { id: id + '', strokeWidth: 5, fill: "transparent", d: d, stroke: "#d1d1d1", markerEnd: "url(#arrow-#d1d1d1)" }),
-        hover && (React.createElement("path", { id: id + '', strokeWidth: 20, fill: "transparent", d: d, stroke: "rgba(249, 121, 117, 0.5)" })),
+        React.createElement("path", { id: `${id}`, strokeWidth: 5, fill: "transparent", d: d, stroke: "#d1d1d1", markerEnd: "url(#arrow-#d1d1d1)" }),
+        hover && (React.createElement("path", { id: `${id}`, strokeWidth: 20, fill: "transparent", d: d, stroke: "rgba(249, 121, 117, 0.5)" })),
         hover && (React.createElement("foreignObject", Object.assign({}, textPosition, { width: width, height: height }),
             React.createElement("div", { style: {
                     borderRadius: '5px',

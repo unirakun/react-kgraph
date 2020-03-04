@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
+// we disable this a11y rule because it thinks that our Link element is a <a>
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import makeCurvedLinks from './makeCurvedLinks';
 import Node from './Node';
@@ -6,10 +8,10 @@ import { useHoverNodes, useCenterAndZoom, useLayout } from './hooks/index';
 function svgPoint(element, x, y) {
     if (!element)
         return { x, y };
-    let pt = element.createSVGPoint();
+    const pt = element.createSVGPoint();
     pt.x = x;
     pt.y = y;
-    let screenCTM = element.getScreenCTM();
+    const screenCTM = element.getScreenCTM();
     if (screenCTM) {
         return pt.matrixTransform(screenCTM.inverse());
     }
@@ -18,10 +20,10 @@ function svgPoint(element, x, y) {
         y,
     };
 }
-let height = 500;
-let width = 800;
-let padding = 20;
-let size = 35;
+const height = 500;
+const width = 800;
+const padding = 20;
+const size = 35;
 const Chart = (props) => {
     const { nodes, links, type = 'graph', onNodeClick, onLinkClick } = props;
     const svgRef = useRef(null);
@@ -89,7 +91,7 @@ const Chart = (props) => {
     if (layout.nodes.length === 0)
         return null;
     return (React.createElement(React.Fragment, null,
-        React.createElement("button", { onClick: restart }, "Relayout"),
+        React.createElement("button", { onClick: restart, type: "button" }, "Relayout"),
         React.createElement("svg", { ref: svgRef, width: width, height: height, viewBox: `${offsets.x} ${offsets.y} ${width * zoom} ${height * zoom}`, onWheel: onWheel, onMouseMove: onMouseMove, onMouseDown: onMouseDown, onMouseUp: onMouseUp, xmlns: "http://www.w3.org/2000/svg" },
             lineMarkerColors.map((color) => (React.createElement("marker", { id: `arrow-${color}`, key: `arrow-${color}`, viewBox: "0 0 10 10", refX: size / 2 + 11, refY: "2.5", markerWidth: "6", markerHeight: "6", orient: "auto-start-reverse" },
                 React.createElement("path", { d: "M 0 0 L 5 2.5 L 0 5 z", fill: color })))),

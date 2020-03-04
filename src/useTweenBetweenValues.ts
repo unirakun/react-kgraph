@@ -16,10 +16,10 @@ const useTweenBetweenValues = (
   const [value, setValue] = useState(target)
 
   const getNextValue = useCallback(() => {
-    let startedFor = Date.now() - startedAt.current
-    let percentTime = Math.max(0, Math.min(1, startedFor / duration))
+    const startedFor = Date.now() - startedAt.current
+    const percentTime = Math.max(0, Math.min(1, startedFor / duration))
 
-    let nextValue =
+    const nextValue =
       previousValue.current + percentTime * (target - previousValue.current)
     setValue(nextValue)
 
