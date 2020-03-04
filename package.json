@@ -10,7 +10,7 @@
     "build": "pika build",
     "version": "npm run build",
     "test": "echo \"todo\"",
-    "lint": "echo \"todo\"",
+    "lint": "eslint --cache \"src/**\"",
     "format": "prettier \"**/*.{ts,tsx,js,jsx,md,json}\" --write",
     "ci:check": "prettier \"**/*.{ts,tsx,js,jsx,md,json}\" --check",
     "ci": "run-p lint test ci:*"
