@@ -7,7 +7,7 @@ const useTweenBetweenValues = (
     delay: 0,
   },
 ): [number, Function] => {
-  const timeoutTimer = useRef<NodeJS.Timeout>()
+  const timeoutTimer = useRef<number>()
   const rafTimer = useRef(0)
   const startedAt = useRef(0)
   const [target, setTarget] = useState<number>(initialTarget)
@@ -43,7 +43,7 @@ const useTweenBetweenValues = (
     timeoutTimer.current = setTimeout(() => {
       startedAt.current = Date.now()
       nextStep()
-    }, delay)
+    }, delay) as any
   }, [value, target, delay, nextStep])
 
   useEffect(() => {
