@@ -41,7 +41,7 @@ const createGraphLayout = ({
       // ticks += 1
 
       // TODO: make copy!!!!
-      view.nodes = layout.nodes()
+      view.nodes = layout.nodes() as ChartNode[]
       view.links = layout.links()
     })
     .on(cola.EventType.start, () => {
