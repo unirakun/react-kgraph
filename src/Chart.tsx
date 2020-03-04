@@ -9,7 +9,7 @@ import { useHoverNodes, useCenterAndZoom, useLayout } from './hooks/index'
 function svgPoint(element: SVGSVGElement | null, x: number, y: number) {
   if (!element) return { x, y }
 
-  const pt = element.createSVGPoint()
+  let pt = element.createSVGPoint()
 
   pt.x = x
   pt.y = y
