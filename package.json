@@ -10,7 +10,7 @@
     "build": "pika build",
     "version": "npm run build",
     "test": "echo \"todo\"",
-    "lint": "echo \"todo\"",
+    "lint": "eslint --cache \"src/**\"",
     "format": "prettier \"**/*.{ts,tsx,js,jsx,md,json}\" --write",
     "ci:check": "prettier \"**/*.{ts,tsx,js,jsx,md,json}\" --check",
     "ci": "run-p lint test ci:*"
@@ -24,8 +24,17 @@
     "@testing-library/user-event": "^7.1.2",
     "@types/d3": "^5.7.2",
     "@types/lodash": "^4.14.149",
+    "@typescript-eslint/eslint-plugin": "^2.19.0",
     "d3": "^5.15.0",
     "d3-hierarchy": "^1.1.9",
+    "eslint": "^6.1.0",
+    "eslint-config-airbnb-typescript": "^7.0.0",
+    "eslint-config-prettier": "^6.10.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-react": "^7.15.1",
+    "eslint-plugin-react-hooks": "^1.7.0",
     "husky": ">=4",
     "lint-staged": ">=10",
     "npm-run-all": "^4.1.5",
@@ -57,5 +66,30 @@
   },
   "lint-staged": {
     "*.{js,css,md,ts,tsx,json}": "prettier --write"
+  },
+  "eslintConfig": {
+    "extends": [
+      "airbnb-typescript",
+      "prettier"
+    ],
+    "plugins": [
+      "prettier"
+    ],
+    "parserOptions": {
+      "project": "./tsconfig.json"
+    },
+    "rules": {
+      "semi": "off",
+      "@typescript-eslint/semi": [
+        "error",
+        "never"
+      ],
+      "@typescript-eslint/indent": "off",
+      "@typescript-eslint/no-dupe-class-members": "off",
+      "react/jsx-props-no-spreading": "off",
+      "prettier/prettier": [
+        "error"
+      ]
+    }
   }
 }

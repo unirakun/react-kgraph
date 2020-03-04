@@ -74,8 +74,8 @@ const Node = ({
       e.preventDefault()
       e.stopPropagation()
 
-      let deltaX = e.clientX - dragInfoRef.current.beforeX
-      let deltaY = e.clientY - dragInfoRef.current.beforeY
+      const deltaX = e.clientX - dragInfoRef.current.beforeX
+      const deltaY = e.clientY - dragInfoRef.current.beforeY
 
       if (rafTimerRef.current) cancelAnimationFrame(rafTimerRef.current)
       rafTimerRef.current = requestAnimationFrame(() => {
@@ -88,16 +88,13 @@ const Node = ({
     [onDrag, id],
   )
 
-  const mouseUp = useCallback(
-    (e: MouseEvent) => {
-      if (dragInfoRef.current.thisIsMe) {
-        onEnd(id)
-      }
+  const mouseUp = useCallback(() => {
+    if (dragInfoRef.current.thisIsMe) {
+      onEnd(id)
+    }
 
-      dragInfoRef.current.thisIsMe = false
-    },
-    [onEnd, id],
-  )
+    dragInfoRef.current.thisIsMe = false
+  }, [onEnd, id])
 
   const innerOnMouseLeave = useCallback(() => {
     if (onMouseLeave) onMouseLeave(id)
@@ -123,8 +120,6 @@ const Node = ({
     if (onClick) return onClick(id)
     return undefined
   }, [onClick, id])
-
-  console.log('in node')
 
   const innerSize = (size + 10) * 3
   const outerSize = innerSize + 20

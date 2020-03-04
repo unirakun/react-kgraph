@@ -33,10 +33,10 @@ const addSVGPath = ({ offset = 500, size }) => (links) => {
                 sweep: 1,
             };
         }
-        var cx = (source.x + target.x) / 2;
-        var cy = (source.y + target.y) / 2;
-        var dx = (target.x - source.x) / 2;
-        var dy = (target.y - source.y) / 2;
+        const cx = (source.x + target.x) / 2;
+        const cy = (source.y + target.y) / 2;
+        const dx = (target.x - source.x) / 2;
+        const dy = (target.y - source.y) / 2;
         const dd = Math.sqrt(dx * dx + dy * dy);
         const sweep = link.source.x - link.target.x > 0 ? 1 : -1;
         const quadraticPoint = {
@@ -95,8 +95,8 @@ const Node = ({ onClick, onDrag, onStart, onEnd, ...props }) => {
             return;
         e.preventDefault();
         e.stopPropagation();
-        let deltaX = e.clientX - dragInfoRef.current.beforeX;
-        let deltaY = e.clientY - dragInfoRef.current.beforeY;
+        const deltaX = e.clientX - dragInfoRef.current.beforeX;
+        const deltaY = e.clientY - dragInfoRef.current.beforeY;
         if (rafTimerRef.current)
             cancelAnimationFrame(rafTimerRef.current);
         rafTimerRef.current = requestAnimationFrame(() => {
@@ -105,7 +105,7 @@ const Node = ({ onClick, onDrag, onStart, onEnd, ...props }) => {
             dragInfoRef.current.beforeY = e.clientY;
         });
     }, [onDrag, id]);
-    const mouseUp = useCallback((e) => {
+    const mouseUp = useCallback(() => {
         if (dragInfoRef.current.thisIsMe) {
             onEnd(id);
         }
@@ -134,7 +134,6 @@ const Node = ({ onClick, onDrag, onStart, onEnd, ...props }) => {
             return onClick(id);
         return undefined;
     }, [onClick, id]);
-    console.log('in node');
     const innerSize = (size + 10) * 3;
     const outerSize = innerSize + 20;
     const style = {
@@ -175,10 +174,9 @@ const Link = ({ onClick, ...props }) => {
             return;
         onClick(id);
     }, [onClick, id]);
-    // useTraceUpdate(props)
     return (React.createElement("g", { key: d, onClick: innerOnClick }, Component ? (React.createElement(Component, Object.assign({}, props, { textPosition: textPosition }))) : (React.createElement(React.Fragment, null,
-        React.createElement("path", { id: id + '', strokeWidth: 5, fill: "transparent", d: d, stroke: "#d1d1d1", markerEnd: "url(#arrow-#d1d1d1)" }),
-        hover && (React.createElement("path", { id: id + '', strokeWidth: 20, fill: "transparent", d: d, stroke: "rgba(249, 121, 117, 0.5)" })),
+        React.createElement("path", { id: `${id}`, strokeWidth: 5, fill: "transparent", d: d, stroke: "#d1d1d1", markerEnd: "url(#arrow-#d1d1d1)" }),
+        hover && (React.createElement("path", { id: `${id}`, strokeWidth: 20, fill: "transparent", d: d, stroke: "rgba(249, 121, 117, 0.5)" })),
         hover && (React.createElement("foreignObject", Object.assign({}, textPosition, { width: width, height: height }),
             React.createElement("div", { style: {
                     borderRadius: '5px',
@@ -283,8 +281,8 @@ const useCenterAndZoom = (layout, { size, padding, width, height, }) => {
         // final zoom
         newZoom = Math.max(chartWidth / width, chartHeight / height);
         // process center
-        let centerX = chartWidth / 2 + minX - (width * newZoom) / 2;
-        let centerY = chartHeight / 2 + minY - (height * newZoom) / 2;
+        const centerX = chartWidth / 2 + minX - (width * newZoom) / 2;
+        const centerY = chartHeight / 2 + minY - (height * newZoom) / 2;
         setZoom(newZoom);
         setOffsets({ x: centerX, y: centerY });
     }, [setZoom, padding, size, height, width]);
@@ -349,7 +347,7 @@ const useCenterAndZoom = (layout, { size, padding, width, height, }) => {
 };
 
 // @ts-ignore
-let iterations = 1;
+const iterations = 1;
 // from https://github.com/cawfree/react-cola/blob/master/index.js
 class ReactColaLayout extends Layout {
     stop() {
@@ -370,21 +368,26 @@ const createGraphLayout = ({ width, height, }) => {
         nodes: [],
         links: [],
     };
-    let ticks = 0;
+    // let ticks = 0
     layout
         .on(EventType.tick, () => {
-        ticks += 1;
+        // ticks += 1
         // TODO: make copy!!!!
         view.nodes = layout.nodes();
         view.links = layout.links();
     })
         .on(EventType.start, () => {
-        console.time('graph layout');
+        // console.time('graph layout')
     })
         .on(EventType.end, () => {
-        console.log('ticks', ticks);
-        console.timeEnd('graph layout');
-        console.log('links', layout.links().length, 'nodes', layout.nodes().length);
+        // console.log('ticks', ticks)
+        // console.timeEnd('graph layout')
+        // console.log(
+        //   'links',
+        //   layout.links().length,
+        //   'nodes',
+        //   layout.nodes().length,
+        // )
         // mark all node as fixed (so this is performant)
         layout.nodes().forEach(Layout.dragStart);
     })
@@ -413,7 +416,7 @@ const createGraphLayout = ({ width, height, }) => {
     const dragStart = (node) => {
         Layout.dragStart(node);
     };
-    const dragEnd = (node) => {
+    const dragEnd = () => {
         // we don't tell cola we finish to drag because we want the node to be fixed
         // cola.Layout.dragEnd(node);
     };
@@ -436,7 +439,7 @@ const createTreeLayout = ({ size }) => {
         nodes: [],
         links: [],
     };
-    const start = (nodes, links) => {
+    const start = (nodes) => {
         const [rootNode] = nodes;
         previousRootNode = rootNode;
         const d3treelayout = tree().nodeSize([size / 2, size / 2])(hierarchy(rootNode));
@@ -468,13 +471,13 @@ const createTreeLayout = ({ size }) => {
         if (previousRootNode)
             start([previousRootNode]);
     };
-    const drag = (node, newPos) => {
+    const drag = () => {
         // n/a
     };
-    const dragStart = (node) => {
+    const dragStart = () => {
         // n/a
     };
-    const dragEnd = (node) => {
+    const dragEnd = () => {
         // n/a
     };
     const getLayout = () => view;
@@ -571,13 +574,14 @@ const useLayout = (nodes, links, { width, height, size, type = 'graph', }) => {
     return [layout, { restart, dragStart, drag, dragEnd }];
 };
 
+/* eslint-disable jsx-a11y/anchor-is-valid */
 function svgPoint(element, x, y) {
     if (!element)
         return { x, y };
-    let pt = element.createSVGPoint();
+    const pt = element.createSVGPoint();
     pt.x = x;
     pt.y = y;
-    let screenCTM = element.getScreenCTM();
+    const screenCTM = element.getScreenCTM();
     if (screenCTM) {
         return pt.matrixTransform(screenCTM.inverse());
     }
@@ -586,10 +590,10 @@ function svgPoint(element, x, y) {
         y,
     };
 }
-let height = 500;
-let width = 800;
-let padding = 20;
-let size = 35;
+const height = 500;
+const width = 800;
+const padding = 20;
+const size = 35;
 const Chart = (props) => {
     const { nodes, links, type = 'graph', onNodeClick, onLinkClick } = props;
     const svgRef = useRef(null);
@@ -657,7 +661,7 @@ const Chart = (props) => {
     if (layout.nodes.length === 0)
         return null;
     return (React.createElement(React.Fragment, null,
-        React.createElement("button", { onClick: restart }, "Relayout"),
+        React.createElement("button", { onClick: restart, type: "button" }, "Relayout"),
         React.createElement("svg", { ref: svgRef, width: width, height: height, viewBox: `${offsets.x} ${offsets.y} ${width * zoom} ${height * zoom}`, onWheel: onWheel, onMouseMove: onMouseMove, onMouseDown: onMouseDown, onMouseUp: onMouseUp, xmlns: "http://www.w3.org/2000/svg" },
             lineMarkerColors.map((color) => (React.createElement("marker", { id: `arrow-${color}`, key: `arrow-${color}`, viewBox: "0 0 10 10", refX: size / 2 + 11, refY: "2.5", markerWidth: "6", markerHeight: "6", orient: "auto-start-reverse" },
                 React.createElement("path", { d: "M 0 0 L 5 2.5 L 0 5 z", fill: color })))),

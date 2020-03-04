@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
+// we disable this a11y rule because it thinks that our Link element is a <a>
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import makeCurvedLinks from './makeCurvedLinks'
 import Node from './Node'
@@ -7,12 +9,12 @@ import { useHoverNodes, useCenterAndZoom, useLayout } from './hooks/index'
 function svgPoint(element: SVGSVGElement | null, x: number, y: number) {
   if (!element) return { x, y }
 
-  let pt = element.createSVGPoint()
+  const pt = element.createSVGPoint()
 
   pt.x = x
   pt.y = y
 
-  let screenCTM = element.getScreenCTM()
+  const screenCTM = element.getScreenCTM()
   if (screenCTM) {
     return pt.matrixTransform(screenCTM.inverse())
   }
@@ -23,11 +25,11 @@ function svgPoint(element: SVGSVGElement | null, x: number, y: number) {
   }
 }
 
-let height = 500
-let width = 800
-let padding = 20
+const height = 500
+const width = 800
+const padding = 20
 
-let size = 35
+const size = 35
 const Chart = (props: {
   nodes: any[]
   links: any[]
@@ -150,6 +152,7 @@ const Chart = (props: {
     <>
       <button // TODO: move it in parent code ?
         onClick={restart}
+        type="button"
       >
         Relayout
       </button>

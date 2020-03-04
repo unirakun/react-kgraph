@@ -28,10 +28,10 @@ const addSVGPath = ({ offset = 500, size }) => (links) => {
                 sweep: 1,
             };
         }
-        var cx = (source.x + target.x) / 2;
-        var cy = (source.y + target.y) / 2;
-        var dx = (target.x - source.x) / 2;
-        var dy = (target.y - source.y) / 2;
+        const cx = (source.x + target.x) / 2;
+        const cy = (source.y + target.y) / 2;
+        const dx = (target.x - source.x) / 2;
+        const dy = (target.y - source.y) / 2;
         const dd = Math.sqrt(dx * dx + dy * dy);
         const sweep = link.source.x - link.target.x > 0 ? 1 : -1;
         const quadraticPoint = {

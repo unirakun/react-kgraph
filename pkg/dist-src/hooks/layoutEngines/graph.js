@@ -1,6 +1,6 @@
 // @ts-ignore
 import * as cola from 'webcola';
-let iterations = 1;
+const iterations = 1;
 // from https://github.com/cawfree/react-cola/blob/master/index.js
 class ReactColaLayout extends cola.Layout {
     stop() {
@@ -21,21 +21,26 @@ const createGraphLayout = ({ width, height, }) => {
         nodes: [],
         links: [],
     };
-    let ticks = 0;
+    // let ticks = 0
     layout
         .on(cola.EventType.tick, () => {
-        ticks += 1;
+        // ticks += 1
         // TODO: make copy!!!!
         view.nodes = layout.nodes();
         view.links = layout.links();
     })
         .on(cola.EventType.start, () => {
-        console.time('graph layout');
+        // console.time('graph layout')
     })
         .on(cola.EventType.end, () => {
-        console.log('ticks', ticks);
-        console.timeEnd('graph layout');
-        console.log('links', layout.links().length, 'nodes', layout.nodes().length);
+        // console.log('ticks', ticks)
+        // console.timeEnd('graph layout')
+        // console.log(
+        //   'links',
+        //   layout.links().length,
+        //   'nodes',
+        //   layout.nodes().length,
+        // )
         // mark all node as fixed (so this is performant)
         layout.nodes().forEach(cola.Layout.dragStart);
     })
@@ -64,7 +69,7 @@ const createGraphLayout = ({ width, height, }) => {
     const dragStart = (node) => {
         cola.Layout.dragStart(node);
     };
-    const dragEnd = (node) => {
+    const dragEnd = () => {
         // we don't tell cola we finish to drag because we want the node to be fixed
         // cola.Layout.dragEnd(node);
     };
