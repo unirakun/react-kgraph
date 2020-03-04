@@ -594,8 +594,8 @@ const height = 500;
 const width = 800;
 const padding = 20;
 const size = 35;
-const Chart = (props) => {
-    const { nodes, links, type = 'graph', onNodeClick, onLinkClick } = props;
+const Graph = (props) => {
+    const { nodes, links, type = 'graph', onNodeClick, onLinkClick, } = props;
     const svgRef = useRef(null);
     const [layout, { drag, dragStart, dragEnd, restart }] = useLayout(nodes, links, {
         width,
@@ -672,9 +672,9 @@ const Chart = (props) => {
             React.createElement("g", { stroke: "#fff", strokeWidth: 1 }, layout.nodes.map((node) => {
                 const { id, group, x, y, label, Component, color } = node;
                 return (React.createElement("g", { transform: `translate(${x * size} ${y * size})` },
-                    React.createElement(Node$1, { key: id, id: id, group: group, label: label, color: color, Component: Component, onClick: innerOnNodeClick, onMouseEnter: onOverNode, onMouseLeave: onLeaveNode, size: size, onDrag: onDrag, onStart: onStart, onEnd: onEnd, drag: type !== 'tree', hover: hoverNode === id, hidden: hoverNode !== id && hiddenNodes.includes(id) })));
+                    React.createElement(Node$1, { key: id, id: id, group: group, label: label, color: color, Component: Component, onClick: innerOnNodeClick, onMouseEnter: onOverNode, onMouseLeave: onLeaveNode, size: size, onDrag: onDrag, onStart: onStart, onEnd: onEnd, hover: hoverNode === id, hidden: hoverNode !== id && hiddenNodes.includes(id) })));
             })))));
 };
 
-export default Chart;
+export default Graph;
 //# sourceMappingURL=index.js.map

@@ -3,6 +3,7 @@ export declare type WithCoords = {
     y: number;
 };
 export interface ChartNode extends WithCoords {
+    id: any;
     [key: string]: any;
 }
 export interface TreeNode extends ChartNode {

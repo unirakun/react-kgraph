@@ -8,6 +8,23 @@
   ],
   "pika": true,
   "sideEffects": false,
+  "keywords": [
+    "webcola",
+    "react",
+    "graph",
+    "tree",
+    "d3",
+    "svg",
+    "custom",
+    "customisable"
+  ],
+  "homepage": "https://github.com/unirakun/react-kgraph",
+  "bugs": "https://github.com/unirakun/react-kgraph/issues",
+  "contributors": [
+    "Fabien JUIF <fabien.juif@gmail.com>",
+    "Guillaume CRESPEL <guillaume.crespel@gmail.com>"
+  ],
+  "repository": "github:unirakun/react-kgraph",
   "dependencies": {
     "webcola": "^3.4.0"
   },

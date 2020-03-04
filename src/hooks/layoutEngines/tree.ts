@@ -37,7 +37,7 @@ const createTreeLayout = ({ size }: { size: number }): LayoutEngine => {
         })
       }
     }
-    addNodeAndChildren(d3treelayout)
+    addNodeAndChildren(d3treelayout as TreeNode)
 
     view.nodes = mappedNodes
     view.links = mappedLinks

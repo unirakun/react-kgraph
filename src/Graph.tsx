@@ -30,19 +30,54 @@ const width = 800
 const padding = 20
 const size = 35
 
-const Graph = (props: {
-  nodes: any[]
-  links: any[]
-  type: 'tree' | 'graph'
-  onNodeClick?: (node: any) => any
-  onLinkClick?: (link: any) => any
-}) => {
-  const { nodes, links, type = 'graph', onNodeClick, onLinkClick } = props
+interface GraphNode {
+  id: string
+  group?: string
+  label?: string
+  color?: string
+  Component?: React.Component
+  [key: string]: any
+}
+
+interface TreeNode extends GraphNode {
+  children: GraphNode[]
+}
+
+interface GraphLink {
+  source: number
+  target: number
+  label?: string
+  Component?: React.Component
+}
+
+interface TreeGraphProps {
+  nodes: TreeNode[]
+  type: 'tree'
+  onNodeClick?: (node: any) => void
+  onLinkClick?: (link: any) => void
+}
+
+interface GraphGraphProps {
+  nodes: GraphNode[]
+  links?: GraphLink[]
+  type: 'graph'
+  onNodeClick?: (node: any) => void
+  onLinkClick?: (link: any) => void
+}
+
+const Graph = (props: TreeGraphProps | GraphGraphProps) => {
+  const {
+    nodes,
+    links,
+    type = 'graph',
+    onNodeClick,
+    onLinkClick,
+  } = props as GraphGraphProps
   const svgRef = useRef<SVGSVGElement>(null)
 
   const [layout, { drag, dragStart, dragEnd, restart }] = useLayout(
-    nodes,
-    links,
+    nodes as any[],
+    links as any[],
     {
       width,
       height,
@@ -234,7 +269,6 @@ const Graph = (props: {
                   onDrag={onDrag}
                   onStart={onStart}
                   onEnd={onEnd}
-                  drag={type !== 'tree'}
                   hover={hoverNode === id}
                   hidden={hoverNode !== id && hiddenNodes.includes(id)}
                 />

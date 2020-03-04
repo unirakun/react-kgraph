@@ -1,6 +1,7 @@
 export type WithCoords = { x: number; y: number }
 
 export interface ChartNode extends WithCoords {
+  id: any
   [key: string]: any
 }
 
