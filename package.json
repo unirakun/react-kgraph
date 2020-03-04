@@ -85,6 +85,7 @@
         "never"
       ],
       "@typescript-eslint/indent": "off",
+      "@typescript-eslint/no-dupe-class-members": "off",
       "react/jsx-props-no-spreading": "off",
       "prettier/prettier": [
         "error"
