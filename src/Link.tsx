@@ -15,11 +15,13 @@ interface LinkProps {
     x: number
     y: number
     label: string
+    color: string
   }
   target: {
     x: number
     y: number
     label: string
+    color: string
   }
 }
 

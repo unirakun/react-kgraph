@@ -47,6 +47,7 @@ interface GraphLink {
   source: number
   target: number
   label?: string
+  color?: string
   Component?: React.Component
 }
 
@@ -238,8 +239,18 @@ const Graph = (props: TreeGraphProps | GraphGraphProps) => {
                 sweep={sweep}
                 label={label}
                 size={size}
-                source={{ x: source.x, y: source.y, label: source.label }}
-                target={{ x: target.x, y: target.y, label: target.label }}
+                source={{
+                  x: source.x,
+                  y: source.y,
+                  label: source.label,
+                  color: source.color,
+                }}
+                target={{
+                  x: target.x,
+                  y: target.y,
+                  label: target.label,
+                  color: target.color,
+                }}
                 Component={Component}
                 onClick={innerOnLinkClick}
                 hover={
