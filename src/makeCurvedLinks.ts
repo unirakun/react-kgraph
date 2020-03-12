@@ -21,10 +21,12 @@ const isSimilarLink = (a: Link) => (b: Link) =>
 
 const scale = ({ source, target }: Link, size: number) => ({
   source: {
+    ...source,
     x: source.x * size,
     y: source.y * size,
   },
   target: {
+    ...target,
     x: target.x * size,
     y: target.y * size,
   },
@@ -41,6 +43,8 @@ const addSVGPath = ({ offset = 500, size }: LinksOptions) => (
     if (i === (length - 1) / 2) {
       return {
         ...link,
+        source,
+        target,
         d: `M ${source.x} ${source.y} ${target.x} ${target.y}`,
         quadraticPoint: {
           x: source.x + (target.x - source.x) / 2,
@@ -71,6 +75,8 @@ const addSVGPath = ({ offset = 500, size }: LinksOptions) => (
     // add svg path of link
     return {
       ...link,
+      source,
+      target,
       d: `M ${source.x} ${source.y} Q ${quadraticPoint.x} ${quadraticPoint.y} ${target.x} ${target.y}`,
       quadraticPoint,
       sweep,

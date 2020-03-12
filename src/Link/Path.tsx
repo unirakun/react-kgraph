@@ -1,0 +1,30 @@
+import React, { memo } from 'react'
+
+type PropTypes = {
+  id: number | string
+  d: string
+  strokeWidth: number
+  stroke: string
+  markerEnd?: string
+}
+
+const Path = (props: PropTypes) => {
+  const { id, d, strokeWidth, stroke, markerEnd } = props
+  // console.count(`path - ${id}`)
+  return (
+    <path
+      id={`${id}`}
+      d={d}
+      strokeWidth={strokeWidth}
+      fill="transparent"
+      stroke={stroke}
+      markerEnd={markerEnd}
+    />
+  )
+}
+
+export default memo(
+  Path,
+  (prevProps: PropTypes, nextProps: PropTypes): boolean =>
+    prevProps.d === nextProps.d,
+)

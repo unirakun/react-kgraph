@@ -47,7 +47,8 @@ interface GraphLink {
   source: number
   target: number
   label?: string
-  Component?: React.Component
+  // TODO: type React.Component not work with function
+  Component?: any
 }
 
 interface TreeGraphProps {
@@ -219,32 +220,14 @@ const Graph = (props: TreeGraphProps | GraphGraphProps) => {
 
         <g stroke="#999">
           {makeCurvedLinks(layout.links, { size }).map((link: any, index) => {
-            const {
-              length,
-              d,
-              quadraticPoint,
-              sweep,
-              label,
-              source,
-              target,
-              Component,
-            } = link
+            const { source, target } = link
+
             return (
               <Link
                 id={index}
-                length={length}
-                d={d}
-                quadraticPoint={quadraticPoint}
-                sweep={sweep}
-                label={label}
-                size={size}
-                source={{ x: source.x, y: source.y, label: source.label }}
-                target={{ x: target.x, y: target.y, label: target.label }}
-                Component={Component}
+                {...link}
                 onClick={innerOnLinkClick}
-                hover={
-                  hoverNode === link.source.id || hoverNode === link.target.id
-                }
+                hover={hoverNode === source.id || hoverNode === target.id}
               />
             )
           })}

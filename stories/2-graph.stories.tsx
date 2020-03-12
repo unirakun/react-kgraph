@@ -1,5 +1,6 @@
 import React from 'react'
 import Graph from '../src/Graph'
+import Line from './Line'
 
 export default {
   title: 'Graph',
@@ -63,4 +64,15 @@ const tree = {
 export const Tree = () => <Graph nodes={[tree]} type="tree" />
 Tree.story = {
   name: 'Layout: Tree',
+}
+
+export const CustomLink = () => (
+  <Graph
+    nodes={nodes}
+    links={links.map((l) => ({ ...l, Component: Line }))}
+    type="graph"
+  />
+)
+CustomLink.story = {
+  name: 'Link: Custom',
 }
