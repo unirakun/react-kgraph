@@ -10,7 +10,7 @@ type PropTypes = {
 
 const Path = (props: PropTypes) => {
   const { id, d, strokeWidth, stroke, markerEnd } = props
-  // console.count(`path - ${id}`)
+
   return (
     <path
       id={`${id}`}

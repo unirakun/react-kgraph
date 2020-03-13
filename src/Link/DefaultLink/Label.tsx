@@ -1,4 +1,4 @@
-import React, { memo } from 'react'
+import React, { memo, useState, useLayoutEffect } from 'react'
 // TODO: should use zoom
 const TRESHOLD = 0.1
 
@@ -6,14 +6,30 @@ type PropTypes = {
   label: string
   x: number
   y: number
-  width: number | string
-  height: number | string
+  sweep: number
+  width: number
+  height: number
 }
 const Label = (props: PropTypes) => {
-  const { label, x, y, width, height } = props
-  // console.count(`path - ${label}`)
+  const { label, x, y, sweep, width, height } = props
+
+  const [position, setPosition] = useState({ x, y })
+
+  useLayoutEffect(() => {
+    if (sweep > 0) {
+      setPosition({
+        x: x - width / 2,
+        y: y - height / 2,
+      })
+    }
+    setPosition({
+      x: x - width / 2,
+      y,
+    })
+  }, [x, y, sweep, width, height])
+
   return (
-    <foreignObject x={x} y={y} width={width} height={height}>
+    <foreignObject {...position} width={width} height={height}>
       <div
         style={{
           borderRadius: '5px',

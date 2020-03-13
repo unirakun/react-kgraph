@@ -68,6 +68,7 @@ Tree.story = {
 
 export const CustomLink = () => (
   <Graph
+    onLinkClick={console.log}
     nodes={nodes}
     links={links.map((l) => ({ ...l, Component: Line }))}
     type="graph"
