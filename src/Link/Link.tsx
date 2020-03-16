@@ -2,7 +2,7 @@ import React, { useCallback } from 'react'
 import DefaultLink from './DefaultLink'
 import { ChartNode, WithCoords } from '../types'
 
-interface TypeProps {
+export interface LinkProps {
   Component: any // TODO types
   id: string | number
   d: string
@@ -17,57 +17,22 @@ interface TypeProps {
   onClick: any // TODO types
 }
 
-const Link = (props: TypeProps) => {
-  const {
-    Component,
-    id,
-    d,
-    quadraticPoint,
-    label,
-    sweep,
-    source,
-    target,
-    hover,
-    onClick,
-  } = props
+const Link = (props: LinkProps) => {
+  const { Component, onClick, id, ...restProps } = props
 
   const innerOnClick = useCallback(() => {
     if (onClick) return onClick(id)
     return undefined
   }, [onClick, id])
 
-  // console.count('Link')
-  if (Component) {
-    return (
-      <g onClick={innerOnClick}>
-        <Component
-          key={d}
-          id={id}
-          d={d}
-          source={source}
-          target={target}
-          hover={hover}
-          label={label}
-          labelPosition={quadraticPoint}
-          sweep={sweep}
-        />
-      </g>
-    )
-  }
-
   return (
-    <DefaultLink
-      key={d}
-      id={id}
-      d={d}
-      source={source}
-      target={target}
-      hover={hover}
-      label={label}
-      labelPosition={quadraticPoint}
-      sweep={sweep}
-      onClick={innerOnClick}
-    />
+    <g onClick={innerOnClick}>
+      {React.createElement(Component || DefaultLink, {
+        ...restProps,
+        id,
+        onClick,
+      })}
+    </g>
   )
 }
 
