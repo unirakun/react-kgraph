@@ -29,10 +29,12 @@ const isSimilarLink = (a: Link) => (b: Link) =>
 
 const scale = ({ source, target }: Link, size: number) => ({
   source: {
+    ...source,
     x: source.x * size,
     y: source.y * size,
   },
   target: {
+    ...target,
     x: target.x * size,
     y: target.y * size,
   },

@@ -5,6 +5,7 @@ import makeCurvedLinks from './makeCurvedLinks'
 import Node from './Node'
 import Link from './Link'
 import { useHoverNodes, useCenterAndZoom, useLayout } from './hooks/index'
+import { LinkProps } from './types'
 
 function svgPoint(element: SVGSVGElement | null, x: number, y: number) {
   if (!element) return { x, y }
@@ -39,15 +40,15 @@ interface GraphNode {
   [key: string]: any
 }
 
-interface TreeNode extends GraphNode {
-  children: GraphNode[]
-}
-
-interface GraphLink {
+export interface GraphLink {
   source: number
   target: number
   label?: string
-  Component?: React.Component
+  Component?: React.Component<LinkProps> | React.FunctionComponent<LinkProps>
+}
+
+interface TreeNode extends GraphNode {
+  children: GraphNode[]
 }
 
 interface TreeGraphProps {
@@ -219,32 +220,15 @@ const Graph = (props: TreeGraphProps | GraphGraphProps) => {
 
         <g stroke="#999">
           {makeCurvedLinks(layout.links, { size }).map((link: any, index) => {
-            const {
-              length,
-              d,
-              quadraticPoint,
-              sweep,
-              label,
-              source,
-              target,
-              Component,
-            } = link
+            const { source, target } = link
+
             return (
               <Link
                 id={index}
-                length={length}
-                d={d}
-                quadraticPoint={quadraticPoint}
-                sweep={sweep}
-                label={label}
+                {...link}
                 size={size}
-                source={{ x: source.x, y: source.y, label: source.label }}
-                target={{ x: target.x, y: target.y, label: target.label }}
-                Component={Component}
                 onClick={innerOnLinkClick}
-                hover={
-                  hoverNode === link.source.id || hoverNode === link.target.id
-                }
+                hover={hoverNode === source.id || hoverNode === target.id}
               />
             )
           })}
