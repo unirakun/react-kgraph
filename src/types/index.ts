@@ -25,7 +25,6 @@ export interface GraphLink {
 }
 
 export interface LinkProps {
-  Component?: React.FunctionComponent<LinkProps>
   id: string | number
   d: string
   quadraticPoint: WithCoords
@@ -36,5 +35,5 @@ export interface LinkProps {
   hover: boolean
   source: ChartNode
   target: ChartNode
-  onClick: (link: GraphLink | string | number) => void
+  onClick: (link: GraphLink) => void
 }

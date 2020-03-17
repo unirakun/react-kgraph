@@ -1,8 +1,23 @@
 import React, { useCallback } from 'react'
 import DefaultLink from './DefaultLink'
-import { LinkProps } from '../types'
+import { WithCoords, ChartNode, LinkProps } from '../types'
 
-const Link = (props: LinkProps) => {
+interface PropTypes {
+  Component?: React.FunctionComponent<LinkProps>
+  id: string | number
+  d: string
+  quadraticPoint: WithCoords
+  sweep: number
+  length: number
+  label?: string
+  size: number
+  hover: boolean
+  source: ChartNode
+  target: ChartNode
+  onClick: (link: string | number) => void
+}
+
+const Link = (props: PropTypes) => {
   const { Component, onClick, id, ...restProps } = props
 
   const innerOnClick = useCallback(() => {
@@ -15,7 +30,7 @@ const Link = (props: LinkProps) => {
       {React.createElement(Component || DefaultLink, {
         ...restProps,
         id,
-        onClick,
+        onClick: innerOnClick,
       })}
     </g>
   )
