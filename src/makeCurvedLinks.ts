@@ -54,8 +54,6 @@ const createCurve = (
   if (i === (inGroup - 1) / 2) {
     return {
       ...link,
-      source,
-      target,
       d: `M ${source.x} ${source.y} ${target.x} ${target.y}`,
       quadraticPoint: {
         x: source.x + (target.x - source.x) / 2,
@@ -82,8 +80,6 @@ const createCurve = (
   // add svg path of link
   return {
     ...link,
-    source,
-    target,
     d: `M ${source.x} ${source.y} Q ${quadraticPoint.x} ${quadraticPoint.y} ${target.x} ${target.y}`,
     quadraticPoint,
     sweep,

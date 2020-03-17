@@ -2,16 +2,16 @@ import React from 'react'
 import { LinkProps } from '../src/types'
 
 const Line = (props: LinkProps) => {
-  const { id, label, source, target, hover, quadraticPoint } = props
+  const { id, label, source, target, hover, quadraticPoint, size } = props
 
   return (
     <g>
       <line
         id={`${id}`}
-        x1={source.x}
-        y1={source.y}
-        x2={target.x}
-        y2={target.y}
+        x1={source.x * size}
+        y1={source.y * size}
+        x2={target.x * size}
+        y2={target.y * size}
         strokeWidth={hover ? 5 : 1}
         stroke={source.color}
       />

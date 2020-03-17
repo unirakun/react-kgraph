@@ -226,6 +226,7 @@ const Graph = (props: TreeGraphProps | GraphGraphProps) => {
               <Link
                 id={index}
                 {...link}
+                size={size}
                 onClick={innerOnLinkClick}
                 hover={hoverNode === source.id || hoverNode === target.id}
               />
