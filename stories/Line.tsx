@@ -1,5 +1,5 @@
 import React, { memo } from 'react'
-import { ChartNode, WithCoords, LinkProps } from '../src/types'
+import { LinkProps } from '../src/types'
 
 const Line = (props: LinkProps) => {
   const { id, label, source, target, hover, quadraticPoint } = props
