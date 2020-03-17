@@ -1,22 +1,9 @@
 import React, { memo } from 'react'
 import { ChartNode, WithCoords } from '../src/types'
+import { LinkProps } from '../src/Link/Link'
 
-type PropTypes = {
-  id: number | string
-  d: string
-  strokeWidth: number
-  stroke: string
-  markerEnd?: string
-  source: ChartNode
-  target: ChartNode
-  hover: boolean
-  label: string
-  labelPosition: WithCoords
-  onClick: any
-}
-
-const Line = (props: PropTypes) => {
-  const { id, label, source, target, hover, labelPosition } = props
+const Line = (props: LinkProps) => {
+  const { id, label, source, target, hover, quadraticPoint } = props
 
   return (
     <g>
@@ -29,7 +16,7 @@ const Line = (props: PropTypes) => {
         strokeWidth={hover ? 5 : 1}
         stroke={source.color}
       />
-      <foreignObject {...labelPosition} width={50} height={100}>
+      <foreignObject {...quadraticPoint} width={50} height={100}>
         <div
           style={{
             textAlign: 'center',
@@ -46,7 +33,7 @@ const Line = (props: PropTypes) => {
 
 export default memo(
   Line,
-  (prevProps: PropTypes, nextProps: PropTypes): boolean =>
+  (prevProps: LinkProps, nextProps: LinkProps): boolean =>
     !Object.entries(prevProps).some(([key, value]) => {
       return (
         // @ts-ignore TODO:

@@ -1,35 +1,13 @@
 import React, { memo } from 'react'
 import Path from './Path'
 import Label from './Label'
-import { ChartNode, WithCoords } from '../../types'
+import { LinkProps } from '../Link'
 
-interface PropTypes {
-  id: string | number
-  d: string
-  label?: string
-  labelPosition: WithCoords
-  sweep: number
-  hover: boolean
-  source: ChartNode
-  target: ChartNode
-  onClick: any // TODO: Types
-}
-
-const DefaultLink = (props: PropTypes) => {
-  const {
-    id,
-    d,
-    label,
-    labelPosition,
-    sweep,
-    source,
-    target,
-    hover,
-    onClick,
-  } = props
+const DefaultLink = (props: LinkProps) => {
+  const { id, d, label, quadraticPoint, sweep, source, target, hover } = props
 
   return (
-    <g onClick={onClick}>
+    <>
       <Path
         id={id}
         d={d}
@@ -47,24 +25,45 @@ const DefaultLink = (props: PropTypes) => {
       )}
       {hover && (
         <Label
-          {...labelPosition}
+          {...quadraticPoint}
           sweep={sweep}
           width={250} // TODO: use zoom
           height={100}
           label={label || `${source.label} -> ${target.label}`}
         />
       )}
-    </g>
+    </>
   )
 }
 
-export default memo(
-  DefaultLink,
-  (prevProps: PropTypes, nextProps: PropTypes): boolean =>
-    !Object.entries(prevProps).some(([key, value]) => {
-      return (
-        // @ts-ignore TODO:
-        ['id', 'hover', 'd', 'label'].includes(key) && nextProps[key] !== value
-      )
-    }),
-)
+const PROPS_TO_ALWAYS_COMPARE = ['id', 'hover']
+
+const propsAreEqual = (prevProps: LinkProps, nextProps: LinkProps): boolean => {
+  return !Object.entries(prevProps).some(([key, value]) => {
+    if (PROPS_TO_ALWAYS_COMPARE.includes(key)) {
+      // @ts-ignore TODO:
+      const nextValue = nextProps[key]
+      const hasChanged = nextValue !== value
+      return hasChanged
+    }
+
+    if (key === 'target' || key === 'source') {
+      const nextValue = nextProps[key]
+      // TODO: should use zoom
+      const treshold = 0.1
+
+      // there is a difference if we pass the treshold
+      if (
+        Math.abs(nextValue.x - value.x) > treshold ||
+        Math.abs(nextValue.y - value.y) > treshold
+      ) {
+        return true
+      }
+    }
+
+    // means this is equal (we have NOT found a difference)
+    return false
+  })
+}
+
+export default memo(DefaultLink, propsAreEqual)

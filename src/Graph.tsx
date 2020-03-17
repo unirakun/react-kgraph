@@ -5,6 +5,7 @@ import makeCurvedLinks from './makeCurvedLinks'
 import Node from './Node'
 import Link from './Link'
 import { useHoverNodes, useCenterAndZoom, useLayout } from './hooks/index'
+import { LinkProps } from './Link/Link'
 
 function svgPoint(element: SVGSVGElement | null, x: number, y: number) {
   if (!element) return { x, y }
@@ -47,8 +48,7 @@ interface GraphLink {
   source: number
   target: number
   label?: string
-  // TODO: type React.Component not work with function
-  Component?: any
+  Component?: React.Component<LinkProps> | React.FunctionComponent<LinkProps>
 }
 
 interface TreeGraphProps {
