@@ -1,6 +1,6 @@
 import React from 'react'
 
-type PropTypes = {
+type PathTypes = {
   id: number | string
   d: string
   strokeWidth: number
@@ -8,7 +8,7 @@ type PropTypes = {
   markerEnd?: string
 }
 
-const Path = (props: PropTypes) => {
+const Path = (props: PathTypes) => {
   const { id, d, strokeWidth, stroke, markerEnd } = props
 
   return (

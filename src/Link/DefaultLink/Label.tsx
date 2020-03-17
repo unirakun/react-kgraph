@@ -1,6 +1,6 @@
 import React, { useState, useLayoutEffect } from 'react'
 
-type PropTypes = {
+type LabelTypes = {
   label: string
   x: number
   y: number
@@ -8,7 +8,7 @@ type PropTypes = {
   width: number
   height: number
 }
-const Label = (props: PropTypes) => {
+const Label = (props: LabelTypes) => {
   const { label, x, y, sweep, width, height } = props
 
   const [position, setPosition] = useState({ x, y })

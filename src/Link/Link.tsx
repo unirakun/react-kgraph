@@ -1,23 +1,13 @@
 import React, { useCallback } from 'react'
 import DefaultLink from './DefaultLink'
-import { WithCoords, ChartNode, LinkProps } from '../types'
+import { LinkProps } from '../types'
 
-interface PropTypes {
-  Component?: React.FunctionComponent<LinkProps>
-  id: string | number
-  d: string
-  quadraticPoint: WithCoords
-  sweep: number
-  length: number
-  label?: string
-  size: number
-  hover: boolean
-  source: ChartNode
-  target: ChartNode
-  onClick: (link: string | number) => void
-}
-
-const Link = (props: PropTypes) => {
+const Link = (
+  props: LinkProps & {
+    Component?: React.FunctionComponent<LinkProps>
+    onClick: (link: string | number) => void
+  },
+) => {
   const { Component, onClick, id, ...restProps } = props
 
   const innerOnClick = useCallback(() => {

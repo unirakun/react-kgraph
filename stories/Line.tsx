@@ -1,4 +1,4 @@
-import React, { memo } from 'react'
+import React from 'react'
 import { LinkProps } from '../src/types'
 
 const Line = (props: LinkProps) => {
@@ -30,13 +30,4 @@ const Line = (props: LinkProps) => {
   )
 }
 
-export default memo(
-  Line,
-  (prevProps: LinkProps, nextProps: LinkProps): boolean =>
-    !Object.entries(prevProps).some(([key, value]) => {
-      return (
-        // @ts-ignore TODO:
-        ['id', 'hover', 'd', 'label'].includes(key) && nextProps[key] !== value
-      )
-    }),
-)
+export default Line

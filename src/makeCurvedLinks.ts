@@ -83,6 +83,7 @@ const createCurve = (
   return {
     ...link,
     source,
+    target,
     EventTarget,
     d: `M ${source.x} ${source.y} Q ${quadraticPoint.x} ${quadraticPoint.y} ${target.x} ${target.y}`,
     quadraticPoint,
