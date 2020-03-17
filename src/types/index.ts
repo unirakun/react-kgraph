@@ -1,5 +1,3 @@
-import React from 'react'
-
 export type WithCoords = { x: number; y: number }
 
 export interface ChartNode extends WithCoords {
@@ -17,13 +15,6 @@ export interface SimplifiedLayout {
   links: any[]
 }
 
-export interface GraphLink {
-  source: number
-  target: number
-  label?: string
-  Component?: React.Component<LinkProps> | React.FunctionComponent<LinkProps>
-}
-
 export interface LinkProps {
   id: string | number
   d: string
@@ -35,5 +26,4 @@ export interface LinkProps {
   hover: boolean
   source: ChartNode
   target: ChartNode
-  onClick: (link: GraphLink) => void
 }

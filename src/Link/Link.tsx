@@ -20,7 +20,6 @@ const Link = (
       {React.createElement(Component || DefaultLink, {
         ...restProps,
         id,
-        onClick: innerOnClick,
       })}
     </g>
   )
