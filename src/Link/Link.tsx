@@ -1,21 +1,6 @@
 import React, { useCallback } from 'react'
 import DefaultLink from './DefaultLink'
-import { ChartNode, WithCoords } from '../types'
-
-export interface LinkProps {
-  Component: any // TODO types
-  id: string | number
-  d: string
-  quadraticPoint: WithCoords
-  sweep: number
-  length: number
-  label?: string
-  size: number
-  hover: boolean
-  source: ChartNode
-  target: ChartNode
-  onClick: (link: any) => void
-}
+import { LinkProps } from '../types'
 
 const Link = (props: LinkProps) => {
   const { Component, onClick, id, ...restProps } = props

@@ -5,7 +5,7 @@ import makeCurvedLinks from './makeCurvedLinks'
 import Node from './Node'
 import Link from './Link'
 import { useHoverNodes, useCenterAndZoom, useLayout } from './hooks/index'
-import { LinkProps } from './Link/Link'
+import { LinkProps } from './types'
 
 function svgPoint(element: SVGSVGElement | null, x: number, y: number) {
   if (!element) return { x, y }

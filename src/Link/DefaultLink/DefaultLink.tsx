@@ -1,7 +1,7 @@
 import React, { memo } from 'react'
 import Path from './Path'
 import Label from './Label'
-import { LinkProps } from '../Link'
+import { LinkProps } from '../../types'
 
 const DefaultLink = (props: LinkProps) => {
   const { id, d, label, quadraticPoint, sweep, source, target, hover } = props

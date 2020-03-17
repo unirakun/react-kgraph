@@ -14,3 +14,18 @@ export interface SimplifiedLayout {
   nodes: (ChartNode | TreeNode)[]
   links: any[]
 }
+
+export interface LinkProps {
+  Component: any // TODO types
+  id: string | number
+  d: string
+  quadraticPoint: WithCoords
+  sweep: number
+  length: number
+  label?: string
+  size: number
+  hover: boolean
+  source: ChartNode
+  target: ChartNode
+  onClick: (link: any) => void
+}
