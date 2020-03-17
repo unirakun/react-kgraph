@@ -14,7 +14,7 @@ export interface LinkProps {
   hover: boolean
   source: ChartNode
   target: ChartNode
-  onClick: any // TODO types
+  onClick: (link: any) => void
 }
 
 const Link = (props: LinkProps) => {

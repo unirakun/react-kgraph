@@ -1,6 +1,4 @@
-import React, { memo, useState, useLayoutEffect } from 'react'
-// TODO: should use zoom
-const TRESHOLD = 0.1
+import React, { useState, useLayoutEffect } from 'react'
 
 type PropTypes = {
   label: string
@@ -45,13 +43,4 @@ const Label = (props: PropTypes) => {
   )
 }
 
-export default memo(
-  Label,
-  (prevProps: PropTypes, nextProps: PropTypes): boolean => {
-    // there is a difference if we pass the treshold
-    return (
-      Math.abs(nextProps.x - prevProps.x) < TRESHOLD ||
-      Math.abs(nextProps.y - prevProps.y) < TRESHOLD
-    )
-  },
-)
+export default Label

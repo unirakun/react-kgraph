@@ -1,4 +1,4 @@
-import React, { memo } from 'react'
+import React from 'react'
 
 type PropTypes = {
   id: number | string
@@ -23,8 +23,4 @@ const Path = (props: PropTypes) => {
   )
 }
 
-export default memo(
-  Path,
-  (prevProps: PropTypes, nextProps: PropTypes): boolean =>
-    prevProps.d === nextProps.d,
-)
+export default Path
