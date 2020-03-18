@@ -1,5 +1,6 @@
 // @ts-ignore
 import * as cola from 'webcola'
+import cloneDeep from 'lodash.clonedeep'
 import { ChartNode, WithCoords, SimplifiedLayout } from '../../types'
 import { LayoutEngine, Link } from './layoutEngine'
 
@@ -42,7 +43,7 @@ const createGraphLayout = ({
 
       // TODO: make copy!!!!
       view.nodes = layout.nodes() as ChartNode[]
-      view.links = layout.links()
+      view.links = cloneDeep(layout.links())
     })
     .on(cola.EventType.start, () => {
       // console.time('graph layout')
