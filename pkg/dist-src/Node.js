@@ -90,11 +90,11 @@ const Node = (props) => {
         if (hover) {
             style.backgroundColor = '#f97975';
         }
-        else if (group) {
+        else if (group !== undefined && group !== null) {
             style.backgroundColor = getColor(group);
         }
         else {
-            style.backgroundColor = color || '#ff00ff';
+            style.backgroundColor = color || '#1f77b4';
         }
         return (React.createElement("foreignObject", { width: outerSize, height: outerSize, x: -outerSize / 2, y: -outerSize / 2 },
             React.createElement("div", { style: style }, label)));

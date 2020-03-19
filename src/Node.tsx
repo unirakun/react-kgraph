@@ -153,10 +153,10 @@ const Node = (
 
     if (hover) {
       style.backgroundColor = '#f97975'
-    } else if (group) {
+    } else if (group !== undefined && group !== null) {
       style.backgroundColor = getColor(group)
     } else {
-      style.backgroundColor = color || '#ff00ff'
+      style.backgroundColor = color || '#1f77b4'
     }
 
     return (
