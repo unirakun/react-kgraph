@@ -1,69 +1,83 @@
 import React, { memo, useRef, useCallback, useEffect, useState, useLayoutEffect } from 'react';
 import { scaleOrdinal, schemeCategory10 } from 'd3';
 import { EventType, Layout } from 'webcola';
+import cloneDeep from 'lodash.clonedeep';
 import { tree, hierarchy } from 'd3-hierarchy';
 
 // references: https://stackoverflow.com/questions/31804392/create-svg-arcs-between-two-points
+const knownIndex = Symbol('knownIndex');
 const isSamePoint = (source, target) => source.x === target.x && source.y === target.y;
 const isSimilarLink = (a) => (b) => (isSamePoint(a.source, b.source) && isSamePoint(a.target, b.target)) ||
     (isSamePoint(a.source, b.target) && isSamePoint(a.target, b.source));
 const scale = ({ source, target }, size) => ({
     source: {
+        ...source,
         x: source.x * size,
         y: source.y * size,
     },
     target: {
+        ...target,
         x: target.x * size,
         y: target.y * size,
     },
 });
-const addSVGPath = ({ offset = 500, size }) => (links) => {
-    return links.map((link, i, { length }) => {
-        // use size to scale all positions
-        const { source, target } = scale(link, size);
-        // don't calcul the curve when only one link between two point
-        if (i === (length - 1) / 2) {
-            return {
-                ...link,
-                d: `M ${source.x} ${source.y} ${target.x} ${target.y}`,
-                quadraticPoint: {
-                    x: source.x + (target.x - source.x) / 2,
-                    y: source.y + (target.y - source.y) / 2,
-                },
-                sweep: 1,
-            };
-        }
-        const cx = (source.x + target.x) / 2;
-        const cy = (source.y + target.y) / 2;
-        const dx = (target.x - source.x) / 2;
-        const dy = (target.y - source.y) / 2;
-        const dd = Math.sqrt(dx * dx + dy * dy);
-        const sweep = link.source.x - link.target.x > 0 ? 1 : -1;
-        const quadraticPoint = {
-            x: cx +
-                (dy / dd) * (offset / links.length) * (i - (length - 1) / 2) * sweep,
-            y: cy -
-                (dx / dd) * (offset / links.length) * (i - (length - 1) / 2) * sweep,
-        };
-        // add svg path of link
+const createCurve = (link, i, inGroup, groups, { size, offset = 500 }) => {
+    // use size to scale all positions
+    const { source, target } = scale(link, size);
+    // don't calcul the curve when only one link between two point
+    if (i === (inGroup - 1) / 2) {
         return {
             ...link,
-            d: `M ${source.x} ${source.y} Q ${quadraticPoint.x} ${quadraticPoint.y} ${target.x} ${target.y}`,
-            quadraticPoint,
-            sweep,
+            d: `M ${source.x} ${source.y} ${target.x} ${target.y}`,
+            quadraticPoint: {
+                x: source.x + (target.x - source.x) / 2,
+                y: source.y + (target.y - source.y) / 2,
+            },
+            sweep: 1,
         };
-    });
+    }
+    const cx = (source.x + target.x) / 2;
+    const cy = (source.y + target.y) / 2;
+    const dx = (target.x - source.x) / 2;
+    const dy = (target.y - source.y) / 2;
+    const dd = Math.sqrt(dx * dx + dy * dy);
+    const sweep = link.source.x - link.target.x > 0 ? 1 : -1;
+    const quadraticPoint = {
+        x: cx + (dy / dd) * (offset / groups) * (i - (inGroup - 1) / 2) * sweep,
+        y: cy - (dx / dd) * (offset / groups) * (i - (inGroup - 1) / 2) * sweep,
+    };
+    // add svg path of link
+    return {
+        ...link,
+        d: `M ${source.x} ${source.y} Q ${quadraticPoint.x} ${quadraticPoint.y} ${target.x} ${target.y}`,
+        quadraticPoint,
+        sweep,
+    };
+};
+const addSVGPath = (options) => (groups) => {
+    return groups.map((link, index, { length }) => createCurve(link, index, length, groups.length, options));
 };
 var makeCurvedLinks = (links, { offset, size = 1 }) => {
+    // adding known index to sort link after curves
+    const linksWithIndex = links.map((link, index) => ({
+        ...link,
+        [knownIndex]: index,
+    }));
+    // groups of similar link
     const groupLinks = [];
-    const iterateLinks = [...links];
+    // construct a new array of links so we can mutate it while iterating on it
+    const iterateLinks = [...linksWithIndex];
     while (iterateLinks.length > 0) {
         const [currentLink] = iterateLinks;
         const similarLinks = iterateLinks.filter(isSimilarLink(currentLink));
         groupLinks.push(similarLinks);
         similarLinks.forEach((sl) => iterateLinks.splice(iterateLinks.indexOf(sl), 1));
     }
-    return groupLinks.flatMap(addSVGPath({ offset, size }));
+    // output links with quadratic point, sweep and d path
+    // they are output in same order than the input
+    return groupLinks
+        .flatMap(addSVGPath({ offset, size }))
+        .sort((a, b) => a[knownIndex] - b[knownIndex]);
 };
 
 const getColor = scaleOrdinal(schemeCategory10);
@@ -71,8 +85,10 @@ const getColor = scaleOrdinal(schemeCategory10);
 // TODO: remove the "node" parameter
 // TODO: to integrate with Chart component and keep perf, use an other Component to "useCallback" the callbacks with "node" parameter
 //      https://stackoverflow.com/questions/55963914/react-usecallback-hook-for-map-rendering
-const Node = ({ onClick, onDrag, onStart, onEnd, ...props }) => {
-    const { id, size, group, label, hover, hidden, color, Component, onMouseEnter, onMouseLeave, ...gProps } = props;
+const Node = (props) => {
+    const { id, size, group, label, hover, hidden, color, 
+    // specific to this Node wrapper Component
+    Component, onClick, onDrag, onStart, onEnd, onMouseEnter, onMouseLeave, ...gProps } = props;
     const nodeRef = useRef(null);
     const dragInfoRef = useRef({ thisIsMe: false, beforeX: 0, beforeY: 0 });
     const rafTimerRef = useRef(0);
@@ -134,59 +150,77 @@ const Node = ({ onClick, onDrag, onStart, onEnd, ...props }) => {
             return onClick(id);
         return undefined;
     }, [onClick, id]);
-    const innerSize = (size + 10) * 3;
-    const outerSize = innerSize + 20;
-    const style = {
-        borderRadius: '100%',
-        backgroundColor: hover ? '#f97975' : color || getColor(group),
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        border: '1px solid rgba(50, 50, 50, 0.4)',
-        boxShadow: '0px 0px 10px -5px black',
-        width: innerSize,
-        height: innerSize,
-        margin: '5px auto',
+    const getElement = () => {
+        if (Component) {
+            return (React.createElement(Component, { id: id, size: size, group: group, label: label, hover: hover, hidden: hidden, color: color }));
+        }
+        const innerSize = (size + 10) * 3;
+        const outerSize = innerSize + 20;
+        const style = {
+            borderRadius: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: '1px solid rgba(50, 50, 50, 0.4)',
+            boxShadow: '0px 0px 10px -5px black',
+            width: innerSize,
+            height: innerSize,
+            margin: '5px auto',
+        };
+        if (hover) {
+            style.backgroundColor = '#f97975';
+        }
+        else if (group !== undefined && group !== null) {
+            style.backgroundColor = getColor(group);
+        }
+        else {
+            style.backgroundColor = color || '#1f77b4';
+        }
+        return (React.createElement("foreignObject", { width: outerSize, height: outerSize, x: -outerSize / 2, y: -outerSize / 2 },
+            React.createElement("div", { style: style }, label)));
     };
-    return (React.createElement("g", Object.assign({ ref: nodeRef }, gProps, { onClick: onInnerClick, className: `node-container ${hidden ? 'node-hidden' : ''}`, onMouseLeave: innerOnMouseLeave, onMouseEnter: innerOnMouseEnter }), Component ? (React.createElement(Component, Object.assign({ style: style, outerSize: outerSize }, props))) : (React.createElement("foreignObject", { width: outerSize, height: outerSize, x: -outerSize / 2, y: -outerSize / 2 },
-        React.createElement("div", { style: style }, label)))));
+    return (React.createElement("g", Object.assign({ ref: nodeRef }, gProps, { onClick: onInnerClick, className: `node-container ${hidden ? 'node-hidden' : ''}`, onMouseLeave: innerOnMouseLeave, onMouseEnter: innerOnMouseEnter }), getElement()));
 };
 var Node$1 = memo(Node);
 
-const Link = ({ onClick, ...props }) => {
-    const { Component, id, d, quadraticPoint, sweep, label, source, target, hover, size, } = props;
-    const [textPosition, setTextPosition] = useState({ x: 0, y: 0 });
-    const height = 100;
-    const width = 250;
-    useLayoutEffect(() => {
-        setTextPosition(sweep > 0
-            ? {
-                x: quadraticPoint.x - width / 2,
-                y: quadraticPoint.y - height / 2,
-            }
-            : {
-                x: quadraticPoint.x - width / 2,
-                y: quadraticPoint.y,
-            });
-    }, [size, source.x, source.y, target.x, target.y, quadraticPoint, sweep]);
-    const innerOnClick = useCallback(() => {
-        if (!onClick)
-            return;
-        onClick(id);
-    }, [onClick, id]);
-    return (React.createElement("g", { key: d, onClick: innerOnClick }, Component ? (React.createElement(Component, Object.assign({}, props, { textPosition: textPosition }))) : (React.createElement(React.Fragment, null,
-        React.createElement("path", { id: `${id}`, strokeWidth: 5, fill: "transparent", d: d, stroke: "#d1d1d1", markerEnd: "url(#arrow-#d1d1d1)" }),
-        hover && (React.createElement("path", { id: `${id}`, strokeWidth: 20, fill: "transparent", d: d, stroke: "rgba(249, 121, 117, 0.5)" })),
-        hover && (React.createElement("foreignObject", Object.assign({}, textPosition, { width: width, height: height }),
-            React.createElement("div", { style: {
-                    borderRadius: '5px',
-                    backgroundColor: 'rgba(100, 100, 100, 0.2)',
-                    textAlign: 'center',
-                    padding: '1em',
-                    border: '1px solid rgba(50, 50, 50, 0.2)',
-                } }, label || `${source.label} -> ${target.label}`)))))));
+const Path = (props) => {
+    const { id, d, strokeWidth, stroke, markerEnd } = props;
+    return (React.createElement("path", { id: `${id}`, d: d, strokeWidth: strokeWidth, fill: "transparent", stroke: stroke, markerEnd: markerEnd }));
 };
-const PROPS_TO_ALWAYS_COMPARE = ['onClick', 'Component', 'id', 'hover'];
+
+const Label = (props) => {
+    const { label, x, y, sweep, width, height } = props;
+    const [position, setPosition] = useState({ x, y });
+    useLayoutEffect(() => {
+        if (sweep > 0) {
+            setPosition({
+                x: x - width / 2,
+                y: y - height / 2,
+            });
+        }
+        setPosition({
+            x: x - width / 2,
+            y,
+        });
+    }, [x, y, sweep, width, height]);
+    return (React.createElement("foreignObject", Object.assign({}, position, { width: width, height: height }),
+        React.createElement("div", { style: {
+                borderRadius: '5px',
+                backgroundColor: 'rgba(100, 100, 100, 0.2)',
+                textAlign: 'center',
+                padding: '1em',
+                border: '1px solid rgba(50, 50, 50, 0.2)',
+            } }, label)));
+};
+
+const DefaultLink = (props) => {
+    const { id, d, label, quadraticPoint, sweep, source, target, hover } = props;
+    return (React.createElement(React.Fragment, null,
+        React.createElement(Path, { id: id, d: d, strokeWidth: 5, stroke: "#d1d1d1", markerEnd: "url(#arrow-#d1d1d1)" }),
+        hover && (React.createElement(Path, { id: id, d: d, strokeWidth: 20, stroke: "rgba(249, 121, 117, 0.5)" })),
+        hover && (React.createElement(Label, Object.assign({}, quadraticPoint, { sweep: sweep, width: 250, height: 100, label: label || `${source.label} -> ${target.label}` })))));
+};
+const PROPS_TO_ALWAYS_COMPARE = ['id', 'hover'];
 const propsAreEqual = (prevProps, nextProps) => {
     return !Object.entries(prevProps).some(([key, value]) => {
         if (PROPS_TO_ALWAYS_COMPARE.includes(key)) {
@@ -209,7 +243,20 @@ const propsAreEqual = (prevProps, nextProps) => {
         return false;
     });
 };
-var Link$1 = memo(Link, propsAreEqual);
+var DefaultLink$1 = memo(DefaultLink, propsAreEqual);
+
+const Link = (props) => {
+    const { Component, onClick, id, ...restProps } = props;
+    const innerOnClick = useCallback(() => {
+        if (onClick)
+            return onClick(id);
+        return undefined;
+    }, [onClick, id]);
+    return (React.createElement("g", { onClick: innerOnClick }, React.createElement(Component || DefaultLink$1, {
+        ...restProps,
+        id,
+    })));
+};
 
 const useHoverNode = (layout, { getMarkerColors }) => {
     const [hoverNode, setHoverNode] = useState();
@@ -374,7 +421,7 @@ const createGraphLayout = ({ width, height, }) => {
         // ticks += 1
         // TODO: make copy!!!!
         view.nodes = layout.nodes();
-        view.links = layout.links();
+        view.links = cloneDeep(layout.links());
     })
         .on(EventType.start, () => {
         // console.time('graph layout')
@@ -666,13 +713,13 @@ const Graph = (props) => {
             lineMarkerColors.map((color) => (React.createElement("marker", { id: `arrow-${color}`, key: `arrow-${color}`, viewBox: "0 0 10 10", refX: size / 2 + 11, refY: "2.5", markerWidth: "6", markerHeight: "6", orient: "auto-start-reverse" },
                 React.createElement("path", { d: "M 0 0 L 5 2.5 L 0 5 z", fill: color })))),
             React.createElement("g", { stroke: "#999" }, makeCurvedLinks(layout.links, { size }).map((link, index) => {
-                const { length, d, quadraticPoint, sweep, label, source, target, Component, } = link;
-                return (React.createElement(Link$1, { id: index, length: length, d: d, quadraticPoint: quadraticPoint, sweep: sweep, label: label, size: size, source: { x: source.x, y: source.y, label: source.label }, target: { x: target.x, y: target.y, label: target.label }, Component: Component, onClick: innerOnLinkClick, hover: hoverNode === link.source.id || hoverNode === link.target.id }));
+                const { source, target } = link;
+                return (React.createElement(Link, Object.assign({ id: index }, link, { size: size, onClick: innerOnLinkClick, hover: hoverNode === source.id || hoverNode === target.id })));
             })),
             React.createElement("g", { stroke: "#fff", strokeWidth: 1 }, layout.nodes.map((node) => {
                 const { id, group, x, y, label, Component, color } = node;
                 return (React.createElement("g", { transform: `translate(${x * size} ${y * size})` },
-                    React.createElement(Node$1, { key: id, id: id, group: group, label: label, color: color, Component: Component, onClick: innerOnNodeClick, onMouseEnter: onOverNode, onMouseLeave: onLeaveNode, size: size, onDrag: onDrag, onStart: onStart, onEnd: onEnd, hover: hoverNode === id, hidden: hoverNode !== id && hiddenNodes.includes(id) })));
+                    React.createElement(Node$1, { key: id, id: id, group: group, label: label, color: color, Component: Component, size: size, hover: hoverNode === id, hidden: hoverNode !== id && hiddenNodes.includes(id), onClick: innerOnNodeClick, onMouseEnter: onOverNode, onMouseLeave: onLeaveNode, onDrag: onDrag, onStart: onStart, onEnd: onEnd })));
             })))));
 };
 

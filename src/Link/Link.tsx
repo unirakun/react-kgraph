@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react'
-import DefaultLink from './DefaultLink'
+import DefaultLink from './DefaultLink/DefaultLink'
 import { LinkProps } from '../types'
 
 const Link = (
