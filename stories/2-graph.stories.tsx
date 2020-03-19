@@ -43,7 +43,13 @@ const links = [
 ]
 
 export const Readme = () => (
-  <Graph nodes={nodes} links={links} type="graph" onLinkClick={console.log} />
+  <Graph
+    style={{ width: '100%', height: '100%' }}
+    nodes={nodes}
+    links={links}
+    type="graph"
+    onLinkClick={console.log}
+  />
 )
 Readme.story = {
   name: 'README example',

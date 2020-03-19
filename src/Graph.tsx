@@ -1,6 +1,12 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 // we disable this a11y rule because it thinks that our Link element is a <a>
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  CSSProperties,
+} from 'react'
 import makeCurvedLinks from './makeCurvedLinks'
 import Node from './Node'
 import Link from './Link'
@@ -52,6 +58,8 @@ interface TreeNode extends GraphNode {
 }
 
 interface TreeGraphProps {
+  style?: CSSProperties
+  className?: string
   nodes: TreeNode[]
   type: 'tree'
   onNodeClick?: (node: any) => void
@@ -59,6 +67,8 @@ interface TreeGraphProps {
 }
 
 interface GraphGraphProps {
+  style?: CSSProperties
+  className?: string
   nodes: GraphNode[]
   links?: GraphLink[]
   type: 'graph'
@@ -68,6 +78,8 @@ interface GraphGraphProps {
 
 const Graph = (props: TreeGraphProps | GraphGraphProps) => {
   const {
+    style,
+    className,
     nodes,
     links,
     type = 'graph',
@@ -193,6 +205,8 @@ const Graph = (props: TreeGraphProps | GraphGraphProps) => {
         Relayout
       </button>
       <svg
+        className={className}
+        style={style}
         ref={svgRef}
         width={width}
         height={height}
