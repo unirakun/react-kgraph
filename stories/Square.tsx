@@ -1,8 +1,10 @@
 import React, { memo } from 'react'
 import { NodeProps } from '../src/types'
 
-const Node = (props: NodeProps) => {
-  const { label, color, outerSize } = props
+const SquareNode = (props: NodeProps) => {
+  const { label, color, size } = props
+
+  const innerSize = size * 3
 
   return (
     <g>
@@ -10,20 +12,20 @@ const Node = (props: NodeProps) => {
         width={200}
         height={50}
         x={-200 / 2}
-        y={(-outerSize - 100) / 2}
+        y={(-innerSize - 100) / 2}
       >
         <div>{label}</div>
       </foreignObject>
       <foreignObject
-        x={-outerSize / 2}
-        y={-outerSize / 2}
-        width={outerSize}
-        height={outerSize}
+        x={-innerSize / 2}
+        y={-innerSize / 2}
+        width={innerSize}
+        height={innerSize}
       >
         <div
           style={{
-            width: outerSize,
-            height: outerSize,
+            width: innerSize,
+            height: innerSize,
             backgroundColor: color || 'grey',
           }}
         />
@@ -32,4 +34,4 @@ const Node = (props: NodeProps) => {
   )
 }
 
-export default memo(Node)
+export default memo(SquareNode)

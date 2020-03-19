@@ -1,5 +1,3 @@
-import { CSSProperties } from 'react'
-
 export type WithCoords = { x: number; y: number }
 
 export interface ChartNode extends WithCoords {
@@ -20,13 +18,11 @@ export interface SimplifiedLayout {
 export interface NodeProps {
   id: number | string
   size: number
-  group: string
+  group?: string
   label?: string
   hover?: boolean
   hidden?: boolean
   color?: string
-  style: CSSProperties
-  outerSize: number
 }
 
 export interface LinkProps {
