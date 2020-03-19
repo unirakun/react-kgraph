@@ -1,6 +1,7 @@
 import React from 'react'
 import Graph from '../src/Graph'
 import Line from './Line'
+import Square from './Square'
 
 export default {
   title: 'Graph',
@@ -84,4 +85,16 @@ export const CustomLink = () => (
 )
 CustomLink.story = {
   name: 'Link: Custom',
+}
+
+export const CustomNode = () => (
+  <Graph
+    onNodeClick={console.log}
+    links={links}
+    nodes={nodes.map((l) => ({ ...l, Component: Square }))}
+    type="graph"
+  />
+)
+CustomNode.story = {
+  name: 'Node: Custom',
 }

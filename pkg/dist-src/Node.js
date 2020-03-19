@@ -1,12 +1,14 @@
-import React, { memo, useRef, useEffect, useCallback } from 'react';
+import React, { memo, useRef, useEffect, useCallback, } from 'react';
 import * as d3 from 'd3';
 const getColor = d3.scaleOrdinal(d3.schemeCategory10);
 // TODO: create a MovableSvgItem ?
 // TODO: remove the "node" parameter
 // TODO: to integrate with Chart component and keep perf, use an other Component to "useCallback" the callbacks with "node" parameter
 //      https://stackoverflow.com/questions/55963914/react-usecallback-hook-for-map-rendering
-const Node = ({ onClick, onDrag, onStart, onEnd, ...props }) => {
-    const { id, size, group, label, hover, hidden, color, Component, onMouseEnter, onMouseLeave, ...gProps } = props;
+const Node = (props) => {
+    const { id, size, group, label, hover, hidden, color, 
+    // specific to this Node wrapper Component
+    Component, onClick, onDrag, onStart, onEnd, onMouseEnter, onMouseLeave, ...gProps } = props;
     const nodeRef = useRef(null);
     const dragInfoRef = useRef({ thisIsMe: false, beforeX: 0, beforeY: 0 });
     const rafTimerRef = useRef(0);
@@ -68,21 +70,35 @@ const Node = ({ onClick, onDrag, onStart, onEnd, ...props }) => {
             return onClick(id);
         return undefined;
     }, [onClick, id]);
-    const innerSize = (size + 10) * 3;
-    const outerSize = innerSize + 20;
-    const style = {
-        borderRadius: '100%',
-        backgroundColor: hover ? '#f97975' : color || getColor(group),
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        border: '1px solid rgba(50, 50, 50, 0.4)',
-        boxShadow: '0px 0px 10px -5px black',
-        width: innerSize,
-        height: innerSize,
-        margin: '5px auto',
+    const getElement = () => {
+        if (Component) {
+            return (React.createElement(Component, { id: id, size: size, group: group, label: label, hover: hover, hidden: hidden, color: color }));
+        }
+        const innerSize = (size + 10) * 3;
+        const outerSize = innerSize + 20;
+        const style = {
+            borderRadius: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: '1px solid rgba(50, 50, 50, 0.4)',
+            boxShadow: '0px 0px 10px -5px black',
+            width: innerSize,
+            height: innerSize,
+            margin: '5px auto',
+        };
+        if (hover) {
+            style.backgroundColor = '#f97975';
+        }
+        else if (group !== undefined && group !== null) {
+            style.backgroundColor = getColor(group);
+        }
+        else {
+            style.backgroundColor = color || '#1f77b4';
+        }
+        return (React.createElement("foreignObject", { width: outerSize, height: outerSize, x: -outerSize / 2, y: -outerSize / 2 },
+            React.createElement("div", { style: style }, label)));
     };
-    return (React.createElement("g", Object.assign({ ref: nodeRef }, gProps, { onClick: onInnerClick, className: `node-container ${hidden ? 'node-hidden' : ''}`, onMouseLeave: innerOnMouseLeave, onMouseEnter: innerOnMouseEnter }), Component ? (React.createElement(Component, Object.assign({ style: style, outerSize: outerSize }, props))) : (React.createElement("foreignObject", { width: outerSize, height: outerSize, x: -outerSize / 2, y: -outerSize / 2 },
-        React.createElement("div", { style: style }, label)))));
+    return (React.createElement("g", Object.assign({ ref: nodeRef }, gProps, { onClick: onInnerClick, className: `node-container ${hidden ? 'node-hidden' : ''}`, onMouseLeave: innerOnMouseLeave, onMouseEnter: innerOnMouseEnter }), getElement()));
 };
 export default memo(Node);

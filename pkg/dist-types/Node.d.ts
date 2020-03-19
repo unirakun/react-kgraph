@@ -1,14 +1,7 @@
 import React from 'react';
-declare const _default: React.MemoExoticComponent<({ onClick, onDrag, onStart, onEnd, ...props }: {
-    [key: string]: any;
-    id: string | number;
-    size: number;
-    group: string;
-    label?: string | undefined;
-    hover: boolean;
-    hidden: boolean;
-    color?: string | undefined;
-    Component?: any;
+import { NodeProps } from './types';
+declare const _default: React.MemoExoticComponent<(props: NodeProps & {
+    Component?: React.ComponentClass<NodeProps, any> | React.FunctionComponent<NodeProps> | undefined;
     onClick?: any;
     onEnd?: any;
     onStart?: any;

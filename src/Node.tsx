@@ -1,5 +1,12 @@
-import React, { memo, useRef, useEffect, useCallback } from 'react'
+import React, {
+  memo,
+  useRef,
+  useEffect,
+  useCallback,
+  CSSProperties,
+} from 'react'
 import * as d3 from 'd3'
+import { NodeProps } from './types'
 
 const getColor = d3.scaleOrdinal(d3.schemeCategory10)
 
@@ -7,29 +14,17 @@ const getColor = d3.scaleOrdinal(d3.schemeCategory10)
 // TODO: remove the "node" parameter
 // TODO: to integrate with Chart component and keep perf, use an other Component to "useCallback" the callbacks with "node" parameter
 //      https://stackoverflow.com/questions/55963914/react-usecallback-hook-for-map-rendering
-const Node = ({
-  onClick,
-  onDrag,
-  onStart,
-  onEnd,
-  ...props
-}: {
-  id: number | string
-  size: number
-  group: string
-  label?: string
-  hover: boolean
-  hidden: boolean
-  color?: string
-  Component?: any
-  onClick?: any // TODO: type
-  onEnd?: any // TODO: type
-  onStart?: any // TODO: type
-  onDrag?: any // TODO: type
-  onMouseEnter?: any // TODO: type
-  onMouseLeave?: any // TODO: type
-  [key: string]: any
-}) => {
+const Node = (
+  props: NodeProps & {
+    Component?: React.ComponentType<NodeProps>
+    onClick?: any // TODO: type
+    onEnd?: any // TODO: type
+    onStart?: any // TODO: type
+    onDrag?: any // TODO: type
+    onMouseEnter?: any // TODO: type
+    onMouseLeave?: any // TODO: type
+  },
+) => {
   const {
     id,
     size,
@@ -38,7 +33,12 @@ const Node = ({
     hover,
     hidden,
     color,
+    // specific to this Node wrapper Component
     Component,
+    onClick,
+    onDrag,
+    onStart,
+    onEnd,
     onMouseEnter,
     onMouseLeave,
     ...gProps
@@ -121,20 +121,54 @@ const Node = ({
     return undefined
   }, [onClick, id])
 
-  const innerSize = (size + 10) * 3
-  const outerSize = innerSize + 20
+  const getElement = () => {
+    if (Component) {
+      return (
+        <Component
+          id={id}
+          size={size}
+          group={group}
+          label={label}
+          hover={hover}
+          hidden={hidden}
+          color={color}
+        />
+      )
+    }
 
-  const style = {
-    borderRadius: '100%',
-    backgroundColor: hover ? '#f97975' : color || getColor(group),
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    border: '1px solid rgba(50, 50, 50, 0.4)',
-    boxShadow: '0px 0px 10px -5px black',
-    width: innerSize,
-    height: innerSize,
-    margin: '5px auto',
+    const innerSize = (size + 10) * 3
+    const outerSize = innerSize + 20
+
+    const style: CSSProperties = {
+      borderRadius: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      border: '1px solid rgba(50, 50, 50, 0.4)',
+      boxShadow: '0px 0px 10px -5px black',
+      width: innerSize,
+      height: innerSize,
+      margin: '5px auto',
+    }
+
+    if (hover) {
+      style.backgroundColor = '#f97975'
+    } else if (group !== undefined && group !== null) {
+      style.backgroundColor = getColor(group)
+    } else {
+      style.backgroundColor = color || '#1f77b4'
+    }
+
+    return (
+      <foreignObject
+        width={outerSize}
+        height={outerSize}
+        x={-outerSize / 2}
+        y={-outerSize / 2}
+      >
+        <div style={style}>{label}</div>
+      </foreignObject>
+    )
   }
 
   return (
@@ -146,18 +180,7 @@ const Node = ({
       onMouseLeave={innerOnMouseLeave}
       onMouseEnter={innerOnMouseEnter}
     >
-      {Component ? (
-        <Component style={style} outerSize={outerSize} {...props} />
-      ) : (
-        <foreignObject
-          width={outerSize}
-          height={outerSize}
-          x={-outerSize / 2}
-          y={-outerSize / 2}
-        >
-          <div style={style}>{label}</div>
-        </foreignObject>
-      )}
+      {getElement()}
     </g>
   )
 }

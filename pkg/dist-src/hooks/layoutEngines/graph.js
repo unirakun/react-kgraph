@@ -1,5 +1,6 @@
 // @ts-ignore
 import * as cola from 'webcola';
+import cloneDeep from 'lodash.clonedeep';
 const iterations = 1;
 // from https://github.com/cawfree/react-cola/blob/master/index.js
 class ReactColaLayout extends cola.Layout {
@@ -27,7 +28,7 @@ const createGraphLayout = ({ width, height, }) => {
         // ticks += 1
         // TODO: make copy!!!!
         view.nodes = layout.nodes();
-        view.links = layout.links();
+        view.links = cloneDeep(layout.links());
     })
         .on(cola.EventType.start, () => {
         // console.time('graph layout')

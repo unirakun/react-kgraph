@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import makeCurvedLinks from './makeCurvedLinks';
 import Node from './Node';
-import Link from './Link';
+import Link from './Link/Link';
 import { useHoverNodes, useCenterAndZoom, useLayout } from './hooks/index';
 function svgPoint(element, x, y) {
     if (!element)
@@ -96,13 +96,13 @@ const Graph = (props) => {
             lineMarkerColors.map((color) => (React.createElement("marker", { id: `arrow-${color}`, key: `arrow-${color}`, viewBox: "0 0 10 10", refX: size / 2 + 11, refY: "2.5", markerWidth: "6", markerHeight: "6", orient: "auto-start-reverse" },
                 React.createElement("path", { d: "M 0 0 L 5 2.5 L 0 5 z", fill: color })))),
             React.createElement("g", { stroke: "#999" }, makeCurvedLinks(layout.links, { size }).map((link, index) => {
-                const { length, d, quadraticPoint, sweep, label, source, target, Component, } = link;
-                return (React.createElement(Link, { id: index, length: length, d: d, quadraticPoint: quadraticPoint, sweep: sweep, label: label, size: size, source: { x: source.x, y: source.y, label: source.label }, target: { x: target.x, y: target.y, label: target.label }, Component: Component, onClick: innerOnLinkClick, hover: hoverNode === link.source.id || hoverNode === link.target.id }));
+                const { source, target } = link;
+                return (React.createElement(Link, Object.assign({ id: index }, link, { size: size, onClick: innerOnLinkClick, hover: hoverNode === source.id || hoverNode === target.id })));
             })),
             React.createElement("g", { stroke: "#fff", strokeWidth: 1 }, layout.nodes.map((node) => {
                 const { id, group, x, y, label, Component, color } = node;
                 return (React.createElement("g", { transform: `translate(${x * size} ${y * size})` },
-                    React.createElement(Node, { key: id, id: id, group: group, label: label, color: color, Component: Component, onClick: innerOnNodeClick, onMouseEnter: onOverNode, onMouseLeave: onLeaveNode, size: size, onDrag: onDrag, onStart: onStart, onEnd: onEnd, hover: hoverNode === id, hidden: hoverNode !== id && hiddenNodes.includes(id) })));
+                    React.createElement(Node, { key: id, id: id, group: group, label: label, color: color, Component: Component, size: size, hover: hoverNode === id, hidden: hoverNode !== id && hiddenNodes.includes(id), onClick: innerOnNodeClick, onMouseEnter: onOverNode, onMouseLeave: onLeaveNode, onDrag: onDrag, onStart: onStart, onEnd: onEnd })));
             })))));
 };
 export default Graph;

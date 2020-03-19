@@ -9,9 +9,9 @@ import React, {
 } from 'react'
 import makeCurvedLinks from './makeCurvedLinks'
 import Node from './Node'
-import Link from './Link'
+import Link from './Link/Link'
 import { useHoverNodes, useCenterAndZoom, useLayout } from './hooks/index'
-import { LinkProps } from './types'
+import { LinkProps, NodeProps } from './types'
 
 function svgPoint(element: SVGSVGElement | null, x: number, y: number) {
   if (!element) return { x, y }
@@ -42,7 +42,7 @@ interface GraphNode {
   group?: string
   label?: string
   color?: string
-  Component?: React.Component
+  Component?: React.Component<NodeProps> | React.FunctionComponent<NodeProps>
   [key: string]: any
 }
 
@@ -260,15 +260,15 @@ const Graph = (props: TreeGraphProps | GraphGraphProps) => {
                   label={label}
                   color={color}
                   Component={Component}
+                  size={size}
+                  hover={hoverNode === id}
+                  hidden={hoverNode !== id && hiddenNodes.includes(id)}
                   onClick={innerOnNodeClick}
                   onMouseEnter={onOverNode}
                   onMouseLeave={onLeaveNode}
-                  size={size}
                   onDrag={onDrag}
                   onStart={onStart}
                   onEnd={onEnd}
-                  hover={hoverNode === id}
-                  hidden={hoverNode !== id && hiddenNodes.includes(id)}
                 />
               </g>
             )

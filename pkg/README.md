@@ -5,7 +5,7 @@
 [![Documentation](https://img.shields.io/badge/doc-storybook-ff69b4)](https://unirakun.github.io/react-kgraph)
 [![npm](https://img.shields.io/npm/v/react-kgraph)](https://www.npmjs.com/package/react-kgraph)
 [![npm bundle size](https://img.shields.io/bundlephobia/minzip/react-kgraph)](https://bundlephobia.com/result?p=react-kgraph@0.1.4)
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/unirakun/react-kgraph/quality)](https://github.com/unirakun/react-kgraph/actions?query=branch%3Amaster)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/unirakun/react-kgraph/Quality)](https://github.com/unirakun/react-kgraph/actions?query=branch%3Amaster)
 
 ## Installation
 

@@ -1,20 +1,21 @@
 import React from 'react';
+import { LinkProps, NodeProps } from './types';
 interface GraphNode {
     id: string;
     group?: string;
     label?: string;
     color?: string;
-    Component?: React.Component;
+    Component?: React.Component<NodeProps> | React.FunctionComponent<NodeProps>;
     [key: string]: any;
 }
-interface TreeNode extends GraphNode {
-    children: GraphNode[];
-}
-interface GraphLink {
+export interface GraphLink {
     source: number;
     target: number;
     label?: string;
-    Component?: React.Component;
+    Component?: React.Component<LinkProps> | React.FunctionComponent<LinkProps>;
+}
+interface TreeNode extends GraphNode {
+    children: GraphNode[];
 }
 interface TreeGraphProps {
     nodes: TreeNode[];
