@@ -1,5 +1,6 @@
 import React, { memo, useRef, useEffect, useCallback } from 'react'
 import * as d3 from 'd3'
+import { NodeProps } from './types'
 
 const getColor = d3.scaleOrdinal(d3.schemeCategory10)
 
@@ -7,29 +8,17 @@ const getColor = d3.scaleOrdinal(d3.schemeCategory10)
 // TODO: remove the "node" parameter
 // TODO: to integrate with Chart component and keep perf, use an other Component to "useCallback" the callbacks with "node" parameter
 //      https://stackoverflow.com/questions/55963914/react-usecallback-hook-for-map-rendering
-const Node = ({
-  onClick,
-  onDrag,
-  onStart,
-  onEnd,
-  ...props
-}: {
-  id: number | string
-  size: number
-  group: string
-  label?: string
-  hover: boolean
-  hidden: boolean
-  color?: string
-  Component?: any
-  onClick?: any // TODO: type
-  onEnd?: any // TODO: type
-  onStart?: any // TODO: type
-  onDrag?: any // TODO: type
-  onMouseEnter?: any // TODO: type
-  onMouseLeave?: any // TODO: type
-  [key: string]: any
-}) => {
+const Node = (
+  props: Omit<NodeProps, 'outerSize' | 'style'> & {
+    Component?: React.ComponentType<NodeProps>
+    onClick?: any // TODO: type
+    onEnd?: any // TODO: type
+    onStart?: any // TODO: type
+    onDrag?: any // TODO: type
+    onMouseEnter?: any // TODO: type
+    onMouseLeave?: any // TODO: type
+  },
+) => {
   const {
     id,
     size,
@@ -39,6 +28,10 @@ const Node = ({
     hidden,
     color,
     Component,
+    onClick,
+    onDrag,
+    onStart,
+    onEnd,
     onMouseEnter,
     onMouseLeave,
     ...gProps
