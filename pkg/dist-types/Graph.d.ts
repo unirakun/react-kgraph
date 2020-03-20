@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 import { LinkProps, NodeProps } from './types';
 interface GraphNode {
     id: string;
@@ -18,12 +18,16 @@ interface TreeNode extends GraphNode {
     children: GraphNode[];
 }
 interface TreeGraphProps {
+    style?: CSSProperties;
+    className?: string;
     nodes: TreeNode[];
     type: 'tree';
     onNodeClick?: (node: any) => void;
     onLinkClick?: (link: any) => void;
 }
 interface GraphGraphProps {
+    style?: CSSProperties;
+    className?: string;
     nodes: GraphNode[];
     links?: GraphLink[];
     type: 'graph';
