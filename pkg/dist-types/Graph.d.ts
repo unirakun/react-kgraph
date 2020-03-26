@@ -17,22 +17,23 @@ export interface GraphLink {
 interface TreeNode extends GraphNode {
     children: GraphNode[];
 }
-interface TreeGraphProps {
+interface GraphProps {
     style?: CSSProperties;
     className?: string;
-    nodes: TreeNode[];
-    type: 'tree';
+    noZoom?: boolean;
+    noViewportMove?: boolean;
+    noDrag?: boolean;
     onNodeClick?: (node: any) => void;
     onLinkClick?: (link: any) => void;
 }
-interface GraphGraphProps {
-    style?: CSSProperties;
-    className?: string;
+interface TreeGraphProps extends GraphProps {
+    nodes: TreeNode[];
+    type: 'tree';
+}
+interface GraphGraphProps extends GraphProps {
     nodes: GraphNode[];
     links?: GraphLink[];
     type: 'graph';
-    onNodeClick?: (node: any) => void;
-    onLinkClick?: (link: any) => void;
 }
 declare const Graph: (props: TreeGraphProps | GraphGraphProps) => JSX.Element | null;
 export default Graph;

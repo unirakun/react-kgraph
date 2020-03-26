@@ -642,7 +642,7 @@ const width = 800;
 const padding = 20;
 const size = 35;
 const Graph = (props) => {
-    const { style, className, nodes, links, type = 'graph', onNodeClick, onLinkClick, } = props;
+    const { style, className, nodes, links, type = 'graph', onNodeClick, onLinkClick, noZoom, noViewportMove, noDrag, } = props;
     const svgRef = useRef(null);
     const [layout, { drag, dragStart, dragEnd, restart }] = useLayout(nodes, links, {
         width,
@@ -709,7 +709,7 @@ const Graph = (props) => {
         return null;
     return (React.createElement(React.Fragment, null,
         React.createElement("button", { onClick: restart, type: "button" }, "Relayout"),
-        React.createElement("svg", { className: className, style: style, ref: svgRef, width: width, height: height, viewBox: `${offsets.x} ${offsets.y} ${width * zoom} ${height * zoom}`, onWheel: onWheel, onMouseMove: onMouseMove, onMouseDown: onMouseDown, onMouseUp: onMouseUp, xmlns: "http://www.w3.org/2000/svg" },
+        React.createElement("svg", { className: className, style: style, ref: svgRef, width: width, height: height, viewBox: `${offsets.x} ${offsets.y} ${width * zoom} ${height * zoom}`, onWheel: noZoom ? undefined : onWheel, onMouseMove: noViewportMove ? undefined : onMouseMove, onMouseDown: noViewportMove ? undefined : onMouseDown, onMouseUp: noViewportMove ? undefined : onMouseUp, xmlns: "http://www.w3.org/2000/svg" },
             lineMarkerColors.map((color) => (React.createElement("marker", { id: `arrow-${color}`, key: `arrow-${color}`, viewBox: "0 0 10 10", refX: size / 2 + 11, refY: "2.5", markerWidth: "6", markerHeight: "6", orient: "auto-start-reverse" },
                 React.createElement("path", { d: "M 0 0 L 5 2.5 L 0 5 z", fill: color })))),
             React.createElement("g", { stroke: "#999" }, makeCurvedLinks(layout.links, { size }).map((link, index) => {
@@ -719,7 +719,7 @@ const Graph = (props) => {
             React.createElement("g", { stroke: "#fff", strokeWidth: 1 }, layout.nodes.map((node) => {
                 const { id, group, x, y, label, Component, color } = node;
                 return (React.createElement("g", { transform: `translate(${x * size} ${y * size})` },
-                    React.createElement(Node$1, { key: id, id: id, group: group, label: label, color: color, Component: Component, size: size, hover: hoverNode === id, hidden: hoverNode !== id && hiddenNodes.includes(id), onClick: innerOnNodeClick, onMouseEnter: onOverNode, onMouseLeave: onLeaveNode, onDrag: onDrag, onStart: onStart, onEnd: onEnd })));
+                    React.createElement(Node$1, { key: id, id: id, group: group, label: label, color: color, Component: Component, size: size, hover: hoverNode === id, hidden: hoverNode !== id && hiddenNodes.includes(id), onClick: innerOnNodeClick, onMouseEnter: onOverNode, onMouseLeave: onLeaveNode, onDrag: noDrag ? undefined : onDrag, onStart: noDrag ? undefined : onStart, onEnd: noDrag ? undefined : onEnd })));
             })))));
 };
 
