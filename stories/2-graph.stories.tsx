@@ -98,3 +98,26 @@ export const CustomNode = () => (
 CustomNode.story = {
   name: 'Node: Custom',
 }
+
+export const BlockZoom = () => (
+  <Graph type="graph" nodes={nodes} links={links} noZoom />
+)
+
+export const BlockMove = () => (
+  <Graph type="graph" nodes={nodes} links={links} noViewportMove />
+)
+
+export const BlockDrag = () => (
+  <Graph type="graph" nodes={nodes} links={links} noDrag />
+)
+
+export const StaticView = () => (
+  <Graph
+    type="graph"
+    nodes={nodes}
+    links={links}
+    noDrag
+    noZoom
+    noViewportMove
+  />
+)

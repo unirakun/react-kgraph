@@ -57,23 +57,25 @@ interface TreeNode extends GraphNode {
   children: GraphNode[]
 }
 
-interface TreeGraphProps {
+interface GraphProps {
   style?: CSSProperties
   className?: string
-  nodes: TreeNode[]
-  type: 'tree'
+  noZoom?: boolean
+  noViewportMove?: boolean
+  noDrag?: boolean
   onNodeClick?: (node: any) => void
   onLinkClick?: (link: any) => void
 }
 
-interface GraphGraphProps {
-  style?: CSSProperties
-  className?: string
+interface TreeGraphProps extends GraphProps {
+  nodes: TreeNode[]
+  type: 'tree'
+}
+
+interface GraphGraphProps extends GraphProps {
   nodes: GraphNode[]
   links?: GraphLink[]
   type: 'graph'
-  onNodeClick?: (node: any) => void
-  onLinkClick?: (link: any) => void
 }
 
 const Graph = (props: TreeGraphProps | GraphGraphProps) => {
@@ -85,6 +87,9 @@ const Graph = (props: TreeGraphProps | GraphGraphProps) => {
     type = 'graph',
     onNodeClick,
     onLinkClick,
+    noZoom,
+    noViewportMove,
+    noDrag,
   } = props as GraphGraphProps
   const svgRef = useRef<SVGSVGElement>(null)
 
@@ -211,10 +216,10 @@ const Graph = (props: TreeGraphProps | GraphGraphProps) => {
         width={width}
         height={height}
         viewBox={`${offsets.x} ${offsets.y} ${width * zoom} ${height * zoom}`}
-        onWheel={onWheel}
-        onMouseMove={onMouseMove}
-        onMouseDown={onMouseDown}
-        onMouseUp={onMouseUp}
+        onWheel={noZoom ? undefined : onWheel}
+        onMouseMove={noViewportMove ? undefined : onMouseMove}
+        onMouseDown={noViewportMove ? undefined : onMouseDown}
+        onMouseUp={noViewportMove ? undefined : onMouseUp}
         xmlns="http://www.w3.org/2000/svg"
       >
         {lineMarkerColors.map((color) => (
@@ -266,9 +271,9 @@ const Graph = (props: TreeGraphProps | GraphGraphProps) => {
                   onClick={innerOnNodeClick}
                   onMouseEnter={onOverNode}
                   onMouseLeave={onLeaveNode}
-                  onDrag={onDrag}
-                  onStart={onStart}
-                  onEnd={onEnd}
+                  onDrag={noDrag ? undefined : onDrag}
+                  onStart={noDrag ? undefined : onStart}
+                  onEnd={noDrag ? undefined : onEnd}
                 />
               </g>
             )
