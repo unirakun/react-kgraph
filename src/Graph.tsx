@@ -259,7 +259,7 @@ const Graph = (props: TreeGraphProps | GraphGraphProps) => {
             const { id, group, x, y, label, Component, color } = node
 
             return (
-              <g transform={`translate(${x * size} ${y * size})`}>
+              <g key={id} transform={`translate(${x * size} ${y * size})`}>
                 <Node
                   key={id}
                   id={id}
