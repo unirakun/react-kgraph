@@ -243,6 +243,8 @@ const Graph = (props: TreeGraphProps | GraphGraphProps) => {
 
             return (
               <Link
+                // eslint-disable-next-line react/no-array-index-key
+                key={index}
                 id={index}
                 {...link}
                 size={size}

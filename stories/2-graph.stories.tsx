@@ -44,13 +44,15 @@ const links = [
 ]
 
 export const Readme = () => (
-  <Graph
-    style={{ width: '100%', height: '100%' }}
-    nodes={nodes}
-    links={links}
-    type="graph"
-    onLinkClick={console.log}
-  />
+  <div style={{ width: '30em', height: '30em' }}>
+    <Graph
+      style={{ width: '100%', height: '100%' }}
+      nodes={nodes}
+      links={links}
+      type="graph"
+      onLinkClick={console.log}
+    />
+  </div>
 )
 Readme.story = {
   name: 'README example',
