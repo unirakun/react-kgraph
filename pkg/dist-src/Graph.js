@@ -105,7 +105,7 @@ const Graph = (props) => {
             })),
             React.createElement("g", { stroke: "#fff", strokeWidth: 1 }, layout.nodes.map((node) => {
                 const { id, group, x, y, label, Component, color } = node;
-                return (React.createElement("g", { transform: `translate(${x * size} ${y * size})` },
+                return (React.createElement("g", { key: id, transform: `translate(${x * size} ${y * size})` },
                     React.createElement(Node, { key: id, id: id, group: group, label: label, color: color, Component: Component, size: size, hover: hoverNode === id, hidden: hoverNode !== id && hiddenNodes.includes(id), onClick: innerOnNodeClick, onMouseEnter: onOverNode, onMouseLeave: onLeaveNode, onDrag: noDrag ? undefined : onDrag, onStart: noDrag ? undefined : onStart, onEnd: noDrag ? undefined : onEnd })));
             })))));
 };
