@@ -97,7 +97,11 @@ const Graph = (props) => {
                 React.createElement("path", { d: "M 0 0 L 5 2.5 L 0 5 z", fill: color })))),
             React.createElement("g", { stroke: "#999" }, makeCurvedLinks(layout.links, { size }).map((link, index) => {
                 const { source, target } = link;
-                return (React.createElement(Link, Object.assign({ id: index }, link, { size: size, onClick: innerOnLinkClick, hover: hoverNode === source.id || hoverNode === target.id })));
+                return (React.createElement(Link
+                // eslint-disable-next-line react/no-array-index-key
+                , Object.assign({ 
+                    // eslint-disable-next-line react/no-array-index-key
+                    key: index, id: index }, link, { size: size, onClick: innerOnLinkClick, hover: hoverNode === source.id || hoverNode === target.id })));
             })),
             React.createElement("g", { stroke: "#fff", strokeWidth: 1 }, layout.nodes.map((node) => {
                 const { id, group, x, y, label, Component, color } = node;
